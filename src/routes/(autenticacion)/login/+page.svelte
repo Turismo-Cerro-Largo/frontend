@@ -44,9 +44,12 @@
                 minlength="8"
             />
         </div>
+
         <div class="block text-sm text-black/70 font-medium text-center">
             <a href="/registro">¿ No tienes cuenta ?</a>
         </div>
+        
+        <!-- Accion -->
         <button
             class="w-full text-lg font-Maru rounded-lg font-semibold h-10 bg-amber-500 hover:bg-amber-600 transition-colors"
         >

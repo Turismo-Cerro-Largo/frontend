@@ -49,6 +49,7 @@
             />
         </div>
 
+        <!-- Cedula/RUT/Cedula PIC -->
         {#if modo === "organizador"}
             <div transition:slide>
                 <!-- Cedula -->
