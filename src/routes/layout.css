@@ -1,0 +1,14 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+/* Fuentes */
+@font-face {
+  font-family: 'Maru';
+  font-display: swap;
+  src: url('/fonts/GTMaruRegular.ttf') format('truetype');
+}
+
+@theme {
+  --font-Maru: 'Maru', sans-serif;
+}
