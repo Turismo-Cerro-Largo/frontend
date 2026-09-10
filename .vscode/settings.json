@@ -7,7 +7,24 @@
 		"**/.svn": true,
 		"**/.hg": true,
 		"**/.DS_Store": true,
-		"**/Thumbs.db": true
+		"**/Thumbs.db": true,
+		".gitignore": true,
+		".npmrc": true,
+		"package.json": true,
+		"pnpm-lock.yaml": true,
+		"pnpm-workspace.yaml": true,
+		"README.md": true,
+		"tsconfig.json": true,
+		"vite.config.ts": true
 	},
-	"hide-files.files": []
+	"hide-files.files": [
+		".gitignore",
+		".npmrc",
+		"package.json",
+		"pnpm-lock.yaml",
+		"pnpm-workspace.yaml",
+		"README.md",
+		"tsconfig.json",
+		"vite.config.ts"
+	]
 }

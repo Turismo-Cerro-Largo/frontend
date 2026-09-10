@@ -1,5 +1,4 @@
-<script>
-  // @ts-nocheck
+<script lang="ts">
 </script>
 
 <svelte:head>
