@@ -6,7 +6,7 @@
     <title>Ingresar · CerroLargo360</title>
 </svelte:head>
 
-<div class="flex items-center justify-center w-full min-h-dvh px-4">
+<section class="flex items-center justify-center w-full min-h-dvh px-4">
     <div class="w-full max-w-sm">
         <div class="flex flex-col items-center mb-6">
             <h2 class="text-lg font-semibold text-green-600 tracking-wide">
@@ -80,4 +80,4 @@
             </a>
         </p>
     </div>
-</div>
+</section>

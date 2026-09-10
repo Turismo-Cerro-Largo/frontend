@@ -1,4 +1,5 @@
 <script lang="ts">
+  import SvgCerroLargo from "$lib/components/svg/SvgCerroLargo.svelte";
 </script>
 
 <svelte:head>
@@ -85,4 +86,10 @@
       </div>
     </div>
   </div>
+</section>
+
+<section class="w-full max-w-7xl">
+  <article class="w-full mt-5">
+    <SvgCerroLargo />
+  </article>
 </section>
