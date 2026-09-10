@@ -4,11 +4,11 @@
 
 /* Fuentes */
 @font-face {
-  font-family: 'Maru';
+  font-family: 'Cave';
   font-display: swap;
-  src: url('/fonts/GTMaruRegular.ttf') format('truetype');
+  src: url('/fonts/Caveat-VariableFont_wght.ttf') format('truetype');
 }
 
 @theme {
-  --font-Maru: 'Maru', sans-serif;
+  --font-Cave: 'Cave', sans-serif;
 }
