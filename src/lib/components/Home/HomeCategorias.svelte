@@ -1,5 +1,5 @@
 <script>
-    import { Bed, ForkKnife, MusicNotes, Tree, CaretRight, Book } from 'phosphor-svelte';
+    import { Bed, ForkKnife, MusicNotes, Tree, Book } from 'phosphor-svelte';
 
     const categories = [
         {
@@ -30,25 +30,24 @@
     ];
 </script>
 
-<section class="w-full py-2 sm:py-8 lg:py-10">
+<section class="w-full py-2 sm:py-3 lg:py-3">
     <div
         class="
-            categories-scroll
-            flex gap-2.5
-            overflow-x-auto
-            snap-x snap-mandatory
+            flex
+            flex-wrap
+            gap-2
             px-4
+            justify-center
+            md:justify-normal
 
             sm:px-6
 
-            lg:max-w-6xl
             lg:mx-auto
-            lg:px-8
             lg:grid
+            lg:max-w-6xl
             lg:grid-cols-5
             lg:gap-3
-            lg:overflow-visible
-            lg:snap-none
+            lg:px-8
         "
     >
         {#each categories as category}
@@ -59,18 +58,16 @@
                 class="
                     group
                     flex
-                    min-w-42.5
-                    h-14.5
-                    shrink-0
-                    snap-start
+                    h-10
+                    w-auto
                     items-center
-                    gap-2.5
+                    gap-1.5
 
                     rounded-lg
                     border
                     border-slate-200
                     bg-white
-                    px-3
+                    px-2.5
 
                     font-poppins
                     shadow-sm
@@ -78,77 +75,49 @@
                     transition-all
                     duration-200
 
-                    hover:border-sky-300
+                    hover:border-green-400
                     hover:shadow-md
 
-                    sm:min-w-47.5
-                    sm:h-16
-                    sm:px-4
+                    sm:h-11
+                    sm:gap-2
+                    sm:px-3
 
-                    lg:min-w-0
-                    lg:w-full
                     lg:h-18
+                    lg:w-full
+                    lg:gap-3
+                    lg:px-4
                 "
             >
-                <div
+                <Icon
+                    size={19}
+                    weight="duotone"
                     class="
-                        flex
-                        size-8
                         shrink-0
-                        items-center
-                        justify-center
-                        text-sky-500
+                        border-green-800
 
-                        sm:size-9
-                        lg:size-10
+                        sm:size-5.5!
+                        lg:size-7!
                     "
-                >
-                    <Icon size={25} weight="duotone" class="sm:size-7! lg:size-7.5!" />
-                </div>
+                />
 
                 <span
                     class="
-                        min-w-0
-                        flex-1
-                        text-[12px]
+                        whitespace-nowrap
+                        text-[10.5px]
                         font-semibold
-                        leading-tight
+                        leading-none
                         text-slate-700
 
-                        sm:text-[13px]
-                        lg:text-sm
-
-                        group-hover:text-sky-500
                         transition-colors
+                        group-hover:text-green-500
+
+                        sm:text-xs
+                        lg:text-sm
                     "
                 >
                     {category.label}
                 </span>
-
-                <CaretRight
-                    size={16}
-                    weight="bold"
-                    class="
-                        shrink-0
-                        text-sky-500
-                        transition-transform
-                        duration-200
-                        group-hover:translate-x-0.5
-                    "
-                />
             </a>
         {/each}
     </div>
 </section>
-
-<style>
-    .categories-scroll {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .categories-scroll::-webkit-scrollbar {
-        display: none;
-    }
-</style>
