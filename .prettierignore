@@ -1,0 +1,6 @@
+build
+coverage
+node_modules
+**/*.html
+src/lib/components/svg/**
+src/lib/assets/**

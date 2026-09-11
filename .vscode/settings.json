@@ -10,7 +10,6 @@
 		"**/Thumbs.db": true,
 		".gitignore": true,
 		".npmrc": true,
-		"package.json": true,
 		"pnpm-lock.yaml": true,
 		"pnpm-workspace.yaml": true,
 		"README.md": true,
@@ -20,7 +19,6 @@
 	"hide-files.files": [
 		".gitignore",
 		".npmrc",
-		"package.json",
 		"pnpm-lock.yaml",
 		"pnpm-workspace.yaml",
 		"README.md",

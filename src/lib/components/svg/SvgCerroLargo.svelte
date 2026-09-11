@@ -1,43 +1,43 @@
 <script lang="ts">
     function msg(msg: string) {
-        alert("Hola " + msg);
+        alert('Hola ' + msg);
     }
     const ciudades = [
-        { id: "Melo", x: 15078, y: 10375, labelY: 11200 },
+        { id: 'Melo', x: 15078, y: 10375, labelY: 11200 },
         {
-            id: "Rio-Branco",
-            label: "Río Branco",
+            id: 'Rio-Branco',
+            label: 'Río Branco',
             x: 23535,
             y: 13419,
             labelY: 14250,
         },
         {
-            id: "Laguna-Merin",
-            label: "Laguna Merín",
+            id: 'Laguna-Merin',
+            label: 'Laguna Merín',
             x: 24861,
             y: 15334,
             labelY: 16150,
         },
         {
-            id: "Fraile-Muerto",
-            label: "Fraile Muerto",
+            id: 'Fraile-Muerto',
+            label: 'Fraile Muerto',
             x: 11123,
             y: 12364,
             labelY: 13300,
         },
         {
-            id: "Isidoro-Noblia",
-            label: "Isidoro Noblía",
+            id: 'Isidoro-Noblia',
+            label: 'Isidoro Noblía',
             x: 15535,
             y: 5280,
             labelY: 6000,
         },
-        { id: "Acegua", label: "Aceguá", x: 15124, y: 4120, labelY: 4770 },
-        { id: "Tupambae", label: "Tupambaé", x: 8618, y: 16490, labelY: 17300 },
-        { id: "Arevalo", label: "Arévalo", x: 5167, y: 13990, labelY: 14900 },
+        { id: 'Acegua', label: 'Aceguá', x: 15124, y: 4120, labelY: 4770 },
+        { id: 'Tupambae', label: 'Tupambaé', x: 8618, y: 16490, labelY: 17300 },
+        { id: 'Arevalo', label: 'Arévalo', x: 5167, y: 13990, labelY: 14900 },
         {
-            id: "Placido-Rosas",
-            label: "Plácido Rosas",
+            id: 'Placido-Rosas',
+            label: 'Plácido Rosas',
             x: 19850,
             y: 15492,
             labelY: 16342,
@@ -67,10 +67,9 @@
             tabindex="0"
             aria-label={ciudad.label ?? ciudad.id}
             onclick={() => msg(ciudad.id)}
-            onkeydown={(e) =>
-                (e.key === "Enter" || e.key === " ") && msg(ciudad.id)}
+            onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && msg(ciudad.id)}
         />
-        {#if ciudad.id == "Melo"}
+        {#if ciudad.id == 'Melo'}
             <text class="nombre" x={ciudad.x - 160} y={ciudad.labelY + 100}>
                 {ciudad.label ?? ciudad.id}
             </text>

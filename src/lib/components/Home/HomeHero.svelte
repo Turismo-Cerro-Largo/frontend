@@ -1,73 +1,207 @@
 <script lang="ts">
-    import { sineInOut } from "svelte/easing";
-    import { fade } from "svelte/transition";
+    import { slides } from '$lib/constants/constants';
+    import { sineInOut } from 'svelte/easing';
+    import { fade } from 'svelte/transition';
 
     let contador: number = $state(0);
-
-    const slides = [
-        { src: "https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/01-12.jpg", destino: "Melo" },
-        { src: "https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/05-11.jpg", destino: "Río Branco" },
-        { src: "https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/04-11.jpg", destino: "Aceguá" },
-        { src: "https://destinocerrolargo.uy/wp-content/uploads/2024/08/cueva_murcielagos1-780x470.jpg", destino: "Tupambaé" },
-    ];
 
     $effect(() => {
         const intervalo = setInterval(() => {
             contador = (contador + 1) % slides.length;
         }, 6000);
+
         return () => clearInterval(intervalo);
     });
 </script>
 
-<section class="relative w-full h-[45vh] md:h-[80vh] overflow-hidden bg-slate-900 mx-auto">
+<section
+    class="
+        relative
+        w-full
+        h-[65svh]
+        min-h-125
+        md:h-[calc(100svh-80px)]
+        md:min-h-162.5
+        overflow-hidden
+        bg-black
+    "
+>
     {#key contador}
         <img
-            class="w-full h-full object-cover absolute inset-0 animate-kenburns"
-            in:fade={{ duration: 2000, easing: sineInOut }}
-            out:fade={{ duration: 2000, easing: sineInOut }}
             src={slides[contador].src}
-            loading="lazy"
             alt={slides[contador].destino}
+            loading={contador === 0 ? 'eager' : 'lazy'}
+            fetchpriority={contador === 0 ? 'high' : 'auto'}
+            class="
+                absolute inset-0
+                h-full w-full
+                object-cover
+                animate-kenburns
+            "
+            in:fade={{
+                duration: 1800,
+                easing: sineInOut,
+            }}
+            out:fade={{
+                duration: 1200,
+                easing: sineInOut,
+            }}
         />
     {/key}
 
-    <div class="absolute inset-0 bg-linear-to-r from-black/55 via-black/15 to-transparent"></div>
+    <div
+        class="
+            pointer-events-none
+            absolute inset-0
+            z-1
+            bg-black/10
+        "
+    ></div>
 
-    <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 md:px-16 z-10">
-        <div class="flex flex-col items-center justify-center">
-            <h1 class="text-5xl md:text-7xl font-bold text-white leading-[0.9] drop-shadow-lg font-Cave">
-                Descubre Cerro Largo
+    <div
+        class="
+            pointer-events-none
+            absolute inset-0
+            z-2
+            bg-linear-to-r
+            from-black/55
+            via-black/15
+            to-transparent
+        "
+    ></div>
+
+    <div
+        class="
+            pointer-events-none
+            absolute inset-0
+            z-2
+            bg-linear-to-t
+            from-black/35
+            via-transparent
+            to-transparent
+        "
+    ></div>
+
+    <div
+        class="
+            absolute
+            inset-0
+            z-10
+            flex
+            items-center
+        "
+    >
+        <div
+            class="
+                ml-[7vw]
+                mt-[4vh]
+                text-white
+            "
+        >
+            <h1
+                class="
+                    flex
+                    flex-col
+                    font-serif
+                    font-normal
+                    leading-[0.88]
+                    tracking-[-0.045em]
+                    drop-shadow-[0_3px_15px_rgba(0,0,0,0.25)]
+                "
+            >
+                <span
+                    class="
+                        text-[clamp(2.6rem,6vw,7.5rem)]
+                    "
+                >
+                    Disfruta del turismo
+                </span>
+
+                <span
+                    class="
+                        mt-2
+                        text-[clamp(3rem,7vw,8.5rem)]
+                    "
+                >
+                    En Cerro Largo
+                </span>
             </h1>
-            <div class="flex items-center gap-2 mt-4 mb-3 md:mt-6 md:mb-4 w-44 md:w-64">
-                <span class="h-px flex-1 bg-white/50"></span>
-                <span class="w-2.5 h-2.5 rounded-full bg-green-500 shrink-0"></span>
-                <span class="h-px flex-1 bg-white/50"></span>
-            </div>
-            <a href="/destinos" class="text-base md:text-xl font-bold text-white hover:text-green-400 transition-colors">
-                Encontrá tu destino ›
-            </a>
         </div>
     </div>
 
-    <div class="absolute bottom-5 right-5 md:bottom-10 md:right-10 z-10 text-white w-40 md:w-64 text-right">
+    <div
+        class="
+            absolute
+            bottom-6 right-6
+            md:bottom-10 md:right-12
+            z-20
+            text-right
+            text-white
+        "
+    >
         {#key contador}
-            <span
-                in:fade={{ duration: 2500, easing: sineInOut, delay: 200 }}
-                out:fade={{ duration: 1500, easing: sineInOut }}
-                class="text-xl md:text-3xl font-bold drop-shadow-md font-Cave block absolute right-0 bottom-0 w-full"
+            <div
+                class="flex items-center justify-end gap-3"
+                in:fade={{
+                    duration: 1500,
+                    easing: sineInOut,
+                    delay: 250,
+                }}
+                out:fade={{
+                    duration: 800,
+                    easing: sineInOut,
+                }}
             >
-                {slides[contador].destino}
-            </span>
+                <span
+                    class="
+                        hidden sm:block
+                        h-px w-10 md:w-16
+                        bg-white/80
+                    "
+                ></span>
+
+                <span
+                    class="
+                        font-Poppins
+                        text-sm
+                        font-medium
+                        tracking-[0.08em]
+                        md:text-lg
+                        drop-shadow-md
+                    "
+                >
+                    {slides[contador].destino}
+                </span>
+            </div>
         {/key}
+    </div>
+
+    <div class=" absolute bottom-6 left-6 md:bottom-10 md:left-12 z-20 flex items-baseline gap-2text-white">
+        <span class="text-lg md:text-2xl font-medium text-white/80">
+            {String(contador + 1).padStart(2, '0')}
+        </span>
+
+        <span class="text-xs text-white/60"> / </span>
+
+        <span class="text-xs text-white/60">
+            {String(slides.length).padStart(2, '0')}
+        </span>
     </div>
 </section>
 
 <style>
     @keyframes kenburns {
-        0% { transform: scale(1); }
-        100% { transform: scale(1.15); }
+        from {
+            transform: scale(1.02);
+        }
+
+        to {
+            transform: scale(1.1);
+        }
     }
+
     .animate-kenburns {
-        animation: kenburns 6s linear forwards;
+        animation: kenburns 6.5s ease-out forwards;
+        will-change: transform;
     }
 </style>

@@ -9,8 +9,8 @@ export function isMobile(breakpoint = 767) {
         function onChange(e: MediaQueryListEvent) {
             matches = e.matches;
         }
-        mq.addEventListener("change", onChange);
-        return () => mq.removeEventListener("change", onChange);
+        mq.addEventListener('change', onChange);
+        return () => mq.removeEventListener('change', onChange);
     });
 
     return {
