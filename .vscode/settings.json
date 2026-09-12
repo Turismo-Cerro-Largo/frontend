@@ -13,8 +13,7 @@
 		"pnpm-lock.yaml": true,
 		"pnpm-workspace.yaml": true,
 		"README.md": true,
-		"tsconfig.json": true,
-		"vite.config.ts": true
+		"tsconfig.json": true
 	},
 	"hide-files.files": [
 		".gitignore",
@@ -22,7 +21,6 @@
 		"pnpm-lock.yaml",
 		"pnpm-workspace.yaml",
 		"README.md",
-		"tsconfig.json",
-		"vite.config.ts"
+		"tsconfig.json"
 	]
 }

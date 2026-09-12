@@ -55,7 +55,6 @@
             lg:px-14
         "
     >
-        <!-- LOGO -->
         <a
             href="/"
             class="
@@ -74,7 +73,6 @@
             <span class="font-normal opacity-70">360</span>
         </a>
 
-        <!-- Telefono -->
         {#if mobil.current}
             <button
                 type="button"
@@ -106,7 +104,6 @@
                 {/if}
             </button>
         {:else}
-            <!-- PC -->
             <div
                 class="
                     absolute
@@ -148,7 +145,6 @@
                 {/each}
             </div>
 
-            <!-- PC -->
             <div class="flex items-center gap-2">
                 <button
                     type="button"
@@ -203,7 +199,6 @@
     </div>
 </nav>
 
-<!-- Menu telefonos -->
 {#if mobil.current && menuAbierto}
     <button
         class="

@@ -2,7 +2,6 @@
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 
-/* Fuentes */
 @font-face {
     font-family: 'Cave';
     font-display: swap;
