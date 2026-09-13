@@ -29,7 +29,7 @@
             frecuencia: '1340 AM',
             localidad: 'Melo',
             buscar: 'La Voz de Melo',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'rio-branco',
@@ -37,7 +37,7 @@
             frecuencia: '1360 AM',
             localidad: 'Río Branco',
             buscar: 'Radio Rio Branco',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'radio-maria',
@@ -45,7 +45,7 @@
             frecuencia: '1470 AM',
             localidad: 'Melo',
             buscar: 'Radio Maria Uruguay',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'acuarela',
@@ -53,7 +53,7 @@
             frecuencia: '1520 AM',
             localidad: 'Melo',
             buscar: 'Radio Acuarela',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'ritmo',
@@ -61,7 +61,7 @@
             frecuencia: '88.1 FM',
             localidad: 'Melo',
             buscar: 'Ritmo FM 88.1',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'sirio',
@@ -69,7 +69,7 @@
             frecuencia: '89.5 FM',
             localidad: 'Fraile Muerto',
             buscar: 'Sirio FM',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'pueblo',
@@ -77,7 +77,7 @@
             frecuencia: '89.7 FM',
             localidad: 'Río Branco',
             buscar: 'Radio Pueblo 89.7',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'bruja',
@@ -86,7 +86,7 @@
             localidad: 'Melo',
             buscar: 'La Bruja FM',
             stream: 'https://rr5100.globalhost1.com/8452/stream',
-            estado: 'lista'
+            estado: 'lista',
         },
         {
             id: 'acegua',
@@ -94,7 +94,7 @@
             frecuencia: '90.3 FM',
             localidad: 'Aceguá',
             buscar: 'Acegua FM',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'amiga',
@@ -102,7 +102,7 @@
             frecuencia: '92.1 FM',
             localidad: 'Laguna Merín',
             buscar: 'Amiga FM',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'renovacion',
@@ -110,7 +110,7 @@
             frecuencia: '95.1 FM',
             localidad: 'Melo',
             buscar: 'Renovacion FM 95.1',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'ecos-costa',
@@ -118,7 +118,7 @@
             frecuencia: '96.1 FM',
             localidad: 'Cerro Largo',
             buscar: 'Ecos de la Costa',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'rnu-rio-branco',
@@ -126,7 +126,7 @@
             frecuencia: '97.7 FM',
             localidad: 'Río Branco',
             buscar: 'Radiodifusion Nacional Uruguay',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'nova',
@@ -134,7 +134,7 @@
             frecuencia: '98.3 FM',
             localidad: 'Melo',
             buscar: 'Nova FM',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'ciudad-melo',
@@ -142,7 +142,7 @@
             frecuencia: '99.1 FM',
             localidad: 'Melo',
             buscar: 'Ciudad de Melo FM',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'integracion',
@@ -150,7 +150,7 @@
             frecuencia: '101.5 FM',
             localidad: 'Aceguá',
             buscar: 'FM Integracion 101.5',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'galena',
@@ -158,7 +158,7 @@
             frecuencia: '105.5 FM',
             localidad: 'Río Branco',
             buscar: 'La Galena',
-            estado: 'cargando'
+            estado: 'cargando',
         },
         {
             id: 'emisora-sur',
@@ -167,8 +167,8 @@
             localidad: 'Melo',
             buscar: 'Emisora del Sur',
             stream: 'https://radios.iwstreaming.uy/8034/stream',
-            estado: 'lista'
-        }
+            estado: 'lista',
+        },
     ]);
 
     function normalizar(texto: string) {
@@ -192,19 +192,16 @@
                 name: radio.buscar,
                 countrycode: 'UY',
                 hidebroken: 'true',
-                limit: '10'
+                limit: '10',
             });
 
-            const respuesta = await fetch(
-                `https://de1.api.radio-browser.info/json/stations/search?${parametros}`
-            );
+            const respuesta = await fetch(`https://de1.api.radio-browser.info/json/stations/search?${parametros}`);
 
             if (!respuesta.ok) {
                 throw new Error('No se pudo consultar la emisora');
             }
 
-            const resultados =
-                (await respuesta.json()) as RadioBrowserItem[];
+            const resultados = (await respuesta.json()) as RadioBrowserItem[];
 
             const busqueda = normalizar(radio.buscar);
 
@@ -212,15 +209,10 @@
                 resultados.find((resultado) => {
                     const nombre = normalizar(resultado.name);
 
-                    return (
-                        nombre.includes(busqueda) ||
-                        busqueda.includes(nombre)
-                    );
+                    return nombre.includes(busqueda) || busqueda.includes(nombre);
                 }) ?? resultados[0];
 
-            const url =
-                coincidencia?.url_resolved ||
-                coincidencia?.url;
+            const url = coincidencia?.url_resolved || coincidencia?.url;
 
             if (url) {
                 radio.stream = url;
@@ -255,16 +247,12 @@
 
 <svelte:head>
     <title>Radios locales | Cerro Largo 360</title>
-    <meta
-        name="description"
-        content="Escuchá las radios locales del departamento de Cerro Largo, Uruguay."
-    />
+    <meta name="description" content="Escuchá las radios locales del departamento de Cerro Largo, Uruguay." />
 </svelte:head>
 
 <Navbar />
 
 <main class="min-h-screen bg-zinc-50">
-
     <!-- Encabezado -->
     <section
         class="
@@ -281,7 +269,6 @@
         "
     >
         <div class="mx-auto max-w-7xl">
-
             <div
                 class="
                     mb-5
@@ -294,16 +281,7 @@
                     bg-white/10
                 "
             >
-                <svg
-                    width="25"
-                    height="25"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
+                <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="2" />
                     <path d="M8.5 8.5a5 5 0 0 0 0 7" />
                     <path d="M15.5 8.5a5 5 0 0 1 0 7" />
@@ -347,17 +325,14 @@
                     md:text-base
                 "
             >
-                Escuchá en vivo las emisoras de Melo, Río Branco,
-                Aceguá, Fraile Muerto y otras localidades del departamento.
+                Escuchá en vivo las emisoras de Melo, Río Branco, Aceguá, Fraile Muerto y otras localidades del departamento.
             </p>
         </div>
     </section>
 
     <!-- Radios -->
     <section class="px-5 py-10 md:px-10 md:py-16">
-
         <div class="mx-auto max-w-7xl">
-
             <div class="mb-8">
                 <h2
                     class="
@@ -371,9 +346,7 @@
                     Emisoras de Cerro Largo
                 </h2>
 
-                <p class="mt-2 text-sm text-zinc-500">
-                    Seleccioná una emisora para comenzar a escuchar.
-                </p>
+                <p class="mt-2 text-sm text-zinc-500">Seleccioná una emisora para comenzar a escuchar.</p>
             </div>
 
             <div
@@ -386,7 +359,6 @@
                 "
             >
                 {#each radios as radio (radio.id)}
-
                     <article
                         class="
                             flex
@@ -405,7 +377,6 @@
                     >
                         <!-- Parte superior -->
                         <div class="flex items-start gap-4">
-
                             <div
                                 class="
                                     flex
@@ -419,23 +390,8 @@
                                     text-zinc-800
                                 "
                             >
-                                <svg
-                                    width="27"
-                                    height="27"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="1.5"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                >
-                                    <rect
-                                        x="3"
-                                        y="7"
-                                        width="18"
-                                        height="13"
-                                        rx="2"
-                                    />
+                                <svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="7" width="18" height="13" rx="2" />
                                     <path d="M7 7l9-4" />
                                     <circle cx="8" cy="13" r="2" />
                                     <path d="M13 12h5" />
@@ -444,7 +400,6 @@
                             </div>
 
                             <div class="min-w-0 flex-1">
-
                                 <p
                                     class="
                                         text-xs
@@ -506,14 +461,11 @@
                                     En vivo
                                 </div>
                             {/if}
-
                         </div>
 
                         <!-- Reproductor -->
                         <div class="mt-5 border-t border-zinc-100 pt-5">
-
                             {#if radio.estado === 'cargando'}
-
                                 <div
                                     class="
                                         flex
@@ -541,9 +493,7 @@
 
                                     Buscando transmisión...
                                 </div>
-
                             {:else if radio.estado === 'lista' && radio.stream}
-
                                 <audio
                                     controls
                                     preload="none"
@@ -557,9 +507,7 @@
                                 >
                                     <track kind="captions" />
                                 </audio>
-
                             {:else}
-
                                 <div
                                     class="
                                         flex
@@ -615,13 +563,9 @@
                                         Reintentar
                                     </button>
                                 </div>
-
                             {/if}
-
                         </div>
-
                     </article>
-
                 {/each}
             </div>
 
@@ -638,13 +582,8 @@
                     text-zinc-500
                 "
             >
-                Las transmisiones dependen de la disponibilidad
-                online de cada emisora. Algunas radios pueden no
-                emitir por internet durante determinados horarios.
+                Las transmisiones dependen de la disponibilidad online de cada emisora. Algunas radios pueden no emitir por internet durante determinados horarios.
             </div>
-
         </div>
-
     </section>
-
 </main>

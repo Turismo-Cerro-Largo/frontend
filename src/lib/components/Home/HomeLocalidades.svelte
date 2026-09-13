@@ -5,7 +5,13 @@
     const mobile = isMobile();
 
     const localidades = [
-        { id: 'Melo', nombre: 'Melo', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnfmJFRbJJC-ajemxVkoRbgmdKx2_z_VCmSqGMPPj_5AFW-DAdqIoUz5lf&s=10', grande: true, desktop: 'md:col-start-1 md:row-start-1' },
+        {
+            id: 'Melo',
+            nombre: 'Melo',
+            img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnfmJFRbJJC-ajemxVkoRbgmdKx2_z_VCmSqGMPPj_5AFW-DAdqIoUz5lf&s=10',
+            grande: true,
+            desktop: 'md:col-start-1 md:row-start-1',
+        },
         {
             id: 'Rio-Branco',
             nombre: 'Río Branco',
