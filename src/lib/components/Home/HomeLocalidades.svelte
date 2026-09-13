@@ -5,7 +5,7 @@
     const mobile = isMobile();
 
     const localidades = [
-        { id: 'Melo', nombre: 'Melo', img: 'https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/01-12.jpg', grande: true, desktop: 'md:col-start-1 md:row-start-1' },
+        { id: 'Melo', nombre: 'Melo', img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnfmJFRbJJC-ajemxVkoRbgmdKx2_z_VCmSqGMPPj_5AFW-DAdqIoUz5lf&s=10', grande: true, desktop: 'md:col-start-1 md:row-start-1' },
         {
             id: 'Rio-Branco',
             nombre: 'Río Branco',
@@ -27,25 +27,25 @@
             grande: false,
             desktop: 'md:col-start-3 md:row-start-2',
         },
-        { id: 'Acegua', nombre: 'Aceguá', img: 'https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/04-11.jpg', grande: false, desktop: 'md:col-start-4 md:row-start-2' },
+        { id: 'Acegua', nombre: 'Aceguá', img: 'https://cantoyfogon.com.uy/inicio/wp-content/uploads/2026/04/acegua.jpg', grande: false, desktop: 'md:col-start-4 md:row-start-2' },
         {
             id: 'Laguna-Merin',
             nombre: 'Laguna Merín',
-            img: 'https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/05-11.jpg',
+            img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSqLiPMa-bTdadB7BdCuO-SIN2krQqJmwjUaYPhDha7QfmwSKn9YDHSC8&s=10',
             grande: true,
             desktop: 'md:col-start-3 md:row-start-3',
         },
         {
             id: 'Fraile-Muerto',
             nombre: 'Fraile Muerto',
-            img: 'https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/01-12.jpg',
+            img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQA9_VtZF_LmEw_N1N_HZiKD9mxkYOcYDDxc9xXDuEi5P0Ps5gU0QIsdsY&s=10',
             grande: false,
             desktop: 'md:col-start-1 md:row-start-3',
         },
         {
             id: 'Isidoro-Noblia',
             nombre: 'Isidoro Noblía',
-            img: 'https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/04-11.jpg',
+            img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxj0f-GbTlu_7MyyF4UaLpitqtb5wP9COTR4qriQZ7qFSIuuN95syFhYM&s=10',
             grande: false,
             desktop: 'md:col-start-2 md:row-start-3',
         },

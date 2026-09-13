@@ -4,8 +4,8 @@
 
     let contador: number = $state(0);
     export const slides = [
-        { src: 'https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/01-12.jpg', destino: 'Melo' },
-        { src: 'https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/05-11.jpg', destino: 'Río Branco' },
+        { src: 'https://ladiaria.com.uy/media/photologue/photos/cache/paisaje_opt_schema_image.jpeg', destino: 'Centurion' },
+        { src: 'https://cfluna.com/darkolighting.com.uy/cdn/files/tmp/compressed/normal/mccxxqfho7eqcg9w9u4s.jpg', destino: 'Río Branco' },
         { src: 'https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/04-11.jpg', destino: 'Aceguá' },
         { src: 'https://destinocerrolargo.uy/wp-content/uploads/2024/08/cueva_murcielagos1-780x470.jpg', destino: 'Tupambaé' },
     ];
