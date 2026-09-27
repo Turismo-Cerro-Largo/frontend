@@ -3,8 +3,10 @@
     import { page } from '$app/state';
     import MapaBusqueda from '$lib/components/Mapa/MapaBusqueda.svelte';
     import MapaLocalidadSelecionada from '$lib/components/Mapa/MapaLocalidadSelecionada.svelte';
+    import MapaMapa from '$lib/components/Mapa/MapaMapa.svelte';
     import { fade } from 'svelte/transition';
 
+    // vars
     let menu = $state<boolean>(false);
     const localidad = $derived(page.url.searchParams.get('localidad'));
 
@@ -27,6 +29,9 @@
 </script>
 
 <main class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-gray-900">
+    <!-- Mapa -->
+    <MapaMapa />
+
     <!-- Menu -->
     <section
         class="absolute top-0 right-0 z-10 h-dvh w-full md:w-110 overflow-y-auto bg-white transition-transform duration-300 ease-in-out"
