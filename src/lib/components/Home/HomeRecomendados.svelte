@@ -3,17 +3,17 @@
 
     const datos = [
         {
-            icono: 'https://instagram.fmvd4-1.fna.fbcdn.net/v/t51.82787-19/639451170_18509176018076490_7668569125813805903_n.jpg?...',
+            icono: 'https://files.catbox.moe/v32hs4.jpg',
             name: 'Silvia Techera',
             link: 'https://www.instagram.com/silviatecheraoficial',
         },
         {
-            icono: 'https://i.ibb.co/CK2BpGKj/557472232-18092648545776934-1231051150075288602-n.jpg',
+            icono: 'https://files.catbox.moe/pg56bz.jpg',
             name: 'Cerro Largo al Día',
             link: 'https://www.instagram.com/cerrolargoaldia',
         },
         {
-            icono: 'https://i.ibb.co/JwD8HzxF/images.jpg',
+            icono: 'https://files.catbox.moe/vqg3hx.jpg',
             name: 'Cerro Largo Portal',
             link: 'https://www.instagram.com/cerrolargoportal',
         },
