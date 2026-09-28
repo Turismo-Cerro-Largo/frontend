@@ -5,12 +5,19 @@
 
     // https://phosphoricons.com/?q=magnifying-glass
     const categorias = [
-        { id: 1, nombre: 'Cultural' },
-        { id: 2, nombre: 'Naturaleza' },
-        { id: 3, nombre: 'Gastronomía' },
-        { id: 4, nombre: 'Alojamiento' },
-        { id: 5, nombre: 'Salud' },
-        { id: 6, nombre: 'Eventos' },
+        { id: 1, nombre: 'Alojamiento' },
+        { id: 2, nombre: 'Gastronomia' },
+        { id: 3, nombre: 'Culturales' },
+        { id: 4, nombre: 'Naturaleza' },
+        { id: 5, nombre: 'Sociales' },
+    ];
+
+    // filtros
+    const filtros = [
+        // { param: 'poi', nombre: 'Puntos de interes', defaultOn: false },
+        { param: 'lugares', nombre: 'Nombres de lugares', defaultOn: false },
+        { param: 'calles', nombre: 'Nombres de calles', defaultOn: false },
+        { param: 'transporte', nombre: 'Transporte', defaultOn: false },
     ];
 
     const recomendaciones = [
@@ -36,6 +43,10 @@
 
     let query = $state(page.url.searchParams.get('query') ?? '');
     const categoriasActivas = $derived(page.url.searchParams.getAll('categorias'));
+
+    const filtrosActivos = $derived(
+        Object.fromEntries(filtros.map((f) => [f.param, page.url.searchParams.has(f.param) ? page.url.searchParams.get(f.param) === 'true' : f.defaultOn]))
+    );
 
     const buscar = async (event: SubmitEvent) => {
         event.preventDefault();
@@ -64,6 +75,13 @@
         await goto(url, { replaceState: true, noScroll: true, keepFocus: true });
     };
 
+    const alternarFiltro = async (param: string, valorActual: boolean) => {
+        const url = new URL(page.url);
+        url.searchParams.set(param, String(!valorActual));
+
+        await goto(url, { replaceState: true, noScroll: true, keepFocus: true });
+    };
+
     const irALugar = async (id: number) => {
         const url = new URL(page.url);
         url.searchParams.set('localidad', String(id));
@@ -72,7 +90,7 @@
     };
 </script>
 
-<div class="flex h-full w-full flex-col gap-4 p-4">
+<div class="flex min-h-full w-full flex-col gap-4 p-4">
     <!-- Buscador -->
     <form onsubmit={buscar} class="flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-5 w-5 shrink-0 text-stone-400">
@@ -119,6 +137,28 @@
                         <span class="w-fit rounded-full bg-amber-100 px-2 py-0.5 font-Poppins text-xs font-medium text-amber-800">{lugar.categoria}</span>
                     </div>
                 </button>
+            {/each}
+        </div>
+    </MapaBloque>
+
+    <!-- Filtros -->
+    <MapaBloque titulo="Filtros">
+        <div class="flex flex-col divide-y divide-stone-200 overflow-hidden rounded-xl border border-stone-200 bg-stone-50">
+            {#each filtros as filtro}
+                {@const activo = filtrosActivos[filtro.param]}
+                <label class="flex h-12 cursor-pointer items-center justify-between gap-3 px-3">
+                    <span class="font-Poppins text-xs text-stone-700">{filtro.nombre}</span>
+
+                    <input type="checkbox" checked={activo} onchange={() => alternarFiltro(filtro.param, activo)} class="peer sr-only" />
+                    <div
+                        class="relative h-5 w-9 shrink-0 rounded-full bg-stone-300 transition-colors duration-150
+                               peer-checked:bg-red-600
+                               peer-focus-visible:ring-2 peer-focus-visible:ring-red-300
+                               after:absolute after:top-0.5 after:left-0.5 after:h-4 after:w-4 after:rounded-full
+                               after:bg-white after:transition-transform after:duration-150 after:content-['']
+                               peer-checked:after:translate-x-4"
+                    ></div>
+                </label>
             {/each}
         </div>
     </MapaBloque>

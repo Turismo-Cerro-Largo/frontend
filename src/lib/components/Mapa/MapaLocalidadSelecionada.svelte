@@ -114,6 +114,7 @@
 
     let carrusel = $state<HTMLDivElement>();
 
+    // -- Funciones del carrusel
     const avanzar = () => {
         carrusel?.scrollBy({ left: carrusel.clientWidth, behavior: 'smooth' });
     };
@@ -124,7 +125,7 @@
 </script>
 
 <!--  -->
-<div class="flex h-full w-full flex-col gap-3 p-2">
+<div class="flex min-h-full w-full flex-col gap-3 p-2">
     <!-- Seccion con imagenes -->
     <div class="relative flex h-68 w-full flex-row gap-2 rounded-2xl bg-stone-200">
         <div bind:this={carrusel} class="scrollbar-hide snap-x rounded-2xl snap-mandatory overflow-x-auto flex h-full w-full gap-2">

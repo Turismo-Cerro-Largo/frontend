@@ -1,5 +1,8 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { page } from '$app/state';
     import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
+    import { GenerarIcono } from '$lib/util/GenerarIcono';
     import mapboxgl from 'mapbox-gl';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import { onDestroy, onMount } from 'svelte';
@@ -9,23 +12,17 @@
     let mapa = $state<mapboxgl.Map>();
     const marcadores: mapboxgl.Marker[] = [];
 
-    interface Location {
-        name: string;
-        lat: number;
-        lon: number;
-    }
-
-    const locations: Location[] = [
-        { name: 'Melo', lat: -32.3667, lon: -54.1833 },
-        { name: 'Río Branco', lat: -32.5978, lon: -53.3881 },
-        { name: 'Laguna Merín', lat: -32.6272, lon: -53.2814 },
-        { name: 'Fraile Muerto', lat: -32.5208, lon: -54.5367 },
-        { name: 'Isidoro Noblía', lat: -31.9675, lon: -54.0208 },
-        { name: 'Aceguá', lat: -31.8653, lon: -54.1664 },
-        { name: 'Tupambaé', lat: -32.8153, lon: -54.8986 },
-        { name: 'Arévalo', lat: -32.6311, lon: -55.2289 },
-        { name: 'Plácido Rosas', lat: -32.7456, lon: -53.7689 },
-        { name: 'Centurion', lat: -32.1469, lon: -53.7622 },
+    const locations = [
+        { id: 1, name: 'Melo', lat: -32.3667, lon: -54.1833, categoria: 'Alojamiento' },
+        { id: 2, name: 'Río Branco', lat: -32.5978, lon: -53.3881, categoria: 'Gastronomia' },
+        { id: 3, name: 'Laguna Merín', lat: -32.6272, lon: -53.2814, categoria: 'Culturales' },
+        { id: 4, name: 'Fraile Muerto', lat: -32.5208, lon: -54.5367, categoria: 'naturaleza' },
+        { id: 5, name: 'Isidoro Noblía', lat: -31.9675, lon: -54.0208, categoria: 'sociales' },
+        { id: 6, name: 'Aceguá', lat: -31.8653, lon: -54.1664, categoria: 'ciudad' },
+        { id: 7, name: 'Tupambaé', lat: -32.8153, lon: -54.8986, categoria: 'Culturales' },
+        { id: 8, name: 'Arévalo', lat: -32.6311, lon: -55.2289, categoria: 'sociales' },
+        { id: 9, name: 'Plácido Rosas', lat: -32.7456, lon: -53.7689, categoria: 'Gastronomia' },
+        { id: 10, name: 'Centurion', lat: -32.1469, lon: -53.7622, categoria: 'Alojamiento' },
     ];
 
     const limitesCerroLargo: [[number, number], [number, number]] = [
@@ -41,8 +38,21 @@
         // REF: https://docs.mapbox.com/mapbox-gl-js/guides/add-your-data/markers/
         // REF: https://docs.mapbox.com/mapbox-gl-js/api/markers/
         for (const localidad of locations) {
-            const pop = new mapboxgl.Popup({ offset: 12 }).setText(localidad.name);
-            const marker = new mapboxgl.Marker().setLngLat([localidad.lon, localidad.lat]).setPopup(pop).addTo(map);
+            const marcador = GenerarIcono(localidad.categoria.toLocaleLowerCase());
+
+            // REF: https://docs.mapbox.com/mapbox-gl-js/guides/add-your-data/markers/#click-events
+            marcador.addEventListener('click', async () => {
+                const url = new URL(page.url);
+                url.searchParams.set('localidad', String(localidad.id));
+
+                await goto(url, { replaceState: true, noScroll: true, keepFocus: true });
+            });
+
+            const marker = new mapboxgl.Marker({
+                element: marcador,
+            })
+                .setLngLat([localidad.lon, localidad.lat])
+                .addTo(map);
 
             marcadores.push(marker);
         }
@@ -88,3 +98,6 @@
 </script>
 
 <div bind:this={contenedor} class="h-screen w-full"></div>
+
+<style>
+</style>
