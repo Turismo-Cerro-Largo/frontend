@@ -16,33 +16,41 @@ const colorPorCategoria: Record<keyof typeof categorias, string> = {
     ciudad: '#0D9488',
 };
 
+const TAMANO = 30;
+
 export const GenerarIcono = (categoria: string): HTMLDivElement => {
-    const clave = categoria as keyof typeof categorias;
+    const clave = (categoria in categorias ? categoria : 'ciudad') as keyof typeof categorias;
     const color = colorPorCategoria[clave];
     const icono = categorias[clave];
 
+    const glifo = TAMANO * 0.52;
+    const puntaAncho = TAMANO * 0.8;
+    const puntaAlto = (puntaAncho * 17) / 40;
+    const solape = TAMANO * 0.15;
+
     const temp: HTMLDivElement = document.createElement('div');
 
-    // Stylos de padre
+    // Estilos del padre
     temp.style.display = 'flex';
     temp.style.flexDirection = 'column';
     temp.style.alignItems = 'center';
-    temp.style.cursor = 'pointer';
     temp.style.justifyContent = 'center';
-    temp.style.width = '80px';
+    temp.style.cursor = 'pointer';
+    temp.style.width = `${TAMANO}px`;
 
     temp.innerHTML = `
-    <div style="z-index: 2; width: 50px; height: 50px; background-color: whitesmoke; border-radius: 50%; flex-direction: column; display: flex; align-items: center; justify-content: center;">
-        <!-- circulo de color con logo -->
-        <div style="background-color: ${color}; z-index: 3; height: 80%; width: 80%; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" style="height: 26px; width: 26px;">
+    <div style="z-index: 2; width: ${TAMANO}px; height: ${TAMANO}px; background-color: whitesmoke; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        <div style="background-color: ${color}; width: 80%; height: 80%; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="${glifo}" height="${glifo}">
               ${icono}
             </svg>
         </div>
     </div>
 
     <!-- punta que toca el mapa -->
-    <span style="z-index: 1; width: 40px; height: 20px; background-color: whitesmoke; clip-path: path('M 2,0 L 15,14 Q 20,20 25,14 L 38,0 Z'); transform: translateY(-8px);" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 17" width="${puntaAncho}" height="${puntaAlto}" style="z-index: 1; margin-top: -${solape}px;">
+        <path fill="whitesmoke" d="M 2,0 L 15,14 Q 20,20 25,14 L 38,0 Z" />
+    </svg>
     `;
 
     return temp;
