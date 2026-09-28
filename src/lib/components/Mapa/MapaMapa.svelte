@@ -68,7 +68,14 @@
             style: 'mapbox://styles/mapbox/standard',
             center: [-54.168, -32.2],
             zoom: 8,
+
+            // Limitacion de los rangos de vision en 3D
+            // Nota: Se rompe al ver el horizonte
             pitch: 60,
+            maxPitch: 60,
+            minPitch: 0,
+
+            //
             bearing: -20,
             maxBounds: limitesCerroLargo,
             minZoom: 8,
@@ -79,7 +86,7 @@
         // Configuracion de estilos y datos POIS
         // REVISAR DIF
         map.on('style.load', () => {
-            map.setConfigProperty('basemap', 'lightPreset', 'night');
+            map.setConfigProperty('basemap', 'lightPreset', 'day');
             map.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
             map.setConfigProperty('basemap', 'showPlaceLabels', false);
             map.setConfigProperty('basemap', 'showRoadLabels', false);
