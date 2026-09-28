@@ -60,7 +60,7 @@
             class="
                 shrink-0
                 text-[17px]
-                md:text-[19px]
+                md:text-[36px]
                 font-semibold
                 tracking-[-0.03em]
                 transition-colors

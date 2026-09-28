@@ -86,7 +86,7 @@
         // Configuracion de estilos y datos POIS
         // REVISAR DIF
         map.on('style.load', () => {
-            map.setConfigProperty('basemap', 'lightPreset', 'day');
+            map.setConfigProperty('basemap', 'lightPreset', 'night');
             map.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
             map.setConfigProperty('basemap', 'showPlaceLabels', false);
             map.setConfigProperty('basemap', 'showRoadLabels', false);
