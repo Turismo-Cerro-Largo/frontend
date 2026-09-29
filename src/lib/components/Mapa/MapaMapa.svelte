@@ -11,6 +11,7 @@
     let contenedor = $state<HTMLDivElement>();
     let mapa = $state<mapboxgl.Map>();
     const marcadores: mapboxgl.Marker[] = [];
+    const vistaActiva = $derived(page.url.searchParams.get('view') === '3d' ? '3d' : '2d');
 
     const locations = [
         { id: 1, name: 'Melo', lat: -32.3667, lon: -54.1833, categoria: 'Alojamiento' },
@@ -23,11 +24,6 @@
         { id: 8, name: 'Arévalo', lat: -32.6311, lon: -55.2289, categoria: 'sociales' },
         { id: 9, name: 'Plácido Rosas', lat: -32.7456, lon: -53.7689, categoria: 'Gastronomia' },
         { id: 10, name: 'Centurion', lat: -32.1469, lon: -53.7622, categoria: 'Alojamiento' },
-    ];
-
-    const limitesCerroLargo: [[number, number], [number, number]] = [
-        [-54.85, -33.05],
-        [-53.55, -31.7],
     ];
 
     /**
@@ -58,6 +54,18 @@
         }
     }
 
+    // Se actualiza mientras el usuario lo usa
+    $effect(() => {
+        if (!mapa) return;
+
+        mapa.easeTo({
+            pitch: vistaActiva == '3d' ? 60 : 0,
+            bearing: vistaActiva == '3d' ? -20 : 0,
+            duration: 700,
+        });
+    });
+
+    // Primera cargada del mapa
     onMount(() => {
         if (!contenedor) return;
         mapboxgl.accessToken = PUBLIC_MAPBOX_TOKEN;
@@ -71,13 +79,16 @@
 
             // Limitacion de los rangos de vision en 3D
             // Nota: Se rompe al ver el horizonte
-            pitch: 60,
+            pitch: vistaActiva == '3d' ? 60 : 0,
             maxPitch: 60,
             minPitch: 0,
 
-            //
-            bearing: -20,
-            maxBounds: limitesCerroLargo,
+            // Vista y limites
+            bearing: vistaActiva == '3d' ? -20 : 0,
+            maxBounds: [
+                [-54.85, -33.05],
+                [-53.55, -31.7],
+            ],
             minZoom: 8,
         });
 
@@ -88,8 +99,8 @@
         map.on('style.load', () => {
             map.setConfigProperty('basemap', 'lightPreset', 'night');
             map.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
-            map.setConfigProperty('basemap', 'showPlaceLabels', false);
-            map.setConfigProperty('basemap', 'showRoadLabels', false);
+            map.setConfigProperty('basemap', 'showPlaceLabels', true);
+            map.setConfigProperty('basemap', 'showRoadLabels', true);
             map.setConfigProperty('basemap', 'showTransitLabels', false);
         });
 

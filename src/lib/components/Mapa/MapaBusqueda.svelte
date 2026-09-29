@@ -41,7 +41,21 @@
         },
     ];
 
+    const vistaActiva = $derived(page.url.searchParams.get('view') === '3d' ? '3d' : '2d');
+
+    const cambiarVista = async (vista: '2d' | '3d') => {
+        const url = new URL(page.url);
+        url.searchParams.set('view', vista);
+
+        await goto(url, {
+            replaceState: true,
+            noScroll: true,
+            keepFocus: true,
+        });
+    };
+
     let query = $state(page.url.searchParams.get('query') ?? '');
+
     const categoriasActivas = $derived(page.url.searchParams.getAll('categorias'));
 
     const filtrosActivos = $derived(
@@ -52,13 +66,18 @@
         event.preventDefault();
 
         const url = new URL(page.url);
+
         if (query.trim()) {
             url.searchParams.set('query', query.trim());
         } else {
             url.searchParams.delete('query');
         }
 
-        await goto(url, { replaceState: true, noScroll: true, keepFocus: true });
+        await goto(url, {
+            replaceState: true,
+            noScroll: true,
+            keepFocus: true,
+        });
     };
 
     const alternarCategoria = async (id: number) => {
@@ -67,26 +86,40 @@
         const activas = url.searchParams.getAll('categorias');
 
         url.searchParams.delete('categorias');
+
         const nuevas = activas.includes(idStr) ? activas.filter((c) => c !== idStr) : [...activas, idStr];
+
         for (const c of nuevas) {
             url.searchParams.append('categorias', c);
         }
 
-        await goto(url, { replaceState: true, noScroll: true, keepFocus: true });
+        await goto(url, {
+            replaceState: true,
+            noScroll: true,
+            keepFocus: true,
+        });
     };
 
     const alternarFiltro = async (param: string, valorActual: boolean) => {
         const url = new URL(page.url);
         url.searchParams.set(param, String(!valorActual));
 
-        await goto(url, { replaceState: true, noScroll: true, keepFocus: true });
+        await goto(url, {
+            replaceState: true,
+            noScroll: true,
+            keepFocus: true,
+        });
     };
 
     const irALugar = async (id: number) => {
         const url = new URL(page.url);
         url.searchParams.set('localidad', String(id));
 
-        await goto(url, { replaceState: true, noScroll: true, keepFocus: true });
+        await goto(url, {
+            replaceState: true,
+            noScroll: true,
+            keepFocus: true,
+        });
     };
 </script>
 
@@ -105,11 +138,12 @@
         />
     </form>
 
-    <!-- Categorias -->
+    <!-- Categorías -->
     <MapaBloque titulo="Categorías">
         <div class="flex flex-wrap gap-2 px-1 pt-1">
             {#each categorias as categoria}
                 {@const activa = categoriasActivas.includes(String(categoria.id))}
+
                 <button
                     onclick={() => alternarCategoria(categoria.id)}
                     class="rounded-full border px-3 py-1.5 font-Poppins text-sm transition-colors duration-150 {activa
@@ -119,6 +153,31 @@
                     {categoria.nombre}
                 </button>
             {/each}
+        </div>
+    </MapaBloque>
+
+    <!-- Vista 2D / 3D -->
+    <MapaBloque titulo="Vista">
+        <div class="mx-1 mt-1 flex rounded-lg bg-stone-100 p-1">
+            <button
+                type="button"
+                onclick={() => cambiarVista('2d')}
+                class="flex-1 rounded-md px-3 py-1.5 font-Poppins text-xs font-medium transition-colors duration-150 {vistaActiva === '2d'
+                    ? 'bg-white text-stone-900 shadow-sm'
+                    : 'text-stone-500 hover:text-stone-700'}"
+            >
+                2D
+            </button>
+
+            <button
+                type="button"
+                onclick={() => cambiarVista('3d')}
+                class="flex-1 rounded-md px-3 py-1.5 font-Poppins text-xs font-medium transition-colors duration-150 {vistaActiva === '3d'
+                    ? 'bg-white text-stone-900 shadow-sm'
+                    : 'text-stone-500 hover:text-stone-700'}"
+            >
+                3D
+            </button>
         </div>
     </MapaBloque>
 
@@ -133,8 +192,13 @@
                     <img src={lugar.imagen} alt={lugar.nombre} class="h-16 w-16 shrink-0 rounded-lg object-cover" />
 
                     <div class="flex flex-col gap-1">
-                        <span class="font-Poppins text-sm font-medium text-stone-900">{lugar.nombre}</span>
-                        <span class="w-fit rounded-full bg-amber-100 px-2 py-0.5 font-Poppins text-xs font-medium text-amber-800">{lugar.categoria}</span>
+                        <span class="font-Poppins text-sm font-medium text-stone-900">
+                            {lugar.nombre}
+                        </span>
+
+                        <span class="w-fit rounded-full bg-amber-100 px-2 py-0.5 font-Poppins text-xs font-medium text-amber-800">
+                            {lugar.categoria}
+                        </span>
                     </div>
                 </button>
             {/each}
@@ -146,17 +210,16 @@
         <div class="flex flex-col divide-y divide-stone-200 overflow-hidden rounded-xl border border-stone-200 bg-stone-50">
             {#each filtros as filtro}
                 {@const activo = filtrosActivos[filtro.param]}
+
                 <label class="flex h-12 cursor-pointer items-center justify-between gap-3 px-3">
-                    <span class="font-Poppins text-xs text-stone-700">{filtro.nombre}</span>
+                    <span class="font-Poppins text-xs text-stone-700">
+                        {filtro.nombre}
+                    </span>
 
                     <input type="checkbox" checked={activo} onchange={() => alternarFiltro(filtro.param, activo)} class="peer sr-only" />
+
                     <div
-                        class="relative h-5 w-9 shrink-0 rounded-full bg-stone-300 transition-colors duration-150
-                               peer-checked:bg-red-600
-                               peer-focus-visible:ring-2 peer-focus-visible:ring-red-300
-                               after:absolute after:top-0.5 after:left-0.5 after:h-4 after:w-4 after:rounded-full
-                               after:bg-white after:transition-transform after:duration-150 after:content-['']
-                               peer-checked:after:translate-x-4"
+                        class="relative h-5 w-9 shrink-0 rounded-full bg-stone-300 transition-colors duration-150 peer-checked:bg-red-600 peer-focus-visible:ring-2 peer-focus-visible:ring-red-300 after:absolute after:top-0.5 after:left-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform after:duration-150 after:content-[''] peer-checked:after:translate-x-4"
                     ></div>
                 </label>
             {/each}
