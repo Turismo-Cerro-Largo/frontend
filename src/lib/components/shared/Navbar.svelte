@@ -65,6 +65,7 @@
                 tracking-[-0.03em]
                 transition-colors
                 duration-500
+                font-Cave
 
                 {scrolled || menuAbierto ? 'text-zinc-900' : 'text-white'}
             "
