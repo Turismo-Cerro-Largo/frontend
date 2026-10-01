@@ -409,9 +409,9 @@
 		<div class="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
 
 			<div>
-				<label class="text-sm font-semibold text-[#35483c]">
-					Ubicación en el mapa *
-				</label>
+				<p class="text-sm font-semibold text-[#35483c]">
+	Ubicación en el mapa *
+</p>
 
 				<p class="mt-1 text-xs text-[#7b877f]">
 					Hacé clic sobre el mapa para colocar el marcador.
