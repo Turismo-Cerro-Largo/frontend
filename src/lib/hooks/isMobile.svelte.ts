@@ -1,16 +1,14 @@
 // $lib/hooks/isMobile.svelte.ts
-export function isMobile(breakpoint = 767) {
-    let matches = $state(false);
+import { browser } from '$app/environment';
 
-    $effect(() => {
-        const mq = window.matchMedia(`(max-width: ${breakpoint}px)`);
-        matches = mq.matches;
+const instancias = new Map<number, { current: boolean }>();
 
-        function onChange(e: MediaQueryListEvent) {
-            matches = e.matches;
-        }
-        mq.addEventListener('change', onChange);
-        return () => mq.removeEventListener('change', onChange);
+function crear(breakpoint: number) {
+    const mq = browser ? window.matchMedia(`(max-width: ${breakpoint}px)`) : null;
+    let matches = $state(mq?.matches ?? false);
+
+    mq?.addEventListener('change', (e) => {
+        matches = e.matches;
     });
 
     return {
@@ -18,4 +16,13 @@ export function isMobile(breakpoint = 767) {
             return matches;
         },
     };
+}
+
+export function isMobile(breakpoint = 767) {
+    let instancia = instancias.get(breakpoint);
+    if (!instancia) {
+        instancia = crear(breakpoint);
+        instancias.set(breakpoint, instancia);
+    }
+    return instancia;
 }

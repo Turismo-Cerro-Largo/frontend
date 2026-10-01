@@ -60,11 +60,12 @@
             class="
                 shrink-0
                 text-[17px]
-                md:text-[19px]
+                md:text-[36px]
                 font-semibold
                 tracking-[-0.03em]
                 transition-colors
                 duration-500
+                font-Cave
 
                 {scrolled || menuAbierto ? 'text-zinc-900' : 'text-white'}
             "
