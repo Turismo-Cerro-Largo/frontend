@@ -198,7 +198,7 @@
 
         <p class="text-sm text-slate-500 text-center mt-6">
             ¿Ya tenés cuenta?
-            <a href="/autenticacion/ingresar" class="text-green-600 font-medium hover:underline"> Ingresar </a>
+            <a href="/login" data-sveltekit-replacestate class="text-green-600 font-medium hover:underline"> Ingresar </a>
         </p>
     </div>
 </section>

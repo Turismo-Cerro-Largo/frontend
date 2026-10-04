@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
 	import type { Map, Marker } from 'mapbox-gl';
+	import 'mapbox-gl/dist/mapbox-gl.css';
+
 
 	let nombre = $state('');
 	let descripcion = $state('');
@@ -436,7 +438,7 @@
 		>
 			<div
 				bind:this={mapContainer}
-				class="h-[420px] w-full"
+				class="h-105 w-full"
 			></div>
 		</div>
 

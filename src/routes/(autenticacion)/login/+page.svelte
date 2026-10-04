@@ -52,7 +52,7 @@
 
         <p class="text-sm text-slate-500 text-center mt-6">
             ¿No tenés cuenta?
-            <a href="/autenticacion/registrarse" class="text-green-600 font-medium hover:underline"> Registrate </a>
+            <a href="/register" data-sveltekit-replacestate class="text-green-600 font-medium hover:underline"> Registrate </a>
         </p>
     </div>
 </section>

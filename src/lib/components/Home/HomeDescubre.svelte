@@ -1,6 +1,5 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
-    import { ArrowLeft, ArrowRight, ArrowUpRight, MapPin } from 'phosphor-svelte';
     import { body, card, container, h2, h3, label, sectionAfterHero } from '$lib/styles/tokens';
 
     type Localidad = {
@@ -209,8 +208,18 @@
                                 <div
                                     class="absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[10.5px] font-medium uppercase tracking-[0.08em] text-zinc-700 shadow-sm backdrop-blur-sm"
                                 >
-                                    <MapPin size={13} weight="fill" class="text-amber-500" />
-                                    Cerro Largo
+                                    <div
+                                        class="absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[10.5px] font-medium uppercase tracking-[0.08em] text-zinc-700 shadow-sm backdrop-blur-sm"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="size-3.25 shrink-0 fill-current text-amber-500" aria-hidden="true">
+                                            <path
+                                                d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"
+                                            ></path>
+                                        </svg>
+
+                                        Cerro Largo
+                                    </div>
+                                     Cerro Largo
                                 </div>
 
                                 <div class="absolute bottom-4 right-4 rounded-full bg-black/45 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
@@ -231,7 +240,10 @@
                                 <div class="mt-auto flex shrink-0 items-center justify-between gap-4 pt-5">
                                     <a href={selected.href} class="inline-flex items-center gap-1.5 text-[13px] font-medium text-zinc-700 hover:text-zinc-950">
                                         Explorar localidad
-                                        <ArrowUpRight size={15} />
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="size-3.75 shrink-0 fill-current" aria-hidden="true">
+                                            <path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path>
+                                        </svg>
                                     </a>
 
                                     <div class="flex items-center gap-2">
@@ -241,7 +253,11 @@
                                             aria-label="Localidad anterior"
                                             onclick={previousLocalidad}
                                         >
-                                            <ArrowLeft size={17} weight="bold" />
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="size-4.25 shrink-0 fill-current" aria-hidden="true">
+                                                <path
+                                                    d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"
+                                                ></path>
+                                            </svg>
                                         </button>
 
                                         <button
@@ -250,7 +266,11 @@
                                             aria-label="Siguiente localidad"
                                             onclick={nextLocalidad}
                                         >
-                                            <ArrowRight size={17} weight="bold" />
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="size-4.25 shrink-0 fill-current" aria-hidden="true">
+                                                <path
+                                                    d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"
+                                                ></path>
+                                            </svg>
                                         </button>
                                     </div>
                                 </div>
