@@ -111,17 +111,18 @@
                 <span class="text-xs text-slate-400">o</span>
                 <div class="flex-1 h-px bg-slate-200"></div>
             </div>
-
-            <button
-                disabled={cargando}
-                type="button"
-                class="h-11 flex items-center justify-center gap-2 border border-slate-300 hover:bg-slate-50 active:scale-98 transition-all cursor-pointer text-slate-700 font-medium rounded-lg"
+            <a
+                href="/api/auth/google"
+                data-sveltekit-reload
+                aria-disabled={cargando}
+                tabindex={cargando ? -1 : undefined}
+                class="h-11 flex items-center justify-center gap-2 border border-slate-300 hover:bg-slate-50 active:scale-98 transition-all cursor-pointer text-slate-700 font-medium rounded-lg aria-disabled:pointer-events-none aria-disabled:opacity-60"
             >
                 <div class="w-5 h-5">
                     <SvgGoogle />
                 </div>
                 Continuar con Google
-            </button>
+            </a>
         </form>
 
         <p class="text-sm text-slate-500 text-center mt-6">

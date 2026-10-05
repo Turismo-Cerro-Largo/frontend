@@ -14,7 +14,15 @@
 		"pnpm-lock.yaml": true,
 		"pnpm-workspace.yaml": true,
 		"README.md": true,
-		"tsconfig.json": true
+		"tsconfig.json": true,
+		".env.example": true,
+		".prettierignore": true,
+		".prettierrc": true,
+		"vite.config.ts": true,
+		".svelte-kit": true,
+		".vscode": true,
+		"build": true,
+		"node_modules": true
 	},
 	"hide-files.files": [
 		".gitignore",
@@ -22,6 +30,14 @@
 		"pnpm-lock.yaml",
 		"pnpm-workspace.yaml",
 		"README.md",
-		"tsconfig.json"
+		"tsconfig.json",
+		".env.example",
+		".prettierignore",
+		".prettierrc",
+		"vite.config.ts",
+		".svelte-kit",
+		".vscode",
+		"build",
+		"node_modules"
 	]
 }

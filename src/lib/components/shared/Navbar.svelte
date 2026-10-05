@@ -169,7 +169,8 @@
                 </button>
 
                 <a
-                    href="/autenticacion/ingresar"
+                    href="/login"
+                    data-sveltekit-preload-code="hover"
                     class="
                         flex
                         items-center
@@ -281,7 +282,8 @@
             </div>
 
             <a
-                href="/autenticacion/ingresar"
+                href="/login"
+                data-sveltekit-preload-code="hover"
                 class="
                     mt-3
                     flex
