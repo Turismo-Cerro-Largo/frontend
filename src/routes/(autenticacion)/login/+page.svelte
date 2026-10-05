@@ -9,6 +9,7 @@
 
     // Subir el formulario
     const enviar = async (evento: SubmitEvent) => {
+        evento.preventDefault();
         if (cargando) return;
 
         cargando = true;
@@ -80,11 +81,10 @@
                     id="password"
                     name="password"
                     type="password"
-                    size="16"
                     required
                     minlength="8"
                     maxlength="32"
-                    autocomplete="on"
+                    autocomplete="current-password"
                     pattern="^(?=.*[a-z])(?=.*[A-Z]).*$"
                     title="La contraseña debe tener al menos 8 caracteres, una letra minúscula y una letra mayúscula."
                     class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
