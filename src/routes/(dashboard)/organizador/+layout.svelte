@@ -1,5 +1,17 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+
     let { children } = $props();
+
+    const cerrarSession = async () => {
+        const check = await fetch('/api/auth/logout');
+
+        if (!check.ok) {
+            return;
+        }
+
+        await goto('/login');
+    };
 </script>
 
 <div class="min-h-screen bg-[#f7f5f0] font-Poppins lg:flex lg:h-screen lg:min-h-0 lg:overflow-hidden">
@@ -31,7 +43,7 @@
 
             <!-- Cerrar sesión -->
             <div class="mt-auto px-4 py-6">
-                <button type="button" class="w-full rounded-xl border border-[#9daf9f] px-4 py-3 text-left text-sm font-medium text-[#26382e] transition hover:bg-white/70">
+                <button onclick={cerrarSession} type="button" class="w-full rounded-xl border border-[#9daf9f] px-4 py-3 text-left text-sm font-medium text-[#26382e] transition hover:bg-white/70">
                     Cerrar sesión
                 </button>
             </div>
