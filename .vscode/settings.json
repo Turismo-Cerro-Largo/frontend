@@ -18,7 +18,6 @@
 		".env.example": true,
 		".prettierignore": true,
 		".svelte-kit": true,
-		".vscode": true,
 		"build": true,
 		"node_modules": true
 	},
@@ -32,7 +31,6 @@
 		".env.example",
 		".prettierignore",
 		".svelte-kit",
-		".vscode",
 		"build",
 		"node_modules"
 	]
