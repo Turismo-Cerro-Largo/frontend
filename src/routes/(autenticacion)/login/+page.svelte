@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
-    import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
+        import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
     import { slide } from 'svelte/transition';
 
     // Variables
@@ -28,7 +27,10 @@
 
             error = false;
 
-            await goto((await respuesta.json()).tipo === 'organizador' ? '/organizador' : '/turista', { replaceState: true });
+            const sesion: { tipo: string; rol: string } = await respuesta.json();
+            const destino = sesion.rol === 'ADMINISTRADOR' ? '/administrador'
+                : sesion.tipo === 'organizador' ? '/organizador' : '/turista';
+            window.location.assign(destino);
         } catch {
             error = true;
         } finally {
