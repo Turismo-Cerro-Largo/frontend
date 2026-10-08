@@ -1,7 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
-import adapter from '@sveltejs/adapter-auto';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import adapter from '@sveltejs/adapter-node';
 
 export default defineConfig({
 	plugins: [
@@ -17,5 +17,17 @@ export default defineConfig({
 			// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 			adapter: adapter()
 		})
-	]
+	],
+
+	/**
+	 * Config para el backend
+	 */
+	server: {		
+		proxy: {
+			'/api': {
+				target: 'http://localhost:4000',
+				changeOrigin: true
+			}
+		},
+	}
 });

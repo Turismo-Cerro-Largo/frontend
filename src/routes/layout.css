@@ -2,13 +2,18 @@
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 
-/* Fuentes */
 @font-face {
-  font-family: 'Maru';
-  font-display: swap;
-  src: url('/fonts/GTMaruRegular.ttf') format('truetype');
+    font-family: 'Cave';
+    font-display: swap;
+    src: url('/fonts/Caveat-VariableFont_wght.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Poppins';
+    font-display: swap;
+    src: url('/fonts/Poppins-Medium.ttf') format('truetype');
 }
 
 @theme {
-  --font-Maru: 'Maru', sans-serif;
+    --font-Cave: 'Cave', sans-serif;
+    --font-Poppins: 'Poppins', sans-serif;
 }
