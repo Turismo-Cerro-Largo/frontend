@@ -50,6 +50,15 @@
             <h1 class="text-2xl font-bold text-slate-800 mt-1">Ingresar</h1>
         </div>
 
+        <!-- Volver al inicio -->
+<a
+    href="/"
+    class="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-green-700"
+>
+    <span aria-hidden="true">←</span>
+    Volver al inicio
+</a>
+
         <!-- Mensaje de error generico -->
         {#if error}
             <div in:slide|local out:slide|local class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
