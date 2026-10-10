@@ -10,7 +10,10 @@
             return;
         }
 
-        await goto('/login');
+         await goto('/', {
+        replaceState: true,
+        invalidateAll: true
+    });
     };
 </script>
 

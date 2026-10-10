@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
-    import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
+        import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
     import { slide } from 'svelte/transition';
 
     // Variables
@@ -28,7 +27,10 @@
 
             error = false;
 
-            await goto((await respuesta.json()).tipo === 'organizador' ? '/organizador' : '/turista', { replaceState: true });
+            const sesion: { tipo: string; rol: string } = await respuesta.json();
+            const destino = sesion.rol === 'ADMINISTRADOR' ? '/administrador'
+                : sesion.tipo === 'organizador' ? '/organizador' : '/turista';
+            window.location.assign(destino);
         } catch {
             error = true;
         } finally {
@@ -47,6 +49,15 @@
             <h2 class="text-lg font-semibold text-green-600 tracking-wide">CerroLargo360</h2>
             <h1 class="text-2xl font-bold text-slate-800 mt-1">Ingresar</h1>
         </div>
+
+        <!-- Volver al inicio -->
+<a
+    href="/"
+    class="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-green-700"
+>
+    <span aria-hidden="true">←</span>
+    Volver al inicio
+</a>
 
         <!-- Mensaje de error generico -->
         {#if error}
