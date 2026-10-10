@@ -1,36 +1,47 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
+
     import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
     import { slide } from 'svelte/transition';
 
     // Variables
     let cargando = $state(false);
-    let error = $state(false);
+    let error = $state('');
 
     // Subir el formulario
     const enviar = async (evento: SubmitEvent) => {
         evento.preventDefault();
         if (cargando) return;
 
+        const datos = new FormData(evento.currentTarget as HTMLFormElement);
+        error = '';
         cargando = true;
 
         try {
             // peticion
             const respuesta = await fetch('/api/auth/login', {
                 method: 'POST',
-                body: new FormData(evento.currentTarget as HTMLFormElement),
+                body: datos,
             });
 
             if (!respuesta.ok) {
-                error = true;
+                error = respuesta.status === 400 || respuesta.status === 401
+                    ? 'El correo o la contraseña no coinciden. Revisá tus credenciales e intentá nuevamente.'
+                    : respuesta.status === 403
+                      ? 'No se autorizó el ingreso desde esta dirección. Volvé a abrir el sitio e intentá nuevamente.'
+                      : respuesta.status === 429
+                        ? 'Hubo demasiados intentos. Esperá unos minutos y volvé a intentar.'
+                        : respuesta.status >= 500
+                          ? 'El servicio de ingreso no está disponible en este momento. Intentá nuevamente más tarde.'
+                          : 'No se pudo completar el ingreso. Volvé a intentar.';
                 return;
             }
 
-            error = false;
+            error = '';
 
-            await goto((await respuesta.json()).tipo === 'organizador' ? '/organizador' : '/turista', { replaceState: true });
+            const cuenta = await respuesta.json();
+            window.location.assign(cuenta.rol === 'ADMINISTRADOR' ? '/administrador' : cuenta.tipo === 'organizador' ? '/organizador' : '/turista');
         } catch {
-            error = true;
+            error = 'No se pudo conectar con el servidor. Revisá tu conexión e intentá nuevamente.';
         } finally {
             cargando = false;
         }
@@ -51,7 +62,7 @@
         <!-- Mensaje de error generico -->
         {#if error}
             <div in:slide|local out:slide|local class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
-                Revisá los datos ingresados. El correo electrónico o la contraseña pueden ser incorrectos.
+                {error}
             </div>
         {/if}
 
@@ -67,9 +78,7 @@
                     required
                     autocomplete="email"
                     minlength="7"
-                    maxlength="45"
-                    pattern="^[a-zA-Z0-9._%+\-]+@(gmail\.com|tuta\.com|tutanota\.com|hotmail\.com|outlook\.com|live\.com|proton\.me|protonmail\.com|yahoo\.com|icloud\.com)$"
-                    title="Por favor, usa un proveedor de correo reconocido (Gmail, Outlook, Hotmail, Tuta, Proton, Yahoo o iCloud)."
+                    maxlength="254"
                     class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
                 />
             </div>
@@ -82,11 +91,9 @@
                     name="password"
                     type="password"
                     required
-                    minlength="8"
-                    maxlength="32"
+                    minlength="1"
+                    maxlength="1024"
                     autocomplete="current-password"
-                    pattern="^(?=.*[a-z])(?=.*[A-Z]).*$"
-                    title="La contraseña debe tener al menos 8 caracteres, una letra minúscula y una letra mayúscula."
                     class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
                 />
             </div>

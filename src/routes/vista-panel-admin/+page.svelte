@@ -1,6 +1,5 @@
 <script lang="ts">
     import AdminPanel from '$lib/components/admin/AdminPanel.svelte';
-    let { data } = $props();
 </script>
 
-<AdminPanel initialSnapshot={data.snapshot} />
+<AdminPanel />
