@@ -1,13 +1,10 @@
-// src/routes/(dashboard)/organizador/eventos/+layout.server.ts
-import type { LayoutServerLoad } from "../../$types";
-import type { Cuenta } from "$lib/types/cuenta";
-import { error } from "@sveltejs/kit";
+import { error } from '@sveltejs/kit';
+import type { LayoutServerLoad } from './$types';
 
-// TODO
-export const load: LayoutServerLoad = async ({ parent }) => {
-    const cuenta = ((await parent()).cuenta as Cuenta)
-
-    if (cuenta.estado !== "APROBADO") error(403, "Tu cuenta todavía no fue verificada.")
-
-    return {}
+export const load: LayoutServerLoad = async ({ locals }) => {
+    const cuenta = locals.cuenta;
+    if (!cuenta) error(401, 'Tenés que iniciar sesión.');
+    if (cuenta.rol !== 'ORGANIZADOR') error(403, 'Acceso exclusivo para organizadores.');
+    if (cuenta.estado !== 'APROBADO') error(403, 'Tu cuenta todavía no fue verificada.');
+    return {};
 };

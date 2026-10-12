@@ -8,19 +8,35 @@
         rut_ruc: string;
         departamento: string;
         telefono: string;
-        sitio_web: string;
+        sitio_web: string | null;
         estado: string;
         creado_en: string;
     };
 
     const departamentos = [
-        'Artigas', 'Canelones', 'Cerro Largo', 'Colonia', 'Durazno',
-        'Flores', 'Florida', 'Lavalleja', 'Maldonado', 'Montevideo',
-        'Paysandú', 'Río Negro', 'Rivera', 'Rocha', 'Salto',
-        'San José', 'Soriano', 'Tacuarembó', 'Treinta y Tres'
+        'Artigas',
+        'Canelones',
+        'Cerro Largo',
+        'Colonia',
+        'Durazno',
+        'Flores',
+        'Florida',
+        'Lavalleja',
+        'Maldonado',
+        'Montevideo',
+        'Paysandú',
+        'Río Negro',
+        'Rivera',
+        'Rocha',
+        'Salto',
+        'San José',
+        'Soriano',
+        'Tacuarembó',
+        'Treinta y Tres',
     ];
 
-    const campo = 'w-full rounded-xl border border-[#ded8cf] bg-white px-4 py-3 text-sm text-[#26382e] outline-none focus:border-[#8ba996] disabled:bg-[#f5f3ef] disabled:text-[#70776f]';
+    const campo =
+        'w-full rounded-xl border border-[#ded8cf] bg-white px-4 py-3 text-sm text-[#26382e] outline-none focus:border-[#8ba996] disabled:bg-[#f5f3ef] disabled:text-[#70776f]';
 
     let perfil = $state<Perfil | null>(null);
     let original: Perfil | null = null;
@@ -34,7 +50,7 @@
         return {
             ...datos,
             departamento: datos.departamento ?? '',
-            sitio_web: datos.sitio_web ?? ''
+            sitio_web: datos.sitio_web ?? '',
         };
     }
 
@@ -46,7 +62,7 @@
 
     async function cargarPerfil() {
         try {
-            const respuesta = await fetch('/api/organizador/perfil');
+            const respuesta = await fetch('/api/organizador');
 
             if (!respuesta.ok) {
                 throw new Error('No se pudo cargar el perfil.');
@@ -77,15 +93,15 @@
         mensaje = '';
 
         try {
-            const respuesta = await fetch('/api/organizador/perfil', {
+            const respuesta = await fetch('/api/organizador', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     nombre_organizacion: perfil.nombre_organizacion.trim(),
                     departamento: perfil.departamento,
                     telefono: perfil.telefono.trim(),
-                    sitio_web: perfil.sitio_web.trim()
-                })
+                    sitio_web: (perfil.sitio_web ?? '').trim(),
+                }),
             });
 
             const datos = await respuesta.json();
@@ -153,8 +169,14 @@
                     </div>
 
                     {#if !editando}
-                        <button type="button" onclick={() => { editando = true; mensaje = ''; }}
-                            class="rounded-xl bg-[#D89994] px-5 py-3 text-sm font-semibold text-[#442b29] hover:opacity-90">
+                        <button
+                            type="button"
+                            onclick={() => {
+                                editando = true;
+                                mensaje = '';
+                            }}
+                            class="rounded-xl bg-[#D89994] px-5 py-3 text-sm font-semibold text-[#442b29] hover:opacity-90"
+                        >
                             Editar datos
                         </button>
                     {/if}
@@ -163,8 +185,16 @@
                 <div class="grid gap-5 sm:grid-cols-2">
                     <div class="sm:col-span-2">
                         <label for="organizacion" class="mb-2 block text-sm font-medium text-[#36463c]">Nombre de la organización</label>
-                        <input id="organizacion" type="text" bind:value={perfil.nombre_organizacion}
-                            minlength="2" maxlength="100" required disabled={!editando || guardando} class={campo} />
+                        <input
+                            id="organizacion"
+                            type="text"
+                            bind:value={perfil.nombre_organizacion}
+                            minlength="2"
+                            maxlength="100"
+                            required
+                            disabled={!editando || guardando}
+                            class={campo}
+                        />
                     </div>
 
                     <div>
@@ -180,8 +210,7 @@
 
                     <div>
                         <label for="departamento" class="mb-2 block text-sm font-medium text-[#36463c]">Departamento</label>
-                        <select id="departamento" bind:value={perfil.departamento}
-                            required disabled={!editando || guardando} class={campo}>
+                        <select id="departamento" bind:value={perfil.departamento} required disabled={!editando || guardando} class={campo}>
                             <option value="" disabled>Seleccioná un departamento</option>
                             {#each departamentos as departamento}
                                 <option value={departamento}>{departamento}</option>
@@ -191,16 +220,30 @@
 
                     <div>
                         <label for="telefono" class="mb-2 block text-sm font-medium text-[#36463c]">Teléfono</label>
-                        <input id="telefono" type="tel" bind:value={perfil.telefono}
-                            minlength="8" maxlength="20" pattern="\+?[0-9 -]+"
-                            required disabled={!editando || guardando} class={campo} />
+                        <input
+                            id="telefono"
+                            type="tel"
+                            bind:value={perfil.telefono}
+                            minlength="8"
+                            maxlength="20"
+                            pattern="\+?[0-9 -]+"
+                            required
+                            disabled={!editando || guardando}
+                            class={campo}
+                        />
                     </div>
 
                     <div class="sm:col-span-2">
                         <label for="sitio_web" class="mb-2 block text-sm font-medium text-[#36463c]">Sitio web (opcional)</label>
-                        <input id="sitio_web" type="url" bind:value={perfil.sitio_web}
-                            maxlength="500" placeholder="https://ejemplo.com"
-                            disabled={!editando || guardando} class={campo} />
+                        <input
+                            id="sitio_web"
+                            type="url"
+                            bind:value={perfil.sitio_web}
+                            maxlength="500"
+                            placeholder="https://ejemplo.com"
+                            disabled={!editando || guardando}
+                            class={campo}
+                        />
                     </div>
                 </div>
 
@@ -222,12 +265,19 @@
 
                 {#if editando}
                     <div class="mt-8 flex flex-wrap justify-end gap-3">
-                        <button type="button" onclick={cancelar} disabled={guardando}
-                            class="rounded-xl border border-[#ded8cf] px-5 py-3 text-sm font-medium text-[#26382e] disabled:opacity-60">
+                        <button
+                            type="button"
+                            onclick={cancelar}
+                            disabled={guardando}
+                            class="rounded-xl border border-[#ded8cf] px-5 py-3 text-sm font-medium text-[#26382e] disabled:opacity-60"
+                        >
                             Cancelar
                         </button>
-                        <button type="submit" disabled={guardando}
-                            class="rounded-xl bg-[#D89994] px-5 py-3 text-sm font-semibold text-[#442b29] hover:opacity-90 disabled:opacity-60">
+                        <button
+                            type="submit"
+                            disabled={guardando}
+                            class="rounded-xl bg-[#D89994] px-5 py-3 text-sm font-semibold text-[#442b29] hover:opacity-90 disabled:opacity-60"
+                        >
                             {guardando ? 'Guardando...' : 'Guardar cambios'}
                         </button>
                     </div>
