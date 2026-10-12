@@ -112,7 +112,7 @@
                 No hay eventos que coincidan con los filtros.
             </p>{:else}
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[760px] text-left text-sm">
+                <table class="w-full min-w-190 text-left text-sm">
                     <thead class="border-b text-slate-500"
                         ><tr
                             ><th class="p-3">Evento</th><th class="p-3">Organizador</th><th class="p-3">Categoría</th><th class="p-3">Fecha</th><th class="p-3">Estado</th><th
