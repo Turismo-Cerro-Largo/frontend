@@ -80,7 +80,7 @@
                     type="text"
                     value={data.categoria.nombre}
                     required
-                    maxlength="100"
+                    maxlength="28"
                     placeholder="Ej.: Naturaleza"
                     class="w-full rounded-xl border border-[#ded8cf]
                            bg-white px-4 py-3 text-sm text-[#303c34]

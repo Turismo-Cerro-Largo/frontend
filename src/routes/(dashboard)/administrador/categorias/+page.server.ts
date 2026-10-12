@@ -1,30 +1,15 @@
-// src/routes/(dashboard)/administrador/categorias/+page.server.ts
-
 import { API_URL } from '$env/static/private';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ fetch, url }) => {
-    const offset = Number(url.searchParams.get('offset') ?? 0);
-    const limit = Number(url.searchParams.get('limit') ?? 10);
-
-    if (!Number.isInteger(offset) || offset < 0 || !Number.isInteger(limit) || limit < 1 || limit > 100) {
-        error(400, 'Parametros de paginacion invalidos.');
-    }
-
-    let respuesta: Response;
-
+export const load: PageServerLoad = async ({ fetch }) => {
+    let response: Response;
     try {
-        respuesta = await fetch(`${API_URL}/api/categorias?offset=${offset}&limit=${limit}`);
+        response = await fetch(`${API_URL}/api/categorias`);
     } catch {
-        error(503, 'No se pudo conectar con el servidor.');
+        error(503, 'No se pudo conectar con el servidor de categorías.');
     }
-
-    if (!respuesta.ok) {
-        error(respuesta.status, 'No se pudieron cargar las categorias.');
-    }
-
-    const { categorias, total } = await respuesta.json();
-
-    return { categorias, total };
+    if (!response.ok) error(response.status, 'No se pudieron cargar las categorías.');
+    const result = await response.json();
+    return { categorias: result.categorias ?? [] };
 };
