@@ -14,6 +14,8 @@
         { nombre: 'Organizadores', ruta: '/administrador/organizadores' },
         { nombre: 'Transporte', ruta: '/administrador/transporte' },
         { nombre: 'Eventos', ruta: '/administrador/eventos' },
+        { nombre: 'Usuarios', ruta: '/administrador/usuarios' },
+        { nombre: 'Comentarios', ruta: '/administrador/comentarios' },
     ];
 
     const rutaActual = $derived(page.url.pathname.replace(/\/$/, '') || '/');
