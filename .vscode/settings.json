@@ -19,7 +19,16 @@
 		".prettierignore": true,
 		".svelte-kit": true,
 		"build": true,
-		"node_modules": true
+		"node_modules": true,
+		"static": true,
+		".env": true,
+		".prettierrc": true,
+		"AGENTS.md": true,
+		"cambios.md": true,
+		"package.json": true,
+		".vscode": true,
+		"src/routes/mapa": true,
+		"src/routes/radios-locales": true
 	},
 	"hide-files.files": [
 		".gitignore",
@@ -32,6 +41,15 @@
 		".prettierignore",
 		".svelte-kit",
 		"build",
-		"node_modules"
+		"node_modules",
+		"static",
+		".env",
+		".prettierrc",
+		"AGENTS.md",
+		"cambios.md",
+		"package.json",
+		".vscode",
+		"src/routes/mapa",
+		"src/routes/radios-locales"
 	]
 }

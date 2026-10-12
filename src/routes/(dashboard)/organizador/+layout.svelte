@@ -2,7 +2,9 @@
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
 
-    let { children } = $props();
+    let { children, data } = $props();
+
+    let aprobado = $derived(data.estadoOrganizador === 'APROBADO');
 
     let ruta = $derived(page.url.pathname.replace(/\/$/, '') || '/');
 
@@ -39,20 +41,22 @@
                 >
                     Inicio
                 </a>
-                <a
-                    href="/organizador/eventos"
-                    aria-current={eventosActivo ? 'page' : undefined}
-                    class={`rounded-xl px-4 py-3 text-sm font-medium text-[#26382e] transition ${eventosActivo ? 'bg-white shadow-sm' : 'hover:bg-white/70'}`}
-                >
-                    Mis eventos
-                </a>
-                <a
-                    href="/organizador/eventos/nuevo"
-                    aria-current={crearActivo ? 'page' : undefined}
-                    class={`rounded-xl px-4 py-3 text-sm font-medium text-[#26382e] transition ${crearActivo ? 'bg-white shadow-sm' : 'hover:bg-white/70'}`}
-                >
-                    + Crear evento
-                </a>
+                {#if aprobado}
+                    <a
+                        href="/organizador/eventos"
+                        aria-current={eventosActivo ? 'page' : undefined}
+                        class={`rounded-xl px-4 py-3 text-sm font-medium text-[#26382e] transition ${eventosActivo ? 'bg-white shadow-sm' : 'hover:bg-white/70'}`}
+                    >
+                        Mis eventos
+                    </a>
+                    <a
+                        href="/organizador/eventos/nuevo"
+                        aria-current={crearActivo ? 'page' : undefined}
+                        class={`rounded-xl px-4 py-3 text-sm font-medium text-[#26382e] transition ${crearActivo ? 'bg-white shadow-sm' : 'hover:bg-white/70'}`}
+                    >
+                        + Crear evento
+                    </a>
+                {/if}
                 <a
                     href="/organizador/perfil"
                     aria-current={perfilActivo ? 'page' : undefined}
@@ -62,6 +66,11 @@
                 </a>
             </nav>
 
+            {#if !aprobado}
+                <div class="mx-4 mt-5 rounded-xl border border-[#dbc995] bg-[#fff8e5] p-3 text-sm text-[#765e19]">
+                    {data.estadoOrganizador === 'RECHAZADO' ? 'Solicitud rechazada. Consultá tu perfil para más información.' : 'Tu cuenta está pendiente de aprobación.'}
+                </div>
+            {/if}
             <div class="mt-auto px-4 py-6">
                 <button
                     onclick={cerrarSession}
