@@ -24,7 +24,7 @@
         async function cargar() {
             try {
                 const id = page.params.id;
-                const respuesta = await fetch(`/api/admin/usuarios/${encodeURIComponent(id)}`, { credentials: 'include', signal: controller.signal });
+                const respuesta = await fetch(`/api/admin/usuarios/${encodeURIComponent(id ?? '')}`, { credentials: 'include', signal: controller.signal });
                 if (!respuesta.ok)
                     throw new Error(
                         respuesta.status === 404
@@ -73,14 +73,22 @@
                 <div class="rounded-2xl border border-[#e0e6df] bg-white p-6">
                     <h2 class="mb-4 text-lg font-semibold">Actividad</h2>
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="rounded-xl bg-[#f4f8f3] p-4">
+                        <a
+                            href={`/administrador/usuarios/${usuario.id}/comentario`}
+                            class="group rounded-xl bg-[#f4f8f3] p-4 transition-colors hover:bg-[#e4f0e7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#477967]"
+                            aria-label={`Ver ${usuario._count.comentarios} comentarios de ${usuario.nombres} ${usuario.apellidos}`}
+                        >
                             <p class="text-3xl font-semibold">{usuario._count.comentarios}</p>
-                            <p class="text-sm text-slate-500">Comentarios</p>
-                        </div>
-                        <div class="rounded-xl bg-[#f4f8f3] p-4">
+                            <p class="text-sm text-slate-500 group-hover:text-[#38634a]">Comentarios →</p>
+                        </a>
+                        <a
+                            href={`/administrador/usuarios/${usuario.id}/favoritos`}
+                            class="group rounded-xl bg-[#f4f8f3] p-4 transition-colors hover:bg-[#e4f0e7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#477967]"
+                            aria-label={`Ver ${usuario._count.favoritos} favoritos de ${usuario.nombres} ${usuario.apellidos}`}
+                        >
                             <p class="text-3xl font-semibold">{usuario._count.favoritos}</p>
-                            <p class="text-sm text-slate-500">Favoritos</p>
-                        </div>
+                            <p class="text-sm text-slate-500 group-hover:text-[#38634a]">Favoritos →</p>
+                        </a>
                     </div>
                 </div>
                 <div class="rounded-2xl border border-[#e0e6df] bg-white p-5 text-sm text-slate-600">
