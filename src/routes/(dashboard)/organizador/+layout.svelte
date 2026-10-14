@@ -75,7 +75,7 @@
                 <button
                     onclick={cerrarSession}
                     type="button"
-                    class="w-full rounded-xl border border-[#9daf9f] px-4 py-3 text-left text-sm font-medium text-[#26382e] transition hover:bg-white/70"
+                    class="w-full rounded-xl cursor-pointer border border-[#9daf9f] px-4 py-3 text-left text-sm font-medium text-[#26382e] transition hover:bg-white/70"
                 >
                     Cerrar sesion
                 </button>
