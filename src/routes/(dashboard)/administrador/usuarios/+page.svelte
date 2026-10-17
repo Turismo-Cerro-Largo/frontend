@@ -124,7 +124,7 @@
         </div>
         {#if error}<p role="alert" class="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</p>{/if}
         <div class="mt-5 w-full overflow-x-auto">
-            <table class="w-full min-w-[760px] text-left text-sm">
+            <table class="w-full min-w-190 text-left text-sm">
                 <thead class="border-b border-slate-200 bg-[#f7f9f6] text-xs text-[#69776c]"
                     ><tr
                         ><th class="p-3">Usuario</th><th class="p-3">Departamento</th><th class="p-3">Rol</th><th class="p-3">Registro</th><th class="p-3">Actividad</th><th

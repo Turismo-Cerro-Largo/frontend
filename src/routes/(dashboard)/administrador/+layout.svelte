@@ -86,13 +86,6 @@
             <div>
                 <p class="text-xs text-[#78877d]">Administración / {tituloActual}</p>
             </div>
-            <div class="flex items-center gap-3">
-                <div class="text-right">
-                    <p class="text-sm font-semibold text-[#26382e]">Administrador</p>
-                    <p class="text-xs text-[#78877d]">Cerro Largo 360</p>
-                </div>
-                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#d7e5db] font-bold text-[#365b43]" aria-hidden="true">A</div>
-            </div>
         </header>
         <main class="min-h-0 flex-1 overflow-y-auto p-8">
             {@render children()}

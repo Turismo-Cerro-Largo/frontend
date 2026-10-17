@@ -114,7 +114,7 @@
             for (const file of seleccion) {
                 if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) throw new Error(`${file.name}: seleccioná una imagen o video.`);
                 const fd = new FormData();
-                fd.append('archivo', file);
+                fd.append('recursos', file);
                 const response = await fetch('/api/admin/ubicaciones/recursos/upload', { method: 'POST', credentials: 'include', body: fd });
                 const data = await response.json().catch(() => ({}));
                 if (!response.ok) throw new Error(data.error ?? `Error al subir ${file.name} (${response.status}).`);
