@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { page } from '$app/state';
+    import { mesActualUruguay, precargarCalendario, precargarDetalle } from './prefetch';
 
     type Estado = 'BORRADOR' | 'PENDIENTE_REVISION' | 'PUBLICADO' | 'RECHAZADO' | 'CANCELADO' | 'FINALIZADO';
 
@@ -28,6 +29,7 @@
     let cargando = $state(true);
     let error = $state('');
 
+    const mesCalendario = mesActualUruguay();
     const limite = 12;
     let consulta = 0;
 
@@ -122,7 +124,16 @@
             <p class="mt-1 text-slate-500">Revisá las publicaciones y su documentación.</p>
         </div>
 
-        <button onclick={cargar} class="rounded-xl border px-4 py-2 hover:bg-slate-50" disabled={cargando}> Actualizar </button>
+        <div class="flex flex-wrap items-center gap-2">
+            <a
+                href={`/administrador/eventos/calendario?mes=${mesCalendario}`}
+                data-sveltekit-preload-data="hover"
+                onpointerenter={() => precargarCalendario(mesCalendario)}
+                onfocus={() => precargarCalendario(mesCalendario)}
+                class="rounded-xl bg-[#477967] px-4 py-2 font-medium text-white transition-colors hover:bg-[#396250]"
+            >Ver calendario</a>
+            <button onclick={cargar} class="rounded-xl border px-4 py-2 hover:bg-slate-50" disabled={cargando}>Actualizar</button>
+        </div>
     </header>
 
     <div class="grid gap-3 sm:grid-cols-2">
@@ -219,7 +230,13 @@
                                 </td>
 
                                 <td class="p-3">
-                                    <a class="font-medium text-[#477967] hover:underline" href={`/administrador/eventos/${evento.id}`}> Ver detalle </a>
+                                    <a
+                                        class="font-medium text-[#477967] hover:underline"
+                                        href={`/administrador/eventos/${evento.id}`}
+                                        data-sveltekit-preload-data="hover"
+                                        onpointerenter={() => precargarDetalle(evento.id)}
+                                        onfocus={() => precargarDetalle(evento.id)}
+                                    >Ver detalle</a>
                                 </td>
                             </tr>
                         {/each}

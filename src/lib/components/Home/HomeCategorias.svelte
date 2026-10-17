@@ -13,7 +13,8 @@
     >
         <!-- Alojamiento -->
         <a
-            href="/alojamiento"
+            href="/categoria/alojamiento"
+            data-sveltekit-preload-data="hover"
             class="
                 group flex h-10 w-auto items-center gap-1.5
                 rounded-lg border border-zinc-200 bg-white px-2.5
@@ -47,7 +48,8 @@
 
         <!-- Restaurantes -->
         <a
-            href="/restaurantes"
+            href="/categoria/restaurantes"
+            data-sveltekit-preload-data="hover"
             class="
                 group flex h-10 w-auto items-center gap-1.5
                 rounded-lg border border-zinc-200 bg-white px-2.5
@@ -82,7 +84,8 @@
 
         <!-- Cultura -->
         <a
-            href="/cultura"
+            href="/categoria/cultura"
+            data-sveltekit-preload-data="hover"
             class="
                 group flex h-10 w-auto items-center gap-1.5
                 rounded-lg border border-zinc-200 bg-white px-2.5
@@ -117,7 +120,8 @@
 
         <!-- Eventos sociales -->
         <a
-            href="/eventos"
+            href="/categoria/eventos"
+            data-sveltekit-preload-data="hover"
             class="
                 group flex h-10 w-auto items-center gap-1.5
                 rounded-lg border border-zinc-200 bg-white px-2.5
@@ -152,7 +156,8 @@
 
         <!-- Parques / Naturaleza -->
         <a
-            href="/naturaleza"
+            href="/categoria/naturaleza"
+            data-sveltekit-preload-data="hover"
             class="
                 group flex h-10 w-auto items-center gap-1.5
                 rounded-lg border border-zinc-200 bg-white px-2.5

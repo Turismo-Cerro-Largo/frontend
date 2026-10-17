@@ -4,6 +4,7 @@
     import 'mapbox-gl/dist/mapbox-gl.css';
     import type { Map as MapboxMap } from 'mapbox-gl';
     import { page } from '$app/state';
+    import { consultarDetalle, invalidarCalendario, invalidarDetalle, mesActualUruguay, mesDeEvento, precargarCalendario } from '../prefetch';
     type Estado = 'BORRADOR' | 'PENDIENTE_REVISION' | 'PUBLICADO' | 'RECHAZADO' | 'CANCELADO' | 'FINALIZADO';
     type Recurso = { uri: string; tipo: string | null; orden: number };
     type Evento = {
@@ -25,6 +26,7 @@
         recursos: Recurso[];
     };
     let evento = $state<Evento | null>(null);
+    const mesEvento = $derived(evento ? mesDeEvento(evento.inicio) : mesActualUruguay());
     let elementoMapa = $state<HTMLDivElement | undefined>(undefined);
     let mapa: MapboxMap | undefined;
     let errorMapa = $state('');
@@ -87,10 +89,7 @@
         cargando = true;
         error = '';
         try {
-            const res = await fetch(`/api/admin/eventos/${page.params.id}`, { credentials: 'include' });
-            if (!res.ok)
-                throw new Error(res.status === 401 || res.status === 403 ? 'No tenés permisos para consultar este evento.' : `No se pudo obtener el evento (${res.status}).`);
-            evento = await res.json();
+            evento = await consultarDetalle(Number(page.params.id));
         } catch (e) {
             error = e instanceof Error ? e.message : 'Error inesperado';
         } finally {
@@ -120,6 +119,8 @@
             if (!res.ok) throw new Error(`No se pudo cambiar el estado (${res.status}).`);
             const data = await res.json();
             evento = { ...evento, estado: data.estado, motivo_rechazo: data.motivo_rechazo };
+            invalidarDetalle(evento.id);
+            invalidarCalendario();
             mensaje = decision === 'PUBLICADO' ? 'Evento aprobado y publicado.' : 'Evento rechazado.';
             decision = null;
             motivo = '';
@@ -133,7 +134,16 @@
 
 <svelte:head><title>Revisión de evento | Cerro Largo 360</title></svelte:head>
 <section class="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
-    <a href="/administrador/eventos" class="text-sm font-medium text-[#477967] hover:underline">← Volver a eventos</a>
+    <nav class="flex flex-wrap items-center gap-4" aria-label="Navegación de eventos">
+        <a href="/administrador/eventos" data-sveltekit-preload-data="hover" class="text-sm font-medium text-[#477967] hover:underline">← Volver a eventos</a>
+        <a
+            href={`/administrador/eventos/calendario?mes=${mesEvento}`}
+            data-sveltekit-preload-data="hover"
+            onpointerenter={() => precargarCalendario(mesEvento)}
+            onfocus={() => precargarCalendario(mesEvento)}
+            class="text-sm font-medium text-[#477967] hover:underline"
+        >Ver en calendario</a>
+    </nav>
     {#if cargando}<p class="rounded-2xl border p-6">Cargando detalle…</p>{:else if !evento}<div role="alert" class="rounded-2xl border p-6 text-rose-700">
             {error || 'Evento no encontrado.'}<button onclick={cargar} class="ml-3 underline">Reintentar</button>
         </div>{:else}
