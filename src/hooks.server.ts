@@ -1,9 +1,6 @@
 import { backendUrl } from '$lib/server/backend';
 import type { Handle } from "@sveltejs/kit";
 
-/**
- * Verificar si hay una cuenta
- */
 export const handle: Handle = async ({ event, resolve }) => {
     event.locals.cuenta = null;
 

@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
-    import { slide } from 'svelte/transition';
+        import { slide } from 'svelte/transition';
     import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
     let metodo = $state<'turista' | 'organizador'>('turista');
     let cargando = $state(false);
     let error = $state(false);
+    let mensajeError = $state('');
 
-    const TAMANO_MAXIMO_ARCHIVO = 10 * 1024 * 1024;
+    const TAMANO_MAXIMO_ARCHIVO = 8 * 1024 * 1024;
     const TIPOS_ARCHIVO_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp'];
     const fechaMaximaNacimiento = new Date().toISOString().split('T')[0];
 
@@ -42,6 +42,7 @@
         if (cargando) return;
         cargando = true;
         error = false;
+        mensajeError = '';
         try {
             const formulario = evento.currentTarget as HTMLFormElement;
             const datos = new FormData(formulario);
@@ -60,9 +61,14 @@
             });
             if (!respuesta.ok) {
                 error = true;
+                mensajeError = respuesta.status === 409
+                    ? 'Ya existe una cuenta con este correo o RUT.'
+                    : respuesta.status === 502 || respuesta.status === 503
+                      ? 'El servidor no está disponible. Revisá el backend.'
+                      : 'No se pudo completar el registro. Revisá los datos.';
                 return;
             }
-            await goto(metodo === 'organizador' ? '/organizador' : '/turista', { replaceState: true });
+            window.location.assign(metodo === 'organizador' ? '/organizador' : '/turista');
         } catch {
             error = true;
         } finally {
@@ -119,7 +125,7 @@
         <!-- Error -->
         {#if error}
             <div in:slide|local out:slide|local class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
-                No se pudo completar el registro. Revisá los datos ingresados.
+                {mensajeError || 'No se pudo completar el registro. Revisá los datos ingresados.'}
             </div>
         {/if}
         <form onsubmit={enviar} enctype="multipart/form-data" class="flex flex-col gap-4" aria-busy={cargando}>

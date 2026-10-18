@@ -9,33 +9,25 @@
 		"**/.jj": true,
 		"**/.DS_Store": true,
 		"**/Thumbs.db": true,
-		".gitignore": true,
-		".npmrc": true,
-		"pnpm-lock.yaml": true,
 		"pnpm-workspace.yaml": true,
 		"README.md": true,
 		"tsconfig.json": true,
 		".env.example": true,
 		".prettierignore": true,
-		"vite.config.ts": true,
 		".svelte-kit": true,
+		"AGENTS.md": true,
 		".vscode": true,
-		"build": true,
-		"node_modules": true
+		"src/routes/radios-locales": true
 	},
 	"hide-files.files": [
-		".gitignore",
-		".npmrc",
-		"pnpm-lock.yaml",
 		"pnpm-workspace.yaml",
 		"README.md",
 		"tsconfig.json",
 		".env.example",
 		".prettierignore",
-		"vite.config.ts",
 		".svelte-kit",
+		"AGENTS.md",
 		".vscode",
-		"build",
-		"node_modules"
+		"src/routes/radios-locales"
 	]
 }
