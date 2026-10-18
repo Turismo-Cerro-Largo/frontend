@@ -1,4 +1,3 @@
-// src/hooks.server.ts
 import { backendUrl } from '$lib/server/backend';
 import type { Handle } from "@sveltejs/kit";
 
