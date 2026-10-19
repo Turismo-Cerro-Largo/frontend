@@ -1,0 +1,17 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "instalar_extensiones",
+            "type": "shell",
+            "command": "code --install-extension GitHub.github-vscode-theme --install-extension roonie007.hide-files --install-extension PKief.material-icon-theme --install-extension baa4ts.pimp --install-extension Prisma.prisma --install-extension 1YiB.svelte-bundle --install-extension bradlc.vscode-tailwindcss --force",
+            "problemMatcher": []
+        },
+        {
+            "label": "actualizar_extensiones",
+            "type": "shell",
+            "command": "code --update-extensions",
+            "problemMatcher": []
+        }
+    ]
+}

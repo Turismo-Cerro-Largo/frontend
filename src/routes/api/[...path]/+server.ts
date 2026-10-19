@@ -1,114 +1,31 @@
-
-import { json, type RequestHandler } from '@sveltejs/kit';
 import { backendUrl } from '$lib/server/backend';
-
-const proxy: RequestHandler = async ({
-  request,
-  params,
-  url
-}) => {
-
-  // SEGURIDAD: verificar origen de las peticiones
-  if (
-    !['GET', 'HEAD', 'OPTIONS'].includes(request.method) &&
-    request.headers.get('origin') !== url.origin
-  ) {
-    return json(
-      { message: 'Origen no autorizado.' },
-      { status: 403 }
-    );
-  }
-
-  const ruta = params.path ?? '';
-
-  // Rutas normales del backend
-  const rutaNormal = /^[a-zA-Z0-9_/-]+$/.test(ruta);
-
-  // Permitir fotografías de eventos:
-  // UUID.jpg, UUID.png o UUID.webp
-  const rutaImagen = /^organizador\/eventos\/media\/[0-9a-f-]{36}\.(jpg|png|webp)$/.test(ruta);
-
-  // Bloquear rutas peligrosas
-  if (
-    ruta.includes('..') ||
-    (!rutaNormal && !rutaImagen)
-  ) {
-    return json(
-      { message: 'Ruta no válida.' },
-      { status: 400 }
-    );
-  }
-
-  try {
-
-    // Encabezados enviados al backend
+import type { RequestHandler } from './$types';
+const proxy: RequestHandler = async ({ request, url, fetch }) => {
     const headers = new Headers();
-
-    for (const name of [
-      'cookie',
-      'content-type',
-      'accept',
-      'range'
-    ]) {
-      const value = request.headers.get(name);
-
-      if (value) {
-        headers.set(name, value);
-      }
+    for (const key of ['content-type', 'cookie', 'origin', 'range', 'accept']) {
+        const value = request.headers.get(key);
+        if (value) headers.set(key, value);
     }
-
-    headers.set('origin', url.origin);
-
-    // CONSULTAR BACKEND
-    const upstream = await fetch(
-      backendUrl() + '/api/' + ruta + url.search,
-      {
-        method: request.method,
-        headers,
-        body: ['GET', 'HEAD'].includes(request.method)
-          ? undefined
-          : await request.arrayBuffer(),
-        redirect: 'manual',
-        signal: AbortSignal.timeout(30000)
-      }
-    );
-
-    // Preparar respuesta
-    const result = new Headers(upstream.headers);
-
-    for (const name of [
-      'content-length',
-      'content-encoding',
-      'transfer-encoding',
-      'connection'
-    ]) {
-      result.delete(name);
+    try {
+        const response = await fetch(`${backendUrl()}${url.pathname}${url.search}`, {
+            method: request.method,
+            headers,
+            redirect: 'manual',
+            body: ['GET', 'HEAD'].includes(request.method) ? undefined : request.body,
+            duplex: 'half',
+            signal: AbortSignal.timeout(30000),
+        } as RequestInit);
+        const outgoing = new Headers(response.headers);
+        for (const key of ['content-encoding', 'content-length', 'transfer-encoding', 'connection']) outgoing.delete(key);
+        return new Response(response.body, { status: response.status, headers: outgoing });
+    } catch {
+        return Response.json({ message: 'El servidor no está disponible.' }, { status: 502 });
     }
-
-    result.set('cache-control', 'private, no-store');
-
-    // DEVOLVER RESPUESTA, INCLUIDAS LAS IMÁGENES
-    return new Response(upstream.body, {
-      status: upstream.status,
-      headers: result
-    });
-
-  } catch {
-
-    return json(
-      {
-        message:
-          'No se pudo conectar con el backend. Comprobá que esté funcionando.'
-      },
-      { status: 502 }
-    );
-
-  }
 };
-
-export const GET = proxy;
-export const POST = proxy;
-export const PUT = proxy;
-export const PATCH = proxy;
-export const DELETE = proxy;
-export const HEAD = proxy;
+export const GET = proxy,
+    POST = proxy,
+    PUT = proxy,
+    PATCH = proxy,
+    DELETE = proxy,
+    HEAD = proxy,
+    OPTIONS = proxy;

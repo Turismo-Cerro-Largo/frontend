@@ -1,6 +1,6 @@
 
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { goto } from '$app/navigation';
   import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
   import type { Map, Marker } from 'mapbox-gl';
@@ -20,17 +20,18 @@
 
   let { evento = null }: { evento?: Evento | null } = $props();
 
-  const inicioAnterior = fechaInput(evento?.inicio ?? null);
-  const finAnterior = fechaInput(evento?.fin ?? null);
-  const partesLugar = (evento?.lugar_evento ?? '').split(' | ');
-  const contacto = contactoEvento(evento?.contacto ?? null);
+  const inicial = untrack(() => evento);
+  const inicioAnterior = fechaInput(inicial?.inicio ?? null);
+  const finAnterior = fechaInput(inicial?.fin ?? null);
+  const partesLugar = (inicial?.lugar_evento ?? '').split(' | ');
+  const contacto = contactoEvento(inicial?.contacto ?? null);
 
-  let nombre = $state(evento?.titulo ?? '');
-  let descripcion = $state(evento?.descripcion ?? '');
+  let nombre = $state(inicial?.titulo ?? '');
+  let descripcion = $state(inicial?.descripcion ?? '');
 
   // CATEGORÍAS DE MYSQL
   let categorias = $state<CategoriaEvento[]>([]);
-  let categoriaId = $state(String(evento?.id_categoria ?? ''));
+  let categoriaId = $state(String(inicial?.id_categoria ?? ''));
   let cargandoCategorias = $state(true);
   let errorCategorias = $state('');
 
@@ -47,14 +48,14 @@
   let direccion = $state(
     partesLugar.length > 1
       ? partesLugar.slice(0, -1).join(' | ')
-      : (evento?.lugar_evento ?? '')
+      : (inicial?.lugar_evento ?? '')
   );
 
   let latitud = $state<number | null>(
-    evento?.latitud == null ? null : Number(evento.latitud)
+    inicial?.latitud == null ? null : Number(inicial.latitud)
   );
   let longitud = $state<number | null>(
-    evento?.longitud == null ? null : Number(evento.longitud)
+    inicial?.longitud == null ? null : Number(inicial.longitud)
   );
 
   let mapContainer: HTMLDivElement;
@@ -64,10 +65,10 @@
 
   // ENTRADA
   let tipoEntrada = $state(
-    evento?.es_gratuito === false ? 'pago' : 'gratuito'
+    inicial?.es_gratuito === false ? 'pago' : 'gratuito'
   );
   let precio = $state(
-    evento?.precio == null ? '' : String(evento.precio)
+    inicial?.precio == null ? '' : String(inicial.precio)
   );
 
   // CONTACTO

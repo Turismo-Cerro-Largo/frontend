@@ -1,5 +1,7 @@
 # Revisión de conexiones del turista — 17/10/2026
 
+> Registro histórico. La situación actual y las correcciones de estos pendientes están en [entrega-santana.md](entrega-santana.md) y [agenda-y-navegacion.md](agenda-y-navegacion.md).
+
 ## Base y procedencia
 
 Trabajo local en SANTANA, basado en main integrado: frontend afbaf85 y backend 8f2a2e4. Ambos main seguían sin cambios al consultar GitHub.
