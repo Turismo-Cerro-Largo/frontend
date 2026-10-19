@@ -3,15 +3,18 @@
 
     const eventos_proximos = [
         {
-            link: '',
+            link: '/eventos/mega-show-moto-2026',
+            alt: '22.º Mega Show Internacional de Moto',
             img: 'https://files.catbox.moe/fjw1jn.jpg',
         },
         {
-            link: '',
+            link: '/eventos/carnaval-melo-2026',
+            alt: 'Carnaval de Melo 2026',
             img: 'https://files.catbox.moe/6bjjqx.jpg',
         },
         {
-            link: '',
+            link: '/eventos/lanzamiento-semana-melo-2026',
+            alt: 'Lanzamiento de Semana de Melo 2026',
             img: 'https://files.catbox.moe/dittyx.jpg',
         },
     ];
@@ -30,7 +33,7 @@
         >
             {#each eventos_proximos as evento}
                 <a href={evento.link} class="w-[85%] flex-none snap-start lg:w-auto lg:snap-none">
-                    <img src={evento.img} loading="lazy" alt="Evento" class="aspect-4/5 w-full rounded-xl object-cover transition-transform duration-300 hover:scale-[1.02]" />
+                    <img src={evento.img} loading="lazy" alt={evento.alt} class="aspect-4/5 w-full rounded-xl object-cover transition-transform duration-300 hover:scale-[1.02]" />
                 </a>
             {/each}
         </div>

@@ -1,7 +1,9 @@
 <script lang="ts">
     import { isMobile } from '$lib/hooks/isMobile.svelte';
     import { fly, fade } from 'svelte/transition';
+    import MenuCuenta from './MenuCuenta.svelte';
 
+    let { solid = false }: { solid?: boolean } = $props();
     let scrolled = $state(false);
     let menuAbierto = $state(false);
 
@@ -20,9 +22,9 @@
     const mobil = isMobile();
 
     const links = [
-        { href: '/destinos', label: 'Destinos' },
-        { href: '/intereses', label: 'Intereses' },
-        { href: '/planificador', label: 'Planificá tu viaje' },
+        { href: '/lugares', label: 'Destinos' },
+        { href: '/mapa', label: 'Mapa' },
+        { href: '/horarios-omnibus', label: 'Horarios de ómnibus' },
         { href: '/radios-locales', label: 'Radios locales' },
         { href: '/eventos', label: 'Eventos' },
     ];
@@ -39,7 +41,7 @@
         duration-500
         ease-out
 
-        {scrolled || menuAbierto ? 'bg-white border-b border-black/5 shadow-sm' : 'bg-transparent border-b border-transparent'}
+        {solid || scrolled || menuAbierto ? 'bg-white border-b border-black/5 shadow-sm' : 'bg-transparent border-b border-transparent'}
     "
 >
     <div
@@ -67,7 +69,7 @@
                 duration-500
                 font-Cave
 
-                {scrolled || menuAbierto ? 'text-zinc-900' : 'text-white'}
+                {solid || scrolled || menuAbierto ? 'text-zinc-900' : 'text-white'}
             "
         >
             Cerro Largo
@@ -75,6 +77,7 @@
         </a>
 
         {#if mobil.current}
+            <MenuCuenta claro={solid || scrolled || menuAbierto} />
             <button
                 type="button"
                 class="
@@ -86,7 +89,7 @@
                     transition-colors
                     duration-300
 
-                    {scrolled || menuAbierto ? 'text-zinc-900 hover:bg-zinc-100' : 'text-white hover:bg-white/10'}
+                    {solid || scrolled || menuAbierto ? 'text-zinc-900 hover:bg-zinc-100' : 'text-white hover:bg-white/10'}
                 "
                 aria-label={menuAbierto ? 'Cerrar menú' : 'Abrir menú'}
                 aria-expanded={menuAbierto}
@@ -138,7 +141,7 @@
 
                             hover:after:w-full
 
-                            {scrolled ? 'text-zinc-700 hover:text-black' : 'text-white/90 hover:text-white'}
+                            {solid || scrolled ? 'text-zinc-700 hover:text-black' : 'text-white/90 hover:text-white'}
                         "
                     >
                         {link.label}
@@ -150,6 +153,7 @@
                 <button
                     type="button"
                     aria-label="Buscar"
+                    onclick={() => window.location.assign('/lugares')}
                     class="
                         flex
                         h-10 w-10
@@ -159,7 +163,7 @@
                         transition-all
                         duration-300
 
-                        {scrolled ? 'text-zinc-700 hover:bg-zinc-100 hover:text-black' : 'text-white hover:bg-white/10'}
+                        {solid || scrolled ? 'text-zinc-700 hover:bg-zinc-100 hover:text-black' : 'text-white hover:bg-white/10'}
                     "
                 >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
@@ -168,34 +172,7 @@
                     </svg>
                 </button>
 
-                <a
-                    href="/login"
-                    data-sveltekit-preload-code="hover"
-                    class="
-                        flex
-                        items-center
-                        gap-2
-                        rounded-full
-                        border
-                        px-5
-                        py-2.5
-                        text-[13px]
-                        font-medium
-                        transition-all
-                        duration-300
-
-                        {scrolled
-                        ? 'border-zinc-200 text-zinc-800 hover:bg-zinc-950 hover:text-white hover:border-zinc-950'
-                        : 'border-white/40 text-white hover:bg-white hover:text-zinc-900'}
-                    "
-                >
-                    Ingresar
-
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M5 12H19" />
-                        <path d="M14 7L19 12L14 17" />
-                    </svg>
-                </a>
+                <MenuCuenta claro={solid || scrolled || menuAbierto} />
             </div>
         {/if}
     </div>
@@ -231,7 +208,7 @@
         out:fly={{ y: -15, duration: 180 }}
     >
         <div class="flex flex-col px-5 pt-4 pb-6">
-            <div
+            <form action="/lugares" method="GET" onsubmit={() => (menuAbierto = false)}
                 class="
                     flex
                     items-center
@@ -247,7 +224,7 @@
                 </svg>
 
                 <input
-                    type="text"
+                    type="search" name="buscar" maxlength="100" aria-label="Buscar lugares por nombre o localidad"
                     placeholder="Buscar en Cerro Largo"
                     class="
                         w-full
@@ -258,7 +235,8 @@
                         placeholder:text-zinc-400
                     "
                 />
-            </div>
+<button type="submit" class="text-sm font-semibold text-[#356b53]">Buscar</button>
+            </form>
 
             <div class="flex flex-col py-3">
                 {#each links as link}
@@ -280,32 +258,6 @@
                     </a>
                 {/each}
             </div>
-
-            <a
-                href="/login"
-                data-sveltekit-preload-code="hover"
-                class="
-                    mt-3
-                    flex
-                    items-center
-                    justify-between
-                    rounded-full
-                    bg-zinc-950
-                    px-5
-                    py-3.5
-                    text-sm
-                    font-medium
-                    text-white
-                "
-                onclick={() => (menuAbierto = false)}
-            >
-                Ingresar
-
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12H19" />
-                    <path d="M14 7L19 12L14 17" />
-                </svg>
-            </a>
         </div>
     </div>
 {/if}

@@ -2,9 +2,9 @@
     import { container, eyebrow, iconBtn } from '$lib/styles/tokens';
 
     const explora = [
-        { href: '/destinos', label: 'Destinos' },
-        { href: '/intereses', label: 'Intereses' },
-        { href: '/planificador', label: 'Planificá tu viaje' },
+        { href: '/lugares', label: 'Destinos' },
+        { href: '/mapa', label: 'Mapa' },
+        { href: '/horarios-omnibus', label: 'Horarios de ómnibus' },
         { href: '/eventos', label: 'Eventos' },
     ];
 

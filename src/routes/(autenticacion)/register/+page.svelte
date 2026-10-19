@@ -62,7 +62,7 @@
                 error = true;
                 return;
             }
-            await goto(metodo === 'organizador' ? '/organizador' : '/turista', { replaceState: true });
+            await goto(metodo === 'organizador' ? '/organizador' : '/', { replaceState: true });
         } catch {
             error = true;
         } finally {
