@@ -1,10 +1,13 @@
 <script lang="ts">
     import { isMobile } from '$lib/hooks/isMobile.svelte';
     import { container, section, h2 } from '$lib/styles/tokens';
+    import type { LocalidadPublica } from '$lib/types/localidad';
+
+    let { registros = null }: { registros?: LocalidadPublica[] | null } = $props();
 
     const mobile = isMobile();
 
-    const localidades = [
+    const tarjetas = [
         {
             id: 'Melo',
             nombre: 'Melo',
@@ -65,6 +68,20 @@
         },
     ];
 
+    let localidades = $derived(registros === null ? tarjetas : [
+        ...tarjetas.flatMap((tarjeta) => {
+            const registro = registros.find((item) => item.slug === tarjeta.id);
+            return registro ? [{ ...tarjeta, nombre: registro.nombre }] : [];
+        }),
+        ...registros.filter((registro) => !tarjetas.some((tarjeta) => tarjeta.id === registro.slug))
+            .map((registro) => ({
+                id: registro.slug,
+                nombre: registro.nombre,
+                img: registro.icono ?? '/cerro-largo-360-mapa-localidades-v2.svg',
+                grande: false,
+                desktop: ''
+            }))
+    ]);
     let visibles = $derived(mobile.current ? localidades.slice(0, 5) : localidades);
 </script>
 

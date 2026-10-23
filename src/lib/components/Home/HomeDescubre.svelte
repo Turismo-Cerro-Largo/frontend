@@ -124,6 +124,7 @@
 
         svgDocument.querySelectorAll<SVGGElement>('g.localidad').forEach((group) => {
             const ficha = localidades.find((item) => item.svgId === group.id);
+            group.style.display = ficha ? '' : 'none';
             const anterior = group.querySelector('image.localidad-icono');
             anterior?.remove();
             const punto = group.querySelector<SVGCircleElement>('circle.marcador');
@@ -142,7 +143,8 @@
                     imagen.setAttribute('style', 'clip-path:circle(50%);pointer-events:none');
                     group.insertBefore(imagen, group.querySelector('text.nombre'));
                 }
-            }            const isSelected = group.id === activeSvgId;
+            }
+            const isSelected = group.id === activeSvgId;
 
             if (isSelected) {
                 group.setAttribute('data-selected', 'true');

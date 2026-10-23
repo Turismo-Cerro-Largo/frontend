@@ -2,6 +2,7 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
   import { goto } from '$app/navigation';
+  import { obtenerLocalidadesPublicas } from '$lib/localidades-client';
   import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
   import type { Map, Marker } from 'mapbox-gl';
   import 'mapbox-gl/dist/mapbox-gl.css';
@@ -80,17 +81,7 @@
   let guardando = $state(false);
   let mensaje = $state('');
 
-  const localidades = [
-    'Melo',
-    'Río Branco',
-    'Laguna Merín',
-    'Fraile Muerto',
-    'Isidoro Noblía',
-    'Aceguá',
-    'Tupambaé',
-    'Arévalo',
-    'Plácido Rosas'
-  ];
+  let localidades = $state<string[]>([]);
 
   // OBTENER CATEGORÍAS DE LA BASE DE DATOS
   async function cargarCategorias() {
@@ -122,6 +113,10 @@
 
   onMount(() => {
     let destruido = false;
+
+    obtenerLocalidadesPublicas()
+      .then((datos) => { if (!destruido) localidades = datos.map((item) => item.nombre); })
+      .catch((error) => { if (!destruido) mensaje = error instanceof Error ? error.message : 'No se pudieron cargar las localidades.'; });
 
     // CARGAR CATEGORÍAS AL ABRIR EL FORMULARIO
     void cargarCategorias();

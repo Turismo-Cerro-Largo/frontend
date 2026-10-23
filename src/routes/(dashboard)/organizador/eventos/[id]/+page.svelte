@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount, tick } from 'svelte';
     import { goto } from '$app/navigation';
+    import { obtenerLocalidadesPublicas } from '$lib/localidades-client';
     import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
     import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -49,7 +50,7 @@
     let fechaFin = $state('');
     let horaFin = $state('');
 
-    const localidades = ['Melo', 'Río Branco', 'Laguna Merín', 'Fraile Muerto', 'Isidoro Noblía', 'Aceguá', 'Tupambaé', 'Arévalo', 'Plácido Rosas'];
+    let localidades = $state<string[]>([]);
 
     const aISO = (fecha: string, hora: string) => (fecha && hora ? new Date(`${fecha}T${hora}:00-03:00`).toISOString() : '');
     const inicio = $derived(aISO(fechaInicio, horaInicio));
@@ -78,11 +79,12 @@
         (async () => {
             try {
                 if (!id) throw new Error('ID de evento inválido.');
-                const [rc, re] = await Promise.all([fetch('/api/categorias'), fetch(`/api/eventos/${encodeURIComponent(id)}`, { credentials: 'include' })]);
+                const [rc, re, localidadesData] = await Promise.all([fetch('/api/categorias'), fetch(`/api/eventos/${encodeURIComponent(id)}`, { credentials: 'include' }), obtenerLocalidadesPublicas()]);
                 if (!rc.ok || !re.ok) throw new Error(re.status === 404 ? 'El evento no existe.' : 'No se pudo cargar el evento.');
                 const [categoriasData, datos] = await Promise.all([rc.json(), re.json()]);
                 if (!activo) return;
                 categorias = categoriasData.categorias;
+                localidades = localidadesData.map((item) => item.nombre);
                 evento = datos as Evento;
                 if (!['BORRADOR', 'RECHAZADO'].includes(evento.estado)) return;
                 titulo = evento.titulo;

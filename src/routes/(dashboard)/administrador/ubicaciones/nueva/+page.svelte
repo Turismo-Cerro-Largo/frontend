@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { obtenerLocalidadesPublicas } from '$lib/localidades-client';
     import { subirRecursosDelFormulario } from '$lib/admin/subir-recursos';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import { goto } from '$app/navigation';
@@ -76,8 +77,15 @@
             mapa.flyTo({ center: [form.longitud, form.latitud], zoom: Math.max(mapa.getZoom(), 11) });
         }
     }
+    let localidadesDisponibles = $state<string[]>([]);
+    let errorLocalidades = $state('');
+    let cargandoLocalidades = $state(true);
     onMount(() => {
         let activo = true;
+        obtenerLocalidadesPublicas()
+            .then((datos) => { if (activo) localidadesDisponibles = datos.map((item) => item.nombre); })
+            .catch(() => { if (activo) errorLocalidades = 'No se pudieron cargar las localidades.'; })
+            .finally(() => { if (activo) cargandoLocalidades = false; });
         async function cargar() {
             try {
                 const cr = await fetch('/api/categorias', { credentials: 'include' });
@@ -208,7 +216,21 @@
                 >Descripción *<textarea required rows="5" maxlength="5000" bind:value={form.descripcion} class="mt-1 w-full rounded-lg border p-2"></textarea></label
             >
             <div class="grid gap-3 sm:grid-cols-2">
-                <label class="text-sm">Localidad *<input required bind:value={form.localidad} class="mt-1 w-full rounded-lg border p-2" /></label><label class="text-sm"
+                <label class="block min-w-0 text-sm">Localidad *
+                    <span class="relative mt-1 flex items-center">
+                        <span aria-hidden="true" class="pointer-events-none absolute left-3.5 text-[22px] leading-none text-[#2f6d50]">⌖</span>
+                        <select required bind:value={form.localidad} disabled={cargandoLocalidades || (!localidadesDisponibles.length && !form.localidad)} class="min-h-12 w-full cursor-pointer appearance-none rounded-[11px] border border-[#b7cebd] bg-white py-2.5 pl-10 pr-9 text-sm font-semibold text-[#233c35] disabled:cursor-not-allowed disabled:opacity-60">
+                            <option value="" disabled>{cargandoLocalidades ? 'Cargando localidades…' : 'Seleccionar localidad'}</option>
+                            {#if form.localidad && !localidadesDisponibles.includes(form.localidad)}
+                                <option value={form.localidad}>{form.localidad} (valor actual)</option>
+                            {/if}
+                            {#each localidadesDisponibles as nombre}<option value={nombre}>{nombre}</option>{/each}
+                        </select>
+                        <span aria-hidden="true" class="pointer-events-none absolute right-3.5 text-[22px] leading-none text-[#2f6d50]">⌄</span>
+                    </span>
+                    {#if errorLocalidades}<span class="mt-1 block text-xs text-red-700">{errorLocalidades} <a href="/administrador/localidades" class="underline">Administrar localidades</a></span>{/if}
+                    {#if !cargandoLocalidades && !errorLocalidades && !localidadesDisponibles.length}<span class="mt-1 block text-xs text-amber-800">No hay localidades publicadas. <a href="/administrador/localidades" class="underline">Administrar localidades</a></span>{/if}
+                </label><label class="text-sm"
                     >Categoría *<select required bind:value={form.id_categoria} class="mt-1 w-full rounded-lg border p-2"
                         ><option value={0} disabled>Seleccionar</option>{#each categorias as c}<option value={c.id}>{c.nombre}</option>{/each}</select
                     ></label

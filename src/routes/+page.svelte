@@ -22,7 +22,7 @@
     <HomeHero />
     <HomeCategorias />
     <HomeDescubre registros={data.localidades} />
-    <HomeLocalidades />
+    <HomeLocalidades registros={data.localidades} />
     <HomeProximosEventos eventos={data.eventosProximos} error={data.errorEventos} />
     <HomeViaje />
     <HomeRecomendados />
