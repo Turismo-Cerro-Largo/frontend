@@ -3,14 +3,7 @@ import { error } from '@sveltejs/kit';
 import { backendUrl } from '$lib/server/backend';
 import type { PageServerLoad } from './$types';
 
-type Estado = 'BORRADOR' | 'PENDIENTE_REVISION' | 'PUBLICADO' | 'RECHAZADO' | 'CANCELADO' | 'FINALIZADO';
-type Evento = {
-    id: number;
-    titulo: string;
-    inicio: string;
-    estado: Estado;
-    categoria: { nombre: string } | null;
-};
+import type { Evento } from '$lib/types/evento';
 
 export const load: PageServerLoad = async ({ locals, request, fetch }) => {
     const cuenta = locals.cuenta;
@@ -18,28 +11,17 @@ export const load: PageServerLoad = async ({ locals, request, fetch }) => {
     if (cuenta.rol !== 'ORGANIZADOR') error(403, 'Acceso exclusivo para organizadores.');
     if (cuenta.estado !== 'APROBADO') error(403, 'La organización todavía no fue aprobada.');
 
-    const cookie = request.headers.get('cookie') ?? '';
-    const eventos: Evento[] = [];
-    const tamano = 50; // Límite máximo admitido por el backend.
-
+    let respuesta: Response;
     try {
-        while (eventos.length < 5000) {
-            const params = new URLSearchParams({ offset: String(eventos.length), limit: String(tamano) });
-            const respuesta = await fetch(`${backendUrl()}/api/eventos/organizador/${cuenta.id}?${params}`, {
-                headers: { cookie },
-                signal: AbortSignal.timeout(10000),
-            });
-            if (!respuesta.ok) error(respuesta.status, 'No se pudieron consultar los eventos.');
-            const lote: Evento[] = await respuesta.json();
-            if (!Array.isArray(lote)) error(502, 'Respuesta inválida del backend.');
-            eventos.push(...lote);
-            if (lote.length < tamano) break;
-        }
-        if (eventos.length >= 5000) error(503, 'Hay demasiados eventos para cargar en una sola consulta.');
-    } catch (e) {
-        if (e && typeof e === 'object' && 'status' in e) throw e;
+        respuesta = await fetch(backendUrl() + '/api/organizador/eventos', {
+            headers: { cookie: request.headers.get('cookie') ?? '' },
+            signal: AbortSignal.timeout(10000),
+        });
+    } catch {
         error(503, 'No se pudo conectar con el backend.');
     }
-
-    return { eventos };
+    if (!respuesta.ok) error(respuesta.status, 'No se pudieron consultar los eventos.');
+    const datos = (await respuesta.json()) as { eventos: Evento[] };
+    if (!Array.isArray(datos.eventos)) error(502, 'Respuesta inválida del backend.');
+    return { eventos: datos.eventos };
 };

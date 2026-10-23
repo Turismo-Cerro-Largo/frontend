@@ -1,5 +1,3 @@
-// src/lib/types/categoria.ts
-
 export type TarjetaCategoria = {
     id: number;
     nombre: string;
@@ -11,6 +9,7 @@ export type TarjetaCategoria = {
     direccion?: string | null;
     telefono?: string | null;
     sitio_web?: string | null;
+    horario?: string | null;
     fecha?: string | null;
     precio?: string | null;
 };

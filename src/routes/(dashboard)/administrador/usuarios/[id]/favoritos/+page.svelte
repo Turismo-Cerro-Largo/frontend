@@ -40,7 +40,7 @@
         cargando = true;
         error = '';
         try {
-            const id = page.params.id;
+            const id = page.params.id ?? "";
             const params = new URLSearchParams({ offset: String(pagina * limite), limit: String(limite) });
             const res = await fetch(`/api/admin/usuarios/${encodeURIComponent(id)}/favoritos?${params}`, {
                 credentials: 'include',

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
+    import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
     import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
     import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -15,7 +16,7 @@
     let fechaFin = $state('');
     let horaFin = $state('');
 
-    const localidades = ['Melo', 'Río Branco', 'Laguna Merín', 'Fraile Muerto', 'Isidoro Noblía', 'Aceguá', 'Tupambaé', 'Arévalo', 'Plácido Rosas'];
+    let localidades = $state<string[]>([]);
 
     // Valores compuestos
     const aISO = (fecha: string, hora: string) => (fecha && hora ? new Date(`${fecha}T${hora}:00-03:00`).toISOString() : '');
@@ -39,6 +40,10 @@
             .catch((e) => {
                 if (activo) error = e.message;
             });
+
+        obtenerLocalidadesPublicas()
+            .then((datos) => { if (activo) localidades = datos.map((item) => item.nombre); })
+            .catch((e) => { if (activo) error = e.message; });
 
         // Cargar el mapa
         (async () => {

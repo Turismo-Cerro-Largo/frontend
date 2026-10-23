@@ -25,7 +25,7 @@
     let fotos = $state<Record<string, string>>({});
     let imagenError = $state<Record<string, string>>({});
     let urls: string[] = [];
-    let id = $derived(page.params.id);
+    let id = $derived(page.params.id ?? "");
     async function cargar() {
         cargando = true;
         error = '';

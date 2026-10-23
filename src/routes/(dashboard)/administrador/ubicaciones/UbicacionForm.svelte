@@ -1,5 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
+    import { subirRecursosDelFormulario } from '$lib/admin/subir-recursos';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import { goto } from '$app/navigation';
     import { env } from '$env/dynamic/public';
@@ -44,6 +46,7 @@
     let zonaArrastre = $state(false),
         subiendo = $state(false),
         inputArchivo: HTMLInputElement;
+    let formulario: HTMLFormElement;
     let contenedor: HTMLDivElement;
     let mapa: any = null,
         marcador: any = null;
@@ -76,8 +79,15 @@
             mapa.flyTo({ center: [form.longitud, form.latitud], zoom: Math.max(mapa.getZoom(), 11) });
         }
     }
+    let localidadesDisponibles = $state<string[]>([]);
+    let errorLocalidades = $state('');
+    let cargandoLocalidades = $state(true);
     onMount(() => {
         let activo = true;
+        obtenerLocalidadesPublicas()
+            .then((datos) => { if (activo) localidadesDisponibles = datos.map((item) => item.nombre); })
+            .catch(() => { if (activo) errorLocalidades = 'No se pudieron cargar las localidades.'; })
+            .finally(() => { if (activo) cargandoLocalidades = false; });
         async function cargar() {
             try {
                 const cr = await fetch('/api/categorias', { credentials: 'include' });
@@ -133,17 +143,11 @@
         error = '';
         subiendo = true;
         try {
-            for (const file of seleccion) {
-                if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) throw new Error(`${file.name}: seleccioná una imagen o video.`);
-                const fd = new FormData();
-                fd.append('archivo', file);
-                const response = await fetch('/api/admin/ubicaciones/recursos/upload', { method: 'POST', credentials: 'include', body: fd });
-                const data = await response.json().catch(() => ({}));
-                if (!response.ok) throw new Error(data.error ?? `Error al subir ${file.name} (${response.status}).`);
-                recursos = [...recursos, { tipo: data.tipo as 'IMAGEN' | 'VIDEO', uri: data.uri }];
-            }
+            await subirRecursosDelFormulario(formulario, inputArchivo, seleccion, (cargados) => {
+                recursos = [...recursos, ...cargados];
+            });
         } catch (e) {
-            error = e instanceof Error ? e.message : 'No se pudo subir el archivo.';
+            error = e instanceof Error ? e.message : 'No se pudieron subir los archivos.';
         } finally {
             subiendo = false;
             if (inputArchivo) inputArchivo.value = '';
@@ -206,7 +210,7 @@
     {#if error}<p role="alert" class="rounded-lg bg-rose-50 p-4 text-rose-800">{error}</p>{/if}{#if mensaje}<p role="status" class="rounded-lg bg-emerald-50 p-4 text-emerald-800">
             {mensaje}
         </p>{/if}
-    <form
+    <form bind:this={formulario} method="post" enctype="multipart/form-data"
         class="flex min-w-0 flex-col gap-6"
         onsubmit={(e) => {
             e.preventDefault();
@@ -241,7 +245,21 @@
                 >Descripción *<textarea required rows="5" maxlength="5000" bind:value={form.descripcion} class="mt-1 w-full rounded-lg border p-2"></textarea></label
             >
             <div class="grid gap-3 sm:grid-cols-2">
-                <label class="text-sm">Localidad *<input required bind:value={form.localidad} class="mt-1 w-full rounded-lg border p-2" /></label><label class="text-sm"
+                <label class="block min-w-0 text-sm">Localidad *
+                    <span class="relative mt-1 flex items-center">
+                        <span aria-hidden="true" class="pointer-events-none absolute left-3.5 text-[22px] leading-none text-[#2f6d50]">⌖</span>
+                        <select required bind:value={form.localidad} disabled={cargandoLocalidades || (!localidadesDisponibles.length && !form.localidad)} class="min-h-12 w-full cursor-pointer appearance-none rounded-[11px] border border-[#b7cebd] bg-white py-2.5 pl-10 pr-9 text-sm font-semibold text-[#233c35] disabled:cursor-not-allowed disabled:opacity-60">
+                            <option value="" disabled>{cargandoLocalidades ? 'Cargando localidades…' : 'Seleccionar localidad'}</option>
+                            {#if form.localidad && !localidadesDisponibles.includes(form.localidad)}
+                                <option value={form.localidad}>{form.localidad} (valor actual)</option>
+                            {/if}
+                            {#each localidadesDisponibles as nombre}<option value={nombre}>{nombre}</option>{/each}
+                        </select>
+                        <span aria-hidden="true" class="pointer-events-none absolute right-3.5 text-[22px] leading-none text-[#2f6d50]">⌄</span>
+                    </span>
+                    {#if errorLocalidades}<span class="mt-1 block text-xs text-red-700">{errorLocalidades} <a href="/administrador/localidades" class="underline">Administrar localidades</a></span>{/if}
+                    {#if !cargandoLocalidades && !errorLocalidades && !localidadesDisponibles.length}<span class="mt-1 block text-xs text-amber-800">No hay localidades publicadas. <a href="/administrador/localidades" class="underline">Administrar localidades</a></span>{/if}
+                </label><label class="text-sm"
                     >Categoría *<select required bind:value={form.id_categoria} class="mt-1 w-full rounded-lg border p-2"
                         ><option value={0} disabled>Seleccionar</option>{#each categorias as c}<option value={c.id}>{c.nombre}</option>{/each}</select
                     ></label
@@ -281,7 +299,7 @@
                 <p class="mb-3 text-sm text-slate-500">JPG, PNG, WebP, GIF hasta 10 MB; MP4 y WebM hasta 80 MB</p>
                 <input
                     bind:this={inputArchivo}
-                    type="file"
+                    type="file" name="recursos"
                     accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
                     multiple
                     class="sr-only"

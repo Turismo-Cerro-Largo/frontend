@@ -3,6 +3,7 @@
     import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
     let metodo = $state<'turista' | 'organizador'>('turista');
     let cargando = $state(false);
+    let mostrarPassword = $state(false);
     let error = $state(false);
     let mensajeError = $state('');
 
@@ -68,7 +69,7 @@
                       : 'No se pudo completar el registro. Revisá los datos.';
                 return;
             }
-            window.location.assign(metodo === 'organizador' ? '/organizador' : '/turista');
+            window.location.assign(metodo === 'organizador' ? '/organizador' : '/');
         } catch {
             error = true;
         } finally {
@@ -204,19 +205,37 @@
             <!-- PASSWORD -->
             <div class="flex flex-col gap-1">
                 <label for="password" class="text-sm font-medium text-slate-700"> Contraseña </label>
-                <input
-                    disabled={cargando}
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    minlength="8"
-                    maxlength="32"
-                    autocomplete="new-password"
-                    pattern="^(?=.*[a-z])(?=.*[A-Z]).*$"
-                    title="La contraseña debe tener al menos 8 caracteres, una letra minúscula y una letra mayúscula."
-                    class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
-                />
+                <div class="relative">
+                    <input
+                        disabled={cargando}
+                        id="password"
+                        name="password"
+                        type={mostrarPassword ? 'text' : 'password'}
+                        required
+                        minlength="8"
+                        maxlength="32"
+                        autocomplete="new-password"
+                        pattern="^(?=.*[a-z])(?=.*[A-Z]).*$"
+                        title="La contraseña debe tener al menos 8 caracteres, una letra minúscula y una letra mayúscula."
+                        class="w-full pr-12 rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
+                    />
+                    <button
+                        type="button"
+                        disabled={cargando}
+                        onclick={() => mostrarPassword = !mostrarPassword}
+                        aria-label={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        aria-controls="password"
+                        aria-pressed={mostrarPassword}
+                        title={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        class="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg text-slate-500 hover:text-green-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                            <circle cx="12" cy="12" r="3" />
+                            {#if mostrarPassword}<path d="m3 3 18 18" />{/if}
+                        </svg>
+                    </button>
+                </div>
             </div>
             <!-- DEPARTAMENTO -->
             <div class="flex flex-col gap-1">
