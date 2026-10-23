@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { obtenerLocalidadesPublicas } from '$lib/localidades-client';
+    import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
     import { subirRecursosDelFormulario } from '$lib/admin/subir-recursos';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import { goto } from '$app/navigation';

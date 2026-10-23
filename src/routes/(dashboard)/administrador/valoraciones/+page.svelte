@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
-  import { estados } from '$lib/turista/types';
+  import { estados } from '$lib/turista/valoraciones';
   import '$lib/components/turista/turista.css';
   let { data } = $props();
   let ocupado = $state<number | null>(null);

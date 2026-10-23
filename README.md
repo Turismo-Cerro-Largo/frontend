@@ -40,3 +40,10 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+
+## Proxy de la API
+
+Vite redirige /api al backend definido por API_URL (por defecto http://127.0.0.1:4000), conservando el prefijo /api. Reiniciar el servidor de desarrollo después de cambiar la configuración.
+
+En producción con adapter-node, configurar un proxy inverso en el hosting para enviar /api al backend; el proxy de Vite solo se aplica durante desarrollo.

@@ -1,4 +1,5 @@
-export type RecursoSubido = { uri: string; tipo: 'IMAGEN' | 'VIDEO' };
+import type { RecursoSubido } from '$lib/types/archivo';
+
 
 const LIMITE_LOTE = 80 * 1024 * 1024;
 

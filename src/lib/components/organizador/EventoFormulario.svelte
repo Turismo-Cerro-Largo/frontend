@@ -2,7 +2,7 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
   import { goto } from '$app/navigation';
-  import { obtenerLocalidadesPublicas } from '$lib/localidades-client';
+  import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
   import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
   import type { Map, Marker } from 'mapbox-gl';
   import 'mapbox-gl/dist/mapbox-gl.css';

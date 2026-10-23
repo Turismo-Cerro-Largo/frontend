@@ -3,10 +3,10 @@
     import EliminarValoracion from '$lib/components/turista/EliminarValoracion.svelte';
     import Estrellas from '$lib/components/turista/Estrellas.svelte';
     import Navbar from '$lib/components/shared/Navbar.svelte';
-    import HomeFooter from '$lib/components/Home/HomeFooter.svelte';
+    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
     import { invalidateAll } from '$app/navigation';
     import { enviar } from '$lib/turista/api';
-    import { estados } from '$lib/turista/types';
+    import { estados } from '$lib/turista/valoraciones';
     import Icono from '$lib/components/turista/Icono.svelte';
     import '$lib/components/turista/turista.css';
     let { data } = $props();

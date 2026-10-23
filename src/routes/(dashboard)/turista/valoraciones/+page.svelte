@@ -1,7 +1,7 @@
 <script lang="ts">
   import EliminarValoracion from '$lib/components/turista/EliminarValoracion.svelte';
   import Icono from '$lib/components/turista/Icono.svelte';
-  import { estados } from '$lib/turista/types';
+  import { estados } from '$lib/turista/valoraciones';
   let { data } = $props();
 </script>
 <svelte:head><title>Mis valoraciones · Cerro Largo 360</title></svelte:head>

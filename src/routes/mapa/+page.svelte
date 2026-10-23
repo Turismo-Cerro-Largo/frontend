@@ -1,7 +1,7 @@
 <script lang="ts">
 import Navbar from '$lib/components/shared/Navbar.svelte';
-import HomeFooter from '$lib/components/Home/HomeFooter.svelte';
-import MapaPublico from '$lib/components/Mapa/MapaPublico.svelte';
+import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
+import MapaPublico from '$lib/components/mapas/MapaPublico.svelte';
 import '$lib/components/turista/turista.css';
 let {data}=$props();
 let vista3d=$state(false);

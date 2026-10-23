@@ -1,8 +1,8 @@
 <script lang="ts">
     import Navbar from '$lib/components/shared/Navbar.svelte';
-    import HomeFooter from '$lib/components/Home/HomeFooter.svelte';
+    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
     import EventoCard from '$lib/components/turista/EventoCard.svelte';
-    import { diaUruguay } from '$lib/types/agenda';
+    import { diaUruguay } from '$lib/utils/agenda';
     import '$lib/components/turista/turista.css';
     let { data } = $props();
     const inicio = $derived(new Date(`${data.mes}-01T12:00:00Z`));

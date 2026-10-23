@@ -1,6 +1,6 @@
 <script lang="ts">
     import Navbar from '$lib/components/shared/Navbar.svelte';
-    import HomeFooter from '$lib/components/Home/HomeFooter.svelte';
+    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
     import type { PageData } from './$types';
     import '$lib/components/turista/turista.css';
     let { data }: { data: PageData } = $props();

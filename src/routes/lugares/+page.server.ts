@@ -1,5 +1,5 @@
 import { consultar } from '$lib/server/turista';
-import type { Lugar } from '$lib/turista/types';
+import type { Lugar } from '$lib/types/turista';
 import type { LocalidadPublica } from '$lib/types/localidad';
 import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ request, url }) => {

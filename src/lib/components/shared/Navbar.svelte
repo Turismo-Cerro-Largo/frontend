@@ -24,7 +24,6 @@
     const links = [
         { href: '/lugares', label: 'Destinos' },
         { href: '/mapa', label: 'Mapa' },
-        { href: '/horarios-omnibus', label: 'Horarios de ómnibus' },
         { href: '/radios-locales', label: 'Radios locales' },
         { href: '/eventos', label: 'Eventos' },
     ];

@@ -1,6 +1,7 @@
 import { consultar } from '$lib/server/turista';
 import { error } from '@sveltejs/kit';
-import { diaUruguay, type EventoPublico } from '$lib/types/agenda';
+import { diaUruguay } from '$lib/utils/agenda';
+import type { EventoPublico } from '$lib/types/agenda';
 import type { PageServerLoad } from './$types';
 function fecha(valor: string) { return /^\d{4}-\d{2}-\d{2}$/.test(valor) && Number.isFinite(Date.parse(valor)) && new Date(valor).toISOString().slice(0,10) === valor; }
 export const load: PageServerLoad = async ({ request, url }) => {

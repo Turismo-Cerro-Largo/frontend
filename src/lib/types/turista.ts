@@ -12,7 +12,7 @@ export type Perfil = {
     creado_en: string;
 };
 export type Lugar = {
-    recursos?: import("$lib/types/agenda").Medio[];
+    recursos?: import('$lib/types/agenda').Medio[];
     id: number;
     nombre: string;
     descripcion: string;
@@ -38,9 +38,4 @@ export type DetalleLugar = {
     promedio: number | null;
     totalValoraciones: number;
     comentarios: { id: number; texto: string | null; calificacion: number; creado_en: string; usuario: { nombres: string } }[];
-};
-export const estados: Record<EstadoValoracion, string> = {
-    PENDIENTE_REVISION: 'Pendiente de revisión',
-    PUBLICADO: 'Publicada',
-    OCULTADO: 'No publicada',
 };

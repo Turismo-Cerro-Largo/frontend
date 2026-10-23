@@ -1,5 +1,5 @@
 import { consultar } from '$lib/server/turista';
-import type { DetalleLugar, Valoracion } from '$lib/turista/types';
+import type { DetalleLugar, Valoracion } from '$lib/types/turista';
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 export const load: PageServerLoad = async ({ params, request, locals, setHeaders }) => {

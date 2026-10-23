@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ListadoCategoria from '$lib/components/Categorias/ListadoCategoria.svelte';
+    import ListadoCategoria from '$lib/components/catalogo/ListadoCategoria.svelte';
     import type { PageData } from './$types';
     let { data }: { data: PageData } = $props();
 </script>

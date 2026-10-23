@@ -2,43 +2,10 @@
  * Cache corto para precargar eventos desde enlaces con hover/focus.
  * No reemplaza la API ni persiste datos en el navegador.
  */
-export type EstadoEvento =
-    | 'BORRADOR'
-    | 'PENDIENTE_REVISION'
-    | 'PUBLICADO'
-    | 'RECHAZADO'
-    | 'CANCELADO'
-    | 'FINALIZADO';
-
-export type EventoResumen = {
-    id: number;
-    titulo: string;
-    estado: EstadoEvento;
-    inicio: string;
-    creado_en: string;
-    lugar_evento: string | null;
-    categoria: { nombre: string } | null;
-    organizador: { id: number; nombre_organizacion: string } | null;
-};
-
-export type EventoDetalle = EventoResumen & {
-    descripcion: string;
-    fin: string | null;
-    latitud: string | null;
-    longitud: string | null;
-    es_gratuito: boolean;
-    precio: string | null;
-    contacto: string | null;
-    motivo_rechazo: string | null;
-    organizador: { id: number; nombre_organizacion: string; rut: string | null } | null;
-    recursos: { uri: string; tipo: string | null; orden: number }[];
-};
-
-export type RespuestaCalendario = {
-    mes: string;
-    total: number;
-    eventos: EventoResumen[];
-};
+import type { EstadoEvento } from '$lib/types/evento';
+import type { EventoResumen, EventoDetalle, RespuestaCalendario } from '$lib/types/admin-eventos';
+export type { EstadoEvento } from '$lib/types/evento';
+export type { EventoResumen, EventoDetalle, RespuestaCalendario } from '$lib/types/admin-eventos';
 
 export const etiquetasEstado: Record<EstadoEvento, string> = {
     BORRADOR: 'Borrador',
@@ -104,9 +71,7 @@ export function consultarCalendario(mes: string, estado = '', buscar = ''): Prom
     if (estado) parametros.set('estado', estado);
     if (buscar.trim()) parametros.set('buscar', buscar.trim());
     const clave = parametros.toString();
-    return obtenerDeCache(cacheCalendario, clave, () =>
-        pedirJSON<RespuestaCalendario>(`/api/admin/eventos/calendario?${clave}`),
-    );
+    return obtenerDeCache(cacheCalendario, clave, () => pedirJSON<RespuestaCalendario>(`/api/admin/eventos/calendario?${clave}`));
 }
 
 export function precargarCalendario(mes: string, estado = '', buscar = ''): void {

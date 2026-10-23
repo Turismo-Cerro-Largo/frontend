@@ -1,6 +1,6 @@
 <script lang="ts">
     import Navbar from '$lib/components/shared/Navbar.svelte';
-    import HomeFooter from '$lib/components/Home/HomeFooter.svelte';
+    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
     import '$lib/components/turista/turista.css';
     import LugarCard from '$lib/components/turista/LugarCard.svelte';
     import Icono from '$lib/components/turista/Icono.svelte';

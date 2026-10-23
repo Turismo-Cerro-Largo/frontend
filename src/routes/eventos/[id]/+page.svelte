@@ -1,8 +1,8 @@
 <script lang="ts">
     import Navbar from '$lib/components/shared/Navbar.svelte';
-    import HomeFooter from '$lib/components/Home/HomeFooter.svelte';
+    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
     import Galeria from '$lib/components/turista/Galeria.svelte';
-    import { rangoEvento, diaUruguay } from '$lib/types/agenda';
+    import { rangoEvento, diaUruguay } from '$lib/utils/agenda';
     import '$lib/components/turista/turista.css';
     let { data } = $props();
     const evento = $derived(data.evento);

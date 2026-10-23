@@ -1,6 +1,6 @@
 import { consultar } from '$lib/server/turista';
 import type { PageServerLoad } from './$types';
-type Horario = { id:number; origen:string; destino:string; hora_salida:string; hora_llegada:string|null; dias:string; tipo_servicio:string; precio:string|null; empresa:{nombre:string;telefono:string|null;sitio_web:string|null} };
+import type { HorarioOmnibus as Horario } from '$lib/types/transporte';
 export const load:PageServerLoad = async ({request,url}) => {
     const origen=(url.searchParams.get('origen')||'').slice(0,120);
     const destino=(url.searchParams.get('destino')||'').slice(0,120);

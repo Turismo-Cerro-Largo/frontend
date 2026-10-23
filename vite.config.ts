@@ -1,10 +1,19 @@
 // vite.config.ts
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import adapter from '@sveltejs/adapter-node';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+    server: {
+        proxy: {
+            '/api': {
+                target: loadEnv(mode, '.', 'API_URL').API_URL?.trim() || 'http://127.0.0.1:4000',
+                changeOrigin: true,
+                proxyTimeout: 30000,
+            },
+        },
+    },
 	plugins: [
 		tailwindcss(),
 		sveltekit({
@@ -20,4 +29,4 @@ export default defineConfig({
 		})
 	],
 
-});
+}));

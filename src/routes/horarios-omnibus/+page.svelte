@@ -1,6 +1,7 @@
 <script lang="ts">
+import { URUBUS_URL } from '$lib/transporte/urubus';
 import Navbar from '$lib/components/shared/Navbar.svelte';
-import HomeFooter from '$lib/components/Home/HomeFooter.svelte';
+import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
 import '$lib/components/turista/turista.css';
 let {data}=$props();
 function paginar(p:number){return `?${new URLSearchParams({origen:data.origen,destino:data.destino,pagina:String(p)})}`;}
@@ -21,6 +22,7 @@ function paginar(p:number){return `?${new URLSearchParams({origen:data.origen,de
 <h2>{h.origen} → {h.destino}</h2><p>{h.empresa.nombre}</p>
 <div class="horas"><div><small>Salida</small><strong>{h.hora_salida}</strong></div><span aria-hidden="true">→</span><div><small>Llegada</small><strong>{h.hora_llegada || 'A confirmar'}</strong></div></div>
 <dl class="t-details"><div><dt>Días</dt><dd>{h.dias}</dd></div><div><dt>Servicio</dt><dd>{h.tipo_servicio==='DEPARTAMENTAL'?'Departamental':'Interdepartamental'}</dd></div><div><dt>Precio</dt><dd>{h.precio===null?'Consultar con la empresa':`$ ${h.precio}`}</dd></div>{#if h.empresa.telefono}<div><dt>Teléfono</dt><dd>{h.empresa.telefono}</dd></div>{/if}</dl>
+<a class="t-button" href={URUBUS_URL} target="_blank" rel="noopener noreferrer">Consultar en Urubus ↗</a>
 {#if h.empresa.sitio_web && /^https?:\/\//i.test(h.empresa.sitio_web)}<a class="t-link" href={h.empresa.sitio_web} target="_blank" rel="noopener noreferrer">Consultar a la empresa ↗</a>{/if}
 </article>{:else}<div class="t-empty"><h2>No encontramos horarios para este recorrido</h2><p>Probá otro origen o destino.</p></div>{/each}</div>
 <nav class="t-pagination" aria-label="Páginas de horarios">{#if data.pagina>1}<a href={paginar(data.pagina-1)}>Anterior</a>{/if}{#if data.pagina*data.porPagina<data.total}<a href={paginar(data.pagina+1)}>Siguiente</a>{/if}</nav>

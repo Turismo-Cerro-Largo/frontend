@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { rangoEvento, type EventoPublico } from '$lib/types/agenda';
+    import { rangoEvento } from '$lib/utils/agenda';
+    import type { EventoPublico } from '$lib/types/agenda';
     let { evento }: { evento: EventoPublico } = $props();
     const imagen = $derived(evento.recursos.find(r => r.tipo === 'IMAGEN'));
 </script>

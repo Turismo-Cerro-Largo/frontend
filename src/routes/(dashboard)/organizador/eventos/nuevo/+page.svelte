@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
-    import { obtenerLocalidadesPublicas } from '$lib/localidades-client';
+    import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
     import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
     import 'mapbox-gl/dist/mapbox-gl.css';
 

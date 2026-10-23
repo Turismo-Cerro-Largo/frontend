@@ -1,30 +1,13 @@
 <script lang="ts">
     import { onMount, tick } from 'svelte';
     import { goto } from '$app/navigation';
-    import { obtenerLocalidadesPublicas } from '$lib/localidades-client';
+    import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
     import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
     import 'mapbox-gl/dist/mapbox-gl.css';
 
     import { page } from '$app/state';
 
-    type Evento = {
-        id: number;
-        id_organizador: number;
-        titulo: string;
-        descripcion: string;
-        inicio: string;
-        fin: string | null;
-        id_categoria: number;
-        lugar_evento: string | null;
-        latitud: string | number | null;
-        longitud: string | number | null;
-        es_gratuito: boolean;
-        precio: string | number | null;
-        contacto: string | null;
-        estado: string;
-        motivo_rechazo: string | null;
-        recursos: { uri: string; tipo: string; orden: number }[];
-    };
+    import type { Evento } from '$lib/types/evento';
 
     let id = $derived(page.params.id ?? ''); // SvelteKit permite undefined en rutas dinámicas
     let categorias = $state<{ id: number; nombre: string }[]>([]);
@@ -79,13 +62,13 @@
         (async () => {
             try {
                 if (!id) throw new Error('ID de evento inválido.');
-                const [rc, re, localidadesData] = await Promise.all([fetch('/api/categorias'), fetch(`/api/eventos/${encodeURIComponent(id)}`, { credentials: 'include' }), obtenerLocalidadesPublicas()]);
+                const [rc, re, localidadesData] = await Promise.all([fetch('/api/organizador/eventos/categorias'), fetch(`/api/organizador/eventos/${encodeURIComponent(id)}`, { credentials: 'include' }), obtenerLocalidadesPublicas()]);
                 if (!rc.ok || !re.ok) throw new Error(re.status === 404 ? 'El evento no existe.' : 'No se pudo cargar el evento.');
                 const [categoriasData, datos] = await Promise.all([rc.json(), re.json()]);
                 if (!activo) return;
                 categorias = categoriasData.categorias;
                 localidades = localidadesData.map((item) => item.nombre);
-                evento = datos as Evento;
+                evento = datos.evento as Evento;
                 if (!['BORRADOR', 'RECHAZADO'].includes(evento.estado)) return;
                 titulo = evento.titulo;
                 descripcion = evento.descripcion;

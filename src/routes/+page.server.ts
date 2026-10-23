@@ -1,6 +1,8 @@
 import { backendUrl } from '$lib/server/backend';
-import { diaUruguay, type EventoPublico } from '$lib/types/agenda';
+import { diaUruguay } from '$lib/utils/agenda';
+import type { EventoPublico } from '$lib/types/agenda';
 import type { LocalidadPublica } from '$lib/types/localidad';
+import type { HorarioOmnibus } from '$lib/types/transporte';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch }) => {
@@ -17,8 +19,18 @@ export const load: PageServerLoad = async ({ fetch }) => {
         if (!respuesta.ok) throw new Error('No se pudieron cargar las localidades.');
         return (await respuesta.json()) as LocalidadPublica[];
     });
-    const [resultadoEventos, resultadoLocalidades] = await Promise.allSettled([eventos, localidades]);
+    const horarios = fetch(backendUrl() + '/api/transporte/horarios?pagina=1', {
+        signal: AbortSignal.timeout(10000),
+    }).then(async (respuesta) => {
+        if (!respuesta.ok) throw new Error('No se pudieron cargar los horarios.');
+        const datos = (await respuesta.json()) as { horarios: HorarioOmnibus[] };
+        if (!Array.isArray(datos.horarios)) throw new Error('Respuesta de horarios inválida.');
+        return datos.horarios.slice(0, 3);
+    });
+    const [resultadoEventos, resultadoLocalidades, resultadoHorarios] = await Promise.allSettled([eventos, localidades, horarios]);
     return {
+        horarios: resultadoHorarios.status === 'fulfilled' ? resultadoHorarios.value : [],
+        errorHorarios: resultadoHorarios.status !== 'fulfilled',
         eventosProximos: resultadoEventos.status === 'fulfilled' ? resultadoEventos.value : [],
         errorEventos: resultadoEventos.status !== 'fulfilled',
         localidades: resultadoLocalidades.status === 'fulfilled' ? resultadoLocalidades.value : null

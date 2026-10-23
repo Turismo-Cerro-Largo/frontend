@@ -1,6 +1,6 @@
 <script lang="ts">
     import Icono from './Icono.svelte';
-    import type { Lugar } from '$lib/turista/types';
+    import type { Lugar } from '$lib/types/turista';
     let { lugar }: { lugar: Lugar } = $props();
 </script>
 
