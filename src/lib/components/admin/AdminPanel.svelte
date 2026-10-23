@@ -28,14 +28,14 @@
     ]);
     const selectedOrganizer = $derived(records.organizadores.find((row)=>row.id===selected?.id));
     const selectedEvent = $derived(records.eventos.find((event) => event.id === selected?.id));
-    async function saveRecord(section: string, row: RecordRow, file?: File) {
+    async function saveRecord(section: string, row: RecordRow, file?: File, formulario?: HTMLFormElement) {
         if (live) {
             const exists=records[section].some((item)=>item.id===row.id);
             if(section==='comentarios') await adminRequest('/comentarios/'+row.id+'/estado','PATCH',{estado:row.estado});
             else if(section==='multimedia') {
-                const form=new FormData();
+                const form=formulario ? new FormData(formulario) : new FormData();
                 for(const key of ['nombre','descripcion','destino']) form.set(key,row.data[key]??'');
-                if(file) form.set('archivo',file);
+                if(file && !formulario) form.set('archivo',file);
                 await adminRequest('/multimedia'+(exists?'/'+row.id:''),exists?'PUT':'POST',form);
             } else await adminRequest('/'+section+(exists?'/'+row.id:''),exists?'PUT':'POST',{data:row.data});
             await reloadData(); search=''; status='Todos'; feedback='Cambios guardados en la base de datos.'; return;

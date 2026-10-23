@@ -1,4 +1,3 @@
-
 <script lang="ts">
     import ListadoCategoria from '$lib/components/Categorias/ListadoCategoria.svelte';
     import type { DatosCategoria } from '$lib/types/categoria';

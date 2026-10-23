@@ -68,7 +68,7 @@
                       : 'No se pudo completar el registro. Revisá los datos.';
                 return;
             }
-            window.location.assign(metodo === 'organizador' ? '/organizador' : '/turista');
+            window.location.assign(metodo === 'organizador' ? '/organizador' : '/');
         } catch {
             error = true;
         } finally {

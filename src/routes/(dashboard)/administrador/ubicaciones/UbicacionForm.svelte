@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { subirRecursosDelFormulario } from '$lib/admin/subir-recursos';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import { goto } from '$app/navigation';
     import { env } from '$env/dynamic/public';
@@ -44,6 +45,7 @@
     let zonaArrastre = $state(false),
         subiendo = $state(false),
         inputArchivo: HTMLInputElement;
+    let formulario: HTMLFormElement;
     let contenedor: HTMLDivElement;
     let mapa: any = null,
         marcador: any = null;
@@ -133,17 +135,11 @@
         error = '';
         subiendo = true;
         try {
-            for (const file of seleccion) {
-                if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) throw new Error(`${file.name}: seleccioná una imagen o video.`);
-                const fd = new FormData();
-                fd.append('archivo', file);
-                const response = await fetch('/api/admin/ubicaciones/recursos/upload', { method: 'POST', credentials: 'include', body: fd });
-                const data = await response.json().catch(() => ({}));
-                if (!response.ok) throw new Error(data.error ?? `Error al subir ${file.name} (${response.status}).`);
-                recursos = [...recursos, { tipo: data.tipo as 'IMAGEN' | 'VIDEO', uri: data.uri }];
-            }
+            await subirRecursosDelFormulario(formulario, inputArchivo, seleccion, (cargados) => {
+                recursos = [...recursos, ...cargados];
+            });
         } catch (e) {
-            error = e instanceof Error ? e.message : 'No se pudo subir el archivo.';
+            error = e instanceof Error ? e.message : 'No se pudieron subir los archivos.';
         } finally {
             subiendo = false;
             if (inputArchivo) inputArchivo.value = '';
@@ -206,7 +202,7 @@
     {#if error}<p role="alert" class="rounded-lg bg-rose-50 p-4 text-rose-800">{error}</p>{/if}{#if mensaje}<p role="status" class="rounded-lg bg-emerald-50 p-4 text-emerald-800">
             {mensaje}
         </p>{/if}
-    <form
+    <form bind:this={formulario} method="post" enctype="multipart/form-data"
         class="flex min-w-0 flex-col gap-6"
         onsubmit={(e) => {
             e.preventDefault();
@@ -281,7 +277,7 @@
                 <p class="mb-3 text-sm text-slate-500">JPG, PNG, WebP, GIF hasta 10 MB; MP4 y WebM hasta 80 MB</p>
                 <input
                     bind:this={inputArchivo}
-                    type="file"
+                    type="file" name="recursos"
                     accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
                     multiple
                     class="sr-only"

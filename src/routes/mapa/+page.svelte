@@ -1,76 +1,17 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
-    import { page } from '$app/state';
-    import MapaBusqueda from '$lib/components/Mapa/MapaBusqueda.svelte';
-    import MapaLocalidadSelecionada from '$lib/components/Mapa/MapaLocalidadSelecionada.svelte';
-    import MapaMapa from '$lib/components/Mapa/MapaMapa.svelte';
-    import { fade } from 'svelte/transition';
-
-    // vars
-    let menu = $state<boolean>(false);
-    const localidad = $derived(page.url.searchParams.get('localidad'));
-
-    $effect(() => {
-        if (!localidad) return;
-
-        // Abrir el menu
-        menu = true;
-    });
-
-    const cerrarMenu = async () => {
-        menu = false;
-
-        if (!localidad) return;
-
-        const url = new URL(page.url);
-        url.searchParams.delete('localidad');
-        await goto(url, { replaceState: true, noScroll: true, keepFocus: true });
-    };
+import Navbar from '$lib/components/shared/Navbar.svelte';
+import HomeFooter from '$lib/components/Home/HomeFooter.svelte';
+import MapaPublico from '$lib/components/Mapa/MapaPublico.svelte';
+import '$lib/components/turista/turista.css';
+let {data}=$props();
+let vista3d=$state(false);
 </script>
-
-<main class="relative flex min-h-dvh w-full flex-col overflow-hidden bg-gray-900">
-    <!-- Mapa -->
-    <MapaMapa />
-
-    <!-- Menu -->
-    <section
-        class="absolute top-0 right-0 z-10 h-dvh w-full md:w-110 overflow-y-auto bg-white transition-transform duration-300 ease-in-out"
-        style="transform: translateX({menu ? '0%' : '100%'})"
-    >
-        {#if localidad}
-            <MapaLocalidadSelecionada />
-        {:else}
-            <MapaBusqueda />
-        {/if}
-    </section>
-
-    <!-- Botton control menu -->
-    {#if !menu}
-        <button
-            in:fade={{ duration: 500 }}
-            out:fade={{ duration: 100 }}
-            class="absolute top-5 right-5 flex h-12 w-13 flex-col items-center justify-center gap-1.5 rounded-md bg-gray-300 p-4 transition-colors duration-200 hover:cursor-pointer hover:bg-gray-500 md:top-10 md:right-10"
-            onclick={() => (menu = true)}
-            title="Boton"
-        >
-            <span class="h-0.5 w-5 shrink-0 rounded-full bg-slate-800"></span>
-            <span class="h-0.5 w-5 shrink-0 rounded-full bg-slate-800"></span>
-            <span class="h-0.5 w-5 shrink-0 rounded-full bg-slate-800"></span>
-        </button>
-    {:else}
-        <!-- https://phosphoricons.com/?q=x -->
-        <button
-            in:fade={{ duration: 500 }}
-            out:fade={{ duration: 100 }}
-            class="absolute top-5 right-5 z-20 flex h-12 w-13 flex-col items-center justify-center rounded-md bg-gray-300 p-4 transition-colors duration-200 hover:cursor-pointer hover:bg-gray-500 md:top-10 md:right-10"
-            onclick={cerrarMenu}
-            title="Cerrar"
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="h-5 w-5 text-slate-800">
-                <path
-                    d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
-                />
-            </svg>
-        </button>
-    {/if}
-</main>
+<svelte:head><title>Mapa interactivo · Cerro Largo 360</title></svelte:head>
+<div class="t-public"><Navbar solid /><main class="pagina-mapa">
+<a class="t-link" href="/">← Inicio</a><h1 class="t-title">Mapa interactivo</h1><p class="t-intro">Buscá lugares por nombre, localidad o categoría. Tocá un marcador para abrir su ficha.</p>
+<form method="GET" class="t-search"><label class="sr-only" for="buscar-mapa">Nombre, localidad o categoría</label><input id="buscar-mapa" name="buscar" maxlength="100" value={data.buscar} placeholder="Melo, museo, naturaleza…" /><button class="t-button">Buscar en el mapa</button></form>
+<div class="t-actions"><button class="t-button secondary" aria-pressed={vista3d} onclick={()=>vista3d=!vista3d}>{vista3d?'Ver en 2D':'Ver en 3D'}</button>{#if data.buscar}<a class="t-link" href="/mapa">Quitar filtro</a>{/if}<a class="t-link" href="/lugares">Explorar todas las fichas →</a></div>
+{#if data.error}<p class="t-message error" role="alert">{data.error}</p>{/if}
+<div class="contenido"><MapaPublico lugares={data.lugares} localidades={data.localidades} {vista3d} /><aside aria-label="Lugares del mapa"><h2>{data.lugares.length} lugares encontrados</h2>{#if data.limitado}<p>Se muestran hasta 500 lugares. Afiná la búsqueda.</p>{/if}{#each data.lugares as lugar (lugar.id)}<a class="resultado" href={`/lugares/${lugar.id}`}><strong>{lugar.nombre} →</strong><span>{lugar.categoria.nombre} · {lugar.localidad}</span></a>{:else}<p>No hay lugares publicados que coincidan con la búsqueda.</p>{/each}</aside></div>
+</main><HomeFooter /></div>
+<style>.pagina-mapa{max-width:1450px;margin:auto;padding:130px 24px 64px}.contenido{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;margin-top:24px}aside{background:white;padding:20px;border:1px solid #dbe4db;border-radius:16px;max-height:65vh;overflow:auto}aside h2{font-size:17px;font-weight:600;margin-bottom:16px}.resultado{display:grid;gap:5px;padding:18px 0;border-bottom:1px solid #e5ebe4;color:#2d604a}.resultado span{font-size:12px;color:#61776a}@media(max-width:850px){.contenido{grid-template-columns:1fr}aside{max-height:350px}}</style>

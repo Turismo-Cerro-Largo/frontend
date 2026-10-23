@@ -39,7 +39,7 @@
             error = '';
 
             const cuenta = await respuesta.json();
-            window.location.assign(cuenta.rol === 'ADMINISTRADOR' ? '/administrador' : cuenta.tipo === 'organizador' ? '/organizador' : '/turista');
+            window.location.assign(cuenta.rol === 'ADMINISTRADOR' ? '/administrador' : cuenta.tipo === 'organizador' ? '/organizador' : '/');
         } catch {
             error = 'No se pudo conectar con el servidor. Revisá tu conexión e intentá nuevamente.';
         } finally {
@@ -107,6 +107,7 @@
                 />
             </div>
 
+            <a href="/recuperar-contrasena" class="text-sm text-green-700 underline underline-offset-4 self-end">¿Olvidaste tu contraseña?</a>
             <button
                 type="submit"
                 disabled={cargando}

@@ -2,7 +2,7 @@
     import { sectionTight, container } from '$lib/styles/tokens';
 </script>
 
-<section class={sectionTight}>
+<section id="categorias" class={sectionTight}>
     <div
         class="
             {container}
@@ -12,19 +12,22 @@
         "
     >
         <!-- Alojamiento -->
-        <a
-            href="/categoria/alojamiento"
-            data-sveltekit-preload-data="hover"
-            class="
-                group flex h-10 w-auto items-center gap-1.5
-                rounded-lg border border-zinc-200 bg-white px-2.5
-                font-Poppins shadow-sm
-                transition-all duration-200
-                hover:border-amber-400 hover:shadow-md
-                sm:h-11 sm:gap-2 sm:px-3
-                lg:h-18 lg:w-full lg:gap-3 lg:px-4
-            "
-        >
+
+
+<!-- Alojamiento -->
+<a
+    href="/categoria/alojamiento"
+    class="
+        group flex h-10 w-auto items-center gap-1.5
+        rounded-lg border border-zinc-200 bg-white px-2.5
+        font-Poppins shadow-sm
+        transition-all duration-200
+        hover:border-amber-400 hover:shadow-md
+        sm:h-11 sm:gap-2 sm:px-3
+        lg:h-18 lg:w-full lg:gap-3 lg:px-4
+    "
+>
+
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 256 256"
@@ -49,7 +52,6 @@
         <!-- Restaurantes -->
         <a
             href="/categoria/restaurantes"
-            data-sveltekit-preload-data="hover"
             class="
                 group flex h-10 w-auto items-center gap-1.5
                 rounded-lg border border-zinc-200 bg-white px-2.5
@@ -85,7 +87,6 @@
         <!-- Cultura -->
         <a
             href="/categoria/cultura"
-            data-sveltekit-preload-data="hover"
             class="
                 group flex h-10 w-auto items-center gap-1.5
                 rounded-lg border border-zinc-200 bg-white px-2.5
@@ -121,7 +122,6 @@
         <!-- Eventos sociales -->
         <a
             href="/categoria/eventos"
-            data-sveltekit-preload-data="hover"
             class="
                 group flex h-10 w-auto items-center gap-1.5
                 rounded-lg border border-zinc-200 bg-white px-2.5
@@ -157,7 +157,6 @@
         <!-- Parques / Naturaleza -->
         <a
             href="/categoria/naturaleza"
-            data-sveltekit-preload-data="hover"
             class="
                 group flex h-10 w-auto items-center gap-1.5
                 rounded-lg border border-zinc-200 bg-white px-2.5
