@@ -11,7 +11,7 @@
         live?: boolean;
         records: Record<string, RecordRow[]>;
         destinations: { id: string; nombre: string }[];
-        onsave: (section: string, row: RecordRow, file?: File) => void | Promise<void>;
+        onsave: (section: string, row: RecordRow, file?: File, formulario?: HTMLFormElement) => void | Promise<void>;
         onremove: (section: string, id: string) => void | Promise<void>;
     } = $props();
     let dialog: HTMLDialogElement;
@@ -95,7 +95,7 @@
         const row = recordRow(section, data, original?.id ?? section + '-' + crypto.randomUUID(), original?.estado);
         if (section === 'multimedia') row.detalle = destinations.find((item) => item.id === data.destino)?.nombre ?? '';
         if (section === 'horarios') row.detalle = (records.transporte.find((item) => item.id === data.empresa)?.nombre ?? '') + ' · ' + data.dias;
-        await onsave(section, row, file ?? undefined);
+        await onsave(section, row, file ?? undefined, event.currentTarget as HTMLFormElement);
         dialog.close();
     }
     function requestAction(next: typeof action) {
@@ -123,7 +123,7 @@
     </h2>
     <p class="dialog-note">{live ? "Los cambios y archivos se guardan en el servidor. Revisá la información antes de confirmar." : "Datos de ejemplo. Los cambios y archivos se reinician al recargar."}</p>
     {#if mode === 'edit'}
-        <form class="record-form" onsubmit={save}>
+        <form class="record-form" method="post" enctype="multipart/form-data" onsubmit={save}>
             <p class="field-help">* Campo obligatorio.</p>
             {#each definition.fields as field}
                 <label
@@ -146,7 +146,7 @@
             {#if section === 'multimedia'}<label
                     >{original?.data.url ? 'Reemplazar archivo' : 'Archivo *'}<input
                         bind:this={fileInput}
-                        type="file"
+                        type="file" name="archivo"
                         accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
                         onchange={(event) => (file = event.currentTarget.files?.[0] ?? null)}
                     /></label

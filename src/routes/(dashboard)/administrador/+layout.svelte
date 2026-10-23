@@ -10,6 +10,7 @@
     const opciones = [
         { nombre: 'Resumen', ruta: '/administrador' },
         { nombre: 'Ubicaciones', ruta: '/administrador/ubicaciones' },
+        { nombre: 'Localidades', ruta: '/administrador/localidades' },
         { nombre: 'Categorias', ruta: '/administrador/categorias' },
         { nombre: 'Organizadores', ruta: '/administrador/organizadores' },
         { nombre: 'Transporte', ruta: '/administrador/transporte' },

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
+    import type { LocalidadPublica } from '$lib/types/localidad';
     import { body, card, container, h2, h3, label, sectionAfterHero } from '$lib/styles/tokens';
 
     type Localidad = {
@@ -8,9 +9,10 @@
         nombre: string;
         img: string;
         href: string;
+        icono?: string | null;
     };
 
-    const localidades: Localidad[] = [
+    const baseLocalidades: Localidad[] = [
         {
             id: 'Melo',
             svgId: 'melo',
@@ -83,11 +85,27 @@
         },
     ];
 
+    let { registros }: { registros: LocalidadPublica[] | null } = $props();
+    const localidades = $derived(
+        registros === null
+            ? baseLocalidades
+            : registros.map((registro) => {
+                const base = baseLocalidades.find((item) => item.id === registro.slug);
+                return {
+                    id: registro.slug,
+                    svgId: registro.slug.toLowerCase(),
+                    nombre: registro.nombre,
+                    img: base?.img ?? registro.icono ?? '/cerro-largo-360-mapa-localidades-v2.svg',
+                    href: '/localidades/' + registro.slug,
+                    icono: registro.icono
+                };
+            })
+    );
     let selectedIndex = $state(0);
-    let mapObject: HTMLObjectElement | undefined;
+    let mapObject = $state<HTMLObjectElement | undefined>(undefined);
     let cleanupMapListeners: Array<() => void> = [];
 
-    let selected = $derived(localidades[selectedIndex]);
+    let selected = $derived(localidades[selectedIndex] ?? localidades[0]);
 
     function clearMapListeners() {
         cleanupMapListeners.forEach((cleanup) => cleanup());
@@ -105,7 +123,26 @@
         const activeSvgId = localidades[index]?.svgId;
 
         svgDocument.querySelectorAll<SVGGElement>('g.localidad').forEach((group) => {
-            const isSelected = group.id === activeSvgId;
+            const ficha = localidades.find((item) => item.svgId === group.id);
+            const anterior = group.querySelector('image.localidad-icono');
+            anterior?.remove();
+            const punto = group.querySelector<SVGCircleElement>('circle.marcador');
+            if (ficha?.icono && punto) {
+                const x = Number(punto.getAttribute('cx'));
+                const y = Number(punto.getAttribute('cy'));
+                if (Number.isFinite(x) && Number.isFinite(y)) {
+                    const imagen = svgDocument.createElementNS('http://www.w3.org/2000/svg', 'image');
+                    imagen.setAttribute('class', 'localidad-icono');
+                    imagen.setAttribute('href', ficha.icono);
+                    imagen.setAttribute('x', String(x - 160));
+                    imagen.setAttribute('y', String(y - 160));
+                    imagen.setAttribute('width', '320');
+                    imagen.setAttribute('height', '320');
+                    imagen.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+                    imagen.setAttribute('style', 'clip-path:circle(50%);pointer-events:none');
+                    group.insertBefore(imagen, group.querySelector('text.nombre'));
+                }
+            }            const isSelected = group.id === activeSvgId;
 
             if (isSelected) {
                 group.setAttribute('data-selected', 'true');
@@ -180,6 +217,7 @@
             <p class={`max-w-2xl ${body}`}>Elegí una localidad en el mapa y empezá a recorrer el departamento.</p>
         </div>
 
+        {#if localidades.length}
         <div class="grid gap-5 md:gap-6 lg:grid-cols-[0.82fr_1.18fr] lg:items-stretch lg:gap-8">
             <div
                 class="order-1 flex min-h-72 items-center justify-center overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-50 p-2 sm:min-h-96 sm:p-4 lg:order-2 lg:min-h-126 lg:p-5"
@@ -274,5 +312,6 @@
                 </div>
             </div>
         </div>
+        {:else}<p>No hay localidades visibles por ahora.</p>{/if}
     </div>
 </section>

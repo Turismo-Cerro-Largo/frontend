@@ -18,15 +18,15 @@
       await invalidateAll(); esError = false; mensaje = 'Guardamos los cambios de tu perfil.';
     } catch (e) { esError = true; mensaje = (e as Error).message; } finally { ocupado = false; }
   }
-  async function foto(quitar = false) {
+  async function foto(quitar = false, formulario?: HTMLFormElement) {
     const archivo = fotoInput?.files?.[0];
     if (!quitar && !archivo) { esError = true; mensaje = 'Elegí una imagen primero.'; return; }
     if (archivo && !quitar && (!['image/jpeg', 'image/png', 'image/webp'].includes(archivo.type) || archivo.size > 3 * 1024 * 1024)) { esError = true; mensaje = 'Elegí una imagen JPG, PNG o WebP de hasta 3 MB.'; return; }
     ocupado = true; mensaje = '';
     try {
-      const form = new FormData(); if (archivo) form.set('foto', archivo);
-      await enviar('foto', quitar ? 'DELETE' : 'PUT', quitar ? undefined : form);
-      await invalidateAll(); fotoInput.value = ''; esError = false; mensaje = quitar ? 'Quitamos tu foto de perfil.' : 'Actualizamos tu foto de perfil.';
+      const form = formulario ? new FormData(formulario) : undefined;
+      await enviar('foto', quitar ? 'DELETE' : 'PUT', form);
+      await invalidateAll(); if (formulario) formulario.reset(); esError = false; mensaje = quitar ? 'Quitamos tu foto de perfil.' : 'Actualizamos tu foto de perfil.';
     } catch (e) { esError = true; mensaje = (e as Error).message; } finally { ocupado = false; }
   }
 </script>
@@ -34,7 +34,7 @@
 <span class="t-eyebrow">UN ESPACIO CON TU NOMBRE</span><h1 class="t-title">Mi perfil</h1><p class="t-intro">Actualizá tus datos de contacto y personalizá tu cuenta.</p>
 {#if mensaje}<p role={esError ? 'alert' : 'status'} class="t-message" class:error={esError}>{mensaje}</p>{/if}
 <section class="t-panel">
-  <div class="t-photo-area">{#if data.perfil.foto}<img class="t-avatar" src={data.perfil.foto} alt="Tu foto de perfil" />{:else}<span class="t-avatar">{data.perfil.nombres.charAt(0)}</span>{/if}<div><h2>Foto de perfil</h2><label class="sr-only" for="foto">Elegir foto de perfil</label><input bind:this={fotoInput} disabled={ocupado} id="foto" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPG, PNG o WebP. Máximo 3 MB.</small><div class="t-actions" style="margin-top:12px"><button class="t-button secondary" onclick={() => foto()} disabled={ocupado}>Guardar foto</button>{#if data.perfil.foto}<button class="t-button secondary" onclick={() => foto(true)} disabled={ocupado}>Quitar foto</button>{/if}</div></div></div>
+  <form class="t-photo-area" method="post" enctype="multipart/form-data" onsubmit={(event) => { event.preventDefault(); void foto(false, event.currentTarget); }}>{#if data.perfil.foto}<img class="t-avatar" src={data.perfil.foto} alt="Tu foto de perfil" />{:else}<span class="t-avatar">{data.perfil.nombres.charAt(0)}</span>{/if}<div><h2>Foto de perfil</h2><label class="sr-only" for="foto">Elegir foto de perfil</label><input bind:this={fotoInput} disabled={ocupado} id="foto" name="foto" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPG, PNG o WebP. Máximo 3 MB.</small><div class="t-actions" style="margin-top:12px"><button class="t-button secondary" type="submit" disabled={ocupado}>Guardar foto</button>{#if data.perfil.foto}<button class="t-button secondary" type="button" onclick={() => foto(true)} disabled={ocupado}>Quitar foto</button>{/if}</div></div></form>
   <form onsubmit={guardar} class="t-form">
     <label class="t-field">Nombre<input name="nombres" autocomplete="given-name" value={data.perfil.nombres} required minlength="2" maxlength="100" disabled={ocupado} /></label>
     <label class="t-field">Apellido<input name="apellidos" autocomplete="family-name" value={data.perfil.apellidos} required minlength="2" maxlength="100" disabled={ocupado} /></label>

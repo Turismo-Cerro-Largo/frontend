@@ -4,7 +4,8 @@ import { env } from '$env/dynamic/public';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import type { LugarMapa } from '$lib/types/mapa';
-let {lugares, vista3d=false}:{lugares:LugarMapa[];vista3d?:boolean}=$props();
+import type { LocalidadPublica } from '$lib/types/localidad';
+let {lugares, localidades, vista3d=false}:{lugares:LugarMapa[];localidades:LocalidadPublica[];vista3d?:boolean}=$props();
 let contenedor:HTMLDivElement;
 let mapa=$state<mapboxgl.Map|null>(null);
 let fallo=$state('');
@@ -51,6 +52,41 @@ $effect(()=>{
     if(!bounds.isEmpty())m.fitBounds(bounds,{padding:65,maxZoom:12,duration:500});
     return ()=>marcadores.forEach(m=>m.remove());
 });
-</script>
+$effect(()=>{
+    const m=mapa;
+    if(!m || !listo) return;
+    const marcadores:mapboxgl.Marker[]=[];
+    for(const localidad of localidades) {
+        const lat=localidad.latitud, lon=localidad.longitud;
+        if(lat===null || lon===null || !Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat)>90 || Math.abs(lon)>180) continue;
+        const boton=document.createElement('button');
+        boton.type='button';
+        boton.setAttribute('aria-label','Explorar ' + localidad.nombre);
+        boton.style.cssText='width:46px;height:46px;border:3px solid white;border-radius:50%;background:#b78936;color:white;box-shadow:0 3px 12px #0005;cursor:pointer;overflow:hidden;display:grid;place-items:center;font-size:24px;';
+        if(localidad.icono) {
+            const imagen=document.createElement('img');
+            imagen.src=localidad.icono;
+            imagen.alt='';
+            imagen.style.cssText='width:100%;height:100%;object-fit:cover;';
+            boton.append(imagen);
+        } else boton.textContent='⌖';
+        const enlace=document.createElement('a');
+        enlace.href='/localidades/' + encodeURIComponent(localidad.slug);
+        enlace.textContent='Explorar ' + localidad.nombre + ' →';
+        enlace.style.cssText='color:#28654d;font-weight:600;';
+        const contenido=document.createElement('div');
+        contenido.append(enlace);
+        if(localidad.descripcion) {
+            const descripcion=document.createElement('p');
+            descripcion.textContent=localidad.descripcion;
+            contenido.append(descripcion);
+        }
+        marcadores.push(new mapboxgl.Marker({element:boton})
+            .setLngLat([lon,lat])
+            .setPopup(new mapboxgl.Popup({offset:25}).setDOMContent(contenido))
+            .addTo(m));
+    }
+    return ()=>marcadores.forEach(marker=>marker.remove());
+});</script>
 <div class="mapa"><div bind:this={contenedor} class="lienzo" aria-label="Mapa interactivo de lugares publicados"></div>{#if fallo}<p class="fallo" role="status">{fallo}</p>{/if}</div>
 <style>.mapa{position:relative;min-height:500px;height:65vh;border-radius:16px;overflow:hidden;background:#e6ede5}.lienzo{width:100%;height:100%}.fallo{position:absolute;bottom:16px;left:16px;right:16px;padding:14px;border-radius:8px;background:white;color:#8a4120;box-shadow:0 2px 10px #0002;font-size:13px}@media(max-width:600px){.mapa{min-height:380px;height:55vh}}</style>

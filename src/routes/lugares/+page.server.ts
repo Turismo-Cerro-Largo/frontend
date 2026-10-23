@@ -11,5 +11,6 @@ export const load: PageServerLoad = async ({ request, url }) => {
             request
         )),
         buscar, localidad,
+        localidades: await consultar<LocalidadPublica[]>('localidades', request),
     };
 };

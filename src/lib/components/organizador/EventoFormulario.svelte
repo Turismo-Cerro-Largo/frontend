@@ -266,45 +266,16 @@
     return new Date(`${dia}T${hora}:00-03:00`).toISOString();
   }
 
-  async function guardar(accion: 'borrador' | 'revision') {
+  async function guardar(event: SubmitEvent) {
+    event.preventDefault();
+    const accion = (event.submitter as HTMLButtonElement)?.value as 'borrador' | 'revision';
     if (guardando || !validar(accion)) return;
 
     guardando = true;
     mensaje = '';
 
     try {
-      const datos = new FormData();
-
-      const campos: Record<string, string> = {
-        titulo: nombre.trim(),
-        descripcion: descripcion.trim(),
-        id_categoria: categoriaId,
-        inicio: fechaISO(fecha, horaInicio),
-        fin:
-          fechaFin && horaFin
-            ? fechaISO(fechaFin, horaFin)
-            : '',
-        localidad,
-        direccion: direccion.trim(),
-        latitud: latitud === null ? '' : String(latitud),
-        longitud: longitud === null ? '' : String(longitud),
-        es_gratuito:
-          tipoEntrada === 'gratuito' ? 'true' : 'false',
-        precio: tipoEntrada === 'gratuito' ? '' : precio,
-        telefono: telefono.trim(),
-        correo: correo.trim(),
-        redes: redes.trim(),
-        accion
-      };
-
-      for (const [clave, valor] of Object.entries(campos)) {
-        datos.append(clave, valor);
-      }
-
-      for (const archivo of archivos) {
-        datos.append('recursos', archivo);
-      }
-
+      const datos = new FormData(event.currentTarget as HTMLFormElement, event.submitter as HTMLButtonElement);
       const guardado = await guardarEvento(evento, datos);
 
       await goto(`/organizador/eventos/${guardado.id}`);
@@ -349,8 +320,16 @@
 
   <form
     class="max-w-5xl space-y-6"
-    onsubmit={(event) => event.preventDefault()}
+    method="post"
+    enctype="multipart/form-data"
+    onsubmit={guardar}
   >
+    <input type="hidden" name="inicio" value={fecha && horaInicio ? fechaISO(fecha, horaInicio) : ''} />
+    <input type="hidden" name="fin" value={fechaFin && horaFin ? fechaISO(fechaFin, horaFin) : ''} />
+    <input type="hidden" name="latitud" value={latitud === null ? '' : String(latitud)} />
+    <input type="hidden" name="longitud" value={longitud === null ? '' : String(longitud)} />
+    <input type="hidden" name="es_gratuito" value={tipoEntrada === 'gratuito' ? 'true' : 'false'} />
+    <input type="hidden" name="precio" value={tipoEntrada === 'gratuito' ? '' : precio} />
     <!-- INFORMACIÓN -->
     <div class="rounded-2xl border border-[#ded8cf] bg-white p-6 shadow-sm">
       <h2 class="mb-5 text-xl font-bold text-[#26382e]">
@@ -364,7 +343,7 @@
           </label>
 
           <input
-            id="nombre"
+            id="nombre" name="titulo"
             bind:value={nombre}
             maxlength="180"
             placeholder="Ej: Feria de artesanos de Melo"
@@ -379,7 +358,7 @@
           </label>
 
           <select
-            id="categoria"
+            id="categoria" name="id_categoria"
             bind:value={categoriaId}
             disabled={cargandoCategorias || categorias.length === 0}
             required
@@ -425,7 +404,7 @@
           </label>
 
           <textarea
-            id="descripcion"
+            id="descripcion" name="descripcion"
             bind:value={descripcion}
             maxlength="5000"
             rows="5"
@@ -513,7 +492,7 @@
             Localidad
           </label>
           <select
-            id="localidad"
+            id="localidad" name="localidad"
             bind:value={localidad}
             class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3"
           >
@@ -529,7 +508,7 @@
             Dirección / lugar
           </label>
           <input
-            id="direccion"
+            id="direccion" name="direccion"
             bind:value={direccion}
             maxlength="150"
             placeholder="Ej: Plaza Constitución, Melo"
@@ -571,7 +550,7 @@
       </p>
 
       <input
-        type="file"
+        type="file" name="recursos"
         accept="image/jpeg,image/png,image/webp"
         multiple
         onchange={manejarImagenes}
@@ -653,7 +632,7 @@
             Teléfono
           </label>
           <input
-            id="telefono"
+            id="telefono" name="telefono"
             type="tel"
             bind:value={telefono}
             maxlength="30"
@@ -666,7 +645,7 @@
             Correo electrónico
           </label>
           <input
-            id="correo"
+            id="correo" name="correo"
             type="email"
             bind:value={correo}
             class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3"
@@ -678,7 +657,7 @@
             Redes sociales
           </label>
           <input
-            id="redes"
+            id="redes" name="redes"
             bind:value={redes}
             maxlength="80"
             placeholder="Ej: @feriacerrolargo"
@@ -716,18 +695,16 @@
       </a>
 
       <button
-        type="button"
+        type="submit" name="accion" value="borrador" formnovalidate
         disabled={guardando || cargandoCategorias || categorias.length === 0 || !!errorCategorias}
-        onclick={() => guardar('borrador')}
         class="rounded-xl border border-[#9eaea2] bg-[#d7e5db] px-6 py-3 text-sm font-semibold text-[#35483c] disabled:opacity-50"
       >
         {guardando ? 'Guardando...' : 'Guardar borrador'}
       </button>
 
       <button
-        type="button"
+        type="submit" name="accion" value="revision"
         disabled={guardando || cargandoCategorias || categorias.length === 0 || !!errorCategorias}
-        onclick={() => guardar('revision')}
         class="rounded-xl bg-[#D89994] px-6 py-3 text-sm font-semibold text-[#442b29] disabled:opacity-50"
       >
         {guardando ? 'Guardando...' : 'Enviar a revisión'}
