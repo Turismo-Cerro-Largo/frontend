@@ -293,17 +293,16 @@
                 <div transition:slide={{ duration: 250 }} class="flex flex-col gap-4 p-4 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider"> Datos de Organizador </span>
                     <div class="flex flex-col gap-1">
-                        <label for="rut" class="text-sm font-medium text-slate-700"> RUT / RUC </label>
+                        <label for="rut" class="text-sm font-medium text-slate-700"> RUT / RUC (opcional) </label>
                         <input
                             disabled={cargando}
                             id="rut"
                             name="rut"
                             type="text"
-                            required
                             inputmode="numeric"
                             minlength="12"
                             maxlength="12"
-                            pattern="^[0-9]+$"
+                            pattern="[0-9]{12}"
                             title="El RUT/RUC debe contener exactamente 12 dígitos numéricos."
                             placeholder="Ej. 211234560018"
                             class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"

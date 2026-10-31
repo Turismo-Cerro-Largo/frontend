@@ -5,7 +5,7 @@
         id: number;
         nombre_organizacion: string;
         email: string;
-        rut_ruc: string;
+        rut_ruc: string | null;
         departamento: string;
         telefono: string;
         sitio_web: string | null;
@@ -205,7 +205,7 @@
 
                     <div>
                         <label for="rut" class="mb-2 block text-sm font-medium text-[#36463c]">RUT</label>
-                        <input id="rut" type="text" value={perfil.rut_ruc} disabled class={campo} />
+                        <input id="rut" type="text" value={perfil.rut_ruc ?? "No indicado"} disabled class={campo} />
                     </div>
 
                     <div>

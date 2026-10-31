@@ -11,7 +11,7 @@
         id: number;
         nombre_organizacion: string;
         email: string;
-        rut_ruc: string;
+        rut_ruc: string | null;
         departamento: string;
         estado: Estado;
         creado_en: string;
@@ -57,7 +57,7 @@
         organizadores.filter(
             (o) =>
                 (estado === 'TODOS' || o.estado === estado) &&
-                `${o.nombre_organizacion} ${o.email} ${o.rut_ruc} ${o.departamento}`.toLocaleLowerCase('es').includes(busqueda.toLocaleLowerCase('es').trim())
+                `${o.nombre_organizacion} ${o.email} ${o.rut_ruc ?? "No indicado"} ${o.departamento}`.toLocaleLowerCase('es').includes(busqueda.toLocaleLowerCase('es').trim())
         )
     );
 
@@ -233,7 +233,7 @@
 
                             <!-- RUT -->
                             <td class="p-4">
-                                {o.rut_ruc}
+                                {o.rut_ruc ?? "No indicado"}
                             </td>
 
                             <!-- Departamento -->
