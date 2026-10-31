@@ -5,7 +5,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import type { LugarMapa } from '$lib/types/mapa';
 import type { LocalidadPublica } from '$lib/types/localidad';
-let {lugares, localidades, vista3d=false}:{lugares:LugarMapa[];localidades:LocalidadPublica[];vista3d?:boolean}=$props();
+let {lugares, localidades, vista3d=false, zoomMaximo=12}:{lugares:LugarMapa[];localidades:LocalidadPublica[];vista3d?:boolean;zoomMaximo?:number}=$props();
 let contenedor:HTMLDivElement;
 let mapa=$state<mapboxgl.Map|null>(null);
 let fallo=$state('');
@@ -49,7 +49,7 @@ $effect(()=>{
         const marker=new mapboxgl.Marker({element:boton}).setLngLat([lon,lat]).setPopup(new mapboxgl.Popup({offset:22}).setDOMContent(contenido)).addTo(m);
         marcadores.push(marker);bounds.extend([lon,lat]);
     }
-    if(!bounds.isEmpty())m.fitBounds(bounds,{padding:65,maxZoom:12,duration:500});
+    if(!bounds.isEmpty())m.fitBounds(bounds,{padding:65,maxZoom:zoomMaximo,duration:500});
     return ()=>marcadores.forEach(m=>m.remove());
 });
 $effect(()=>{

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import MapaPublico from '$lib/components/mapas/MapaPublico.svelte';
     import Galeria from "$lib/components/turista/Galeria.svelte";
     import EliminarValoracion from '$lib/components/turista/EliminarValoracion.svelte';
     import Estrellas from '$lib/components/turista/Estrellas.svelte';
@@ -87,9 +88,9 @@
                             ><Icono nombre="favoritos" size={18} />{data.personal.favorito ? 'Quitar de favoritos' : 'Guardar en favoritos'}</button
                         >{:else if !data.cuenta}<a class="t-button" href="/login">Ingresar para guardar y valorar</a>{/if}<a
                         class="t-button secondary"
-                        href={`https://www.openstreetmap.org/?mlat=${encodeURIComponent(data.lugar.latitud)}&mlon=${encodeURIComponent(data.lugar.longitud)}#map=16/${encodeURIComponent(data.lugar.latitud)}/${encodeURIComponent(data.lugar.longitud)}`}
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${data.lugar.latitud},${data.lugar.longitud}`)}`}
                         target="_blank"
-                        rel="noopener noreferrer">Ver ubicación ↗</a
+                        rel="noopener noreferrer">Cómo llegar con Google Maps ↗</a
                     >
                 </div>
             </section>
@@ -119,6 +120,12 @@
                     {#if !data.cuenta}<a class="t-link" href="/login">Ingresar →</a>{/if}{/if}
             </section>
         </div>
+        <section id="ubicacion" aria-labelledby="titulo-ubicacion" style="margin-top:32px">
+            <h2 id="titulo-ubicacion" style="font-size:22px;font-weight:600;margin-bottom:18px">Ubicación de {data.lugar.nombre}</h2>
+            {#key data.lugar.id}
+                <MapaPublico lugares={[data.lugar]} localidades={[]} zoomMaximo={16} />
+            {/key}
+        </section>
         <section style="margin-top:32px">
             <h2 style="font-size:22px;font-weight:600;margin-bottom:18px">Experiencias de visitantes</h2>
             {#if data.comentarios.length}<p class="t-date" style="margin-bottom:16px">Se muestran las últimas {data.comentarios.length} valoraciones publicadas.</p>

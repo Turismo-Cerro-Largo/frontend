@@ -4,7 +4,7 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch }) => {
     try {
-        const nombres = ['Parques/Naturaleza', 'Playas'];
+        const nombres = ['Parques/Naturaleza', 'Parques / Naturaleza', 'Playas'];
 
         const respuestas = await Promise.all(
             nombres.map((nombre) => fetch(`${backendUrl()}/api/ubicaciones?categoria=${encodeURIComponent(nombre)}`, { signal: AbortSignal.timeout(10000) }))

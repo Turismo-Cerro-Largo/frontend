@@ -1,5 +1,6 @@
 <script lang="ts">
     import { container, section, h2 } from '$lib/styles/tokens';
+    import { diasSinFecha } from '$lib/transporte/dias';
     import { URUBUS_URL } from '$lib/transporte/urubus';
     import type { HorarioOmnibus } from '$lib/types/transporte';
     let { horarios, error = false }: { horarios: HorarioOmnibus[]; error?: boolean } = $props();
@@ -34,7 +35,7 @@
                                 <div class="linea" aria-hidden="true"><span></span><i></i><span></span></div>
                                 <div class="llegada"><small>Llegada</small><strong class:sin-hora={!horario.hora_llegada}>{horario.hora_llegada || 'A confirmar'}</strong></div>
                             </div>
-                            <p class="dias">{horario.dias}</p>
+                            <p class="dias">{diasSinFecha(horario.dias)}</p>
                             <footer><span>{horario.tipo_servicio === 'DEPARTAMENTAL' ? 'Departamental' : 'Interdepartamental'}</span><b>Consultar en Urubus ↗</b></footer>
                         </a>
                     {/each}

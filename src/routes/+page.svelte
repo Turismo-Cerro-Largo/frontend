@@ -22,8 +22,8 @@
     <HomeHero />
     <HomeCategorias />
     <HomeDescubre registros={data.localidades} />
-    <HomeHorarios horarios={data.horarios} error={data.errorHorarios} />
     <HomeProximosEventos eventos={data.eventosProximos} error={data.errorEventos} />
+    <HomeHorarios horarios={data.horarios} error={data.errorHorarios} />
     <HomeViaje />
     <HomeRecomendados />
 </main>
