@@ -61,12 +61,15 @@
                 body: datos,
             });
             if (!respuesta.ok) {
+                const detalle = await respuesta.json().catch(() => null);
                 error = true;
                 mensajeError = respuesta.status === 409
                     ? 'Ya existe una cuenta con este correo o RUT.'
                     : respuesta.status === 502 || respuesta.status === 503
                       ? 'El servidor no está disponible. Revisá el backend.'
-                      : 'No se pudo completar el registro. Revisá los datos.';
+                      : typeof detalle?.message === 'string'
+                        ? detalle.message.slice(0, 300)
+                        : 'No se pudo completar el registro. Revisá los datos.';
                 return;
             }
             window.location.assign(metodo === 'organizador' ? '/organizador' : '/');
@@ -143,7 +146,7 @@
                             required
                             minlength="2"
                             maxlength="60"
-                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
+                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '\-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
                             title="Ingresá entre 2 y 60 caracteres. Solo se permiten letras, espacios, apóstrofes y guiones."
                             autocomplete="given-name"
                             class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
@@ -159,7 +162,7 @@
                             required
                             minlength="2"
                             maxlength="60"
-                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
+                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '\-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
                             title="Ingresá entre 2 y 60 caracteres. Solo se permiten letras, espacios, apóstrofes y guiones."
                             autocomplete="family-name"
                             class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
@@ -179,7 +182,7 @@
                         required
                         minlength="2"
                         maxlength="100"
-                        pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9][A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9 .,&amp;'()/-]*$"
+                        pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9][A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9 .,&amp;'\(\)\/\-]*$"
                         title="Ingresá entre 2 y 100 caracteres usando letras, números y signos habituales de una organización."
                         class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
                     />
@@ -302,7 +305,7 @@
                             inputmode="numeric"
                             minlength="12"
                             maxlength="12"
-                            pattern="[0-9]{12}"
+                            pattern={'[0-9]{12}'}
                             title="El RUT/RUC debe contener exactamente 12 dígitos numéricos."
                             placeholder="Ej. 211234560018"
                             class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
@@ -318,7 +321,7 @@
                             required
                             minlength="8"
                             maxlength="20"
-                            pattern="^\+?[0-9 -]+$"
+                            pattern="^\+?[0-9 \-]+$"
                             title="Ingresá entre 8 y 20 caracteres. Solo se permiten números, espacios, guiones y un + inicial opcional."
                             autocomplete="tel"
                             placeholder="Ej. 099 123 456"
@@ -372,6 +375,25 @@
                         />
                     </div>
                 </div>
+            {/if}
+            {#if metodo === 'organizador'}
+                <input type="hidden" name="versionDocumentos" value="2026-10-28-v1" />
+                <details class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                    <summary class="cursor-pointer font-medium text-green-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-green-600">Leer condiciones del registro y privacidad</summary>
+                    <div class="mt-3 space-y-3 leading-relaxed">
+                        <p>Al registrarte, declarás que los datos son verdaderos y que estás autorizado para representar a la organización. La solicitud será revisada antes de habilitar la publicación de eventos.</p>
+                        <p>Sos responsable de mantener tu cuenta segura y de publicar información correcta y actualizada. Las imágenes y los contenidos deben ser propios o contar con autorización de uso. El equipo podrá revisar y retirar publicaciones que incumplan estas condiciones.</p>
+                        <p>Tus datos y documentos se utilizarán para verificar el registro, gestionar tu cuenta y comunicarnos con vos. Las fotos del documento de identidad no se muestran públicamente en los lugares ni en los eventos.</p>
+                    </div>
+                </details>
+                <label class="flex items-start gap-2 text-sm text-slate-700">
+                    <input type="checkbox" name="aceptaTerminos" value="si" required disabled={cargando} class="mt-1 rounded border-slate-300 text-green-600" />
+                    <span>Acepto los términos y condiciones para organizadores.</span>
+                </label>
+                <label class="flex items-start gap-2 text-sm text-slate-700">
+                    <input type="checkbox" name="aceptaPrivacidad" value="si" required disabled={cargando} class="mt-1 rounded border-slate-300 text-green-600" />
+                    <span>Acepto la política de privacidad y el tratamiento de mis datos y documentos para verificar el registro.</span>
+                </label>
             {/if}
             <!-- REGISTRARSE -->
             <button

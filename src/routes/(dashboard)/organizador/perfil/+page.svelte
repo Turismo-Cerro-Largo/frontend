@@ -226,7 +226,7 @@
                             bind:value={perfil.telefono}
                             minlength="8"
                             maxlength="20"
-                            pattern="\+?[0-9 -]+"
+                            pattern="\+?[0-9 \-]+"
                             required
                             disabled={!editando || guardando}
                             class={campo}
