@@ -1,11 +1,11 @@
-import { API_URL } from '$env/static/private';
+import { backendUrl } from '$lib/server/backend';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch }) => {
     let response: Response;
     try {
-        response = await fetch(`${API_URL}/api/categorias`);
+        response = await fetch(`${backendUrl()}/api/categorias`);
     } catch {
         error(503, 'No se pudo conectar con el servidor de categorías.');
     }
