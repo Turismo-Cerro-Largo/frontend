@@ -47,3 +47,8 @@ You can preview the production build with `npm run preview`.
 Vite redirige /api al backend definido por API_URL (por defecto http://127.0.0.1:4000), conservando el prefijo /api. Reiniciar el servidor de desarrollo después de cambiar la configuración.
 
 En producción con adapter-node, configurar un proxy inverso en el hosting para enviar /api al backend; el proxy de Vite solo se aplica durante desarrollo.
+
+
+## Rama cloud: Vercel + Cloudflare
+
+Ver [configuración y despliegue](docs/cloud-vercel.md). El frontend se publica en Vercel y /api se reenvía al Worker mediante vercel.json. Configurar API_URL y PUBLIC_MAPBOX_TOKEN en Vercel. Autorizar el dominio estable de Vercel en APP_PUBLIC_URL y APP_ORIGINS del backend antes de probar login/registro desde la web.

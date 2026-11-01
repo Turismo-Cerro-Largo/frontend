@@ -1,14 +1,13 @@
 import { backendUrl } from '$lib/server/backend';
-import type { Handle } from "@sveltejs/kit";
+import type { Handle } from '@sveltejs/kit';
 
 export const handle: Handle = async ({ event, resolve }) => {
     event.locals.cuenta = null;
 
-    if (event.cookies.get("session")) {
-
+    if (event.cookies.get('session')) {
         // consultar al backend si la cuenta es true
         const respuesta = await fetch(`${backendUrl()}/api/auth/check`, {
-            headers: { cookie: event.request.headers.get("cookie") ?? "" },
+            headers: { cookie: event.request.headers.get('cookie') ?? '' },
             signal: AbortSignal.timeout(3000),
         }).catch(() => null);
 
@@ -19,6 +18,6 @@ export const handle: Handle = async ({ event, resolve }) => {
     }
 
     const response = await resolve(event);
-    if (event.locals.cuenta) response.headers.set('cache-control', 'private, no-store');
+    if (event.cookies.get('session')) response.headers.set('cache-control', 'private, no-store');
     return response;
-}
+};

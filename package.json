@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^7.0.1",
-    "@sveltejs/adapter-node": "^5.5.7",
+    "@sveltejs/adapter-vercel": "6.3.4",
     "@sveltejs/kit": "^2.70.3",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@tailwindcss/forms": "^0.5.11",
@@ -36,11 +36,5 @@
   "overrides": {
     "cookie": "0.7.2",
     "postcss-selector-parser": "7.1.6"
-  },
-  "pnpm": {
-    "overrides": {
-      "cookie": "0.7.2",
-      "postcss-selector-parser": "7.1.6"
-    }
   }
 }

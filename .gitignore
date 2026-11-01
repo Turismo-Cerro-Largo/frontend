@@ -24,3 +24,5 @@ vite.config.ts.timestamp-*
 
 # Lockfile canonico: pnpm-lock.yaml
 package-lock.json
+
+/node_modules.pre-cloud/

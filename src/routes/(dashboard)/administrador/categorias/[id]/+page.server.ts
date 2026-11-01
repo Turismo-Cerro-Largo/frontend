@@ -1,11 +1,11 @@
 // src/routes/(dashboard)/administrador/categorias/[id]/+page.server.ts
 
-import { API_URL } from '$env/static/private';
+import { backendUrl } from '$lib/server/backend';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, fetch }) => {
-    const respuesta = await fetch(`${API_URL}/api/categorias/${params.id}`);
+    const respuesta = await fetch(`${backendUrl()}/api/categorias/${params.id}`);
 
     if (!respuesta.ok) {
         error(respuesta.status, 'No se pudo cargar la categoría.');
