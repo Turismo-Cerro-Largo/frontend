@@ -4,8 +4,19 @@ import type { EventoPublico } from '$lib/types/agenda';
 import type { LocalidadPublica } from '$lib/types/localidad';
 import type { HorarioOmnibus } from '$lib/types/transporte';
 import type { PageServerLoad } from './$types';
+import { env } from '$env/dynamic/private';
 
 export const load: PageServerLoad = async ({ fetch }) => {
+      // Permitir mostrar el inicio sin un backend online
+    if (!env.API_URL?.trim()) {
+        return {
+            horarios: [],
+            errorHorarios: true,
+            eventosProximos: [],
+            errorEventos: true,
+            localidades: null
+        };
+    }
     const eventos = fetch(
         backendUrl() + '/api/eventos?' + new URLSearchParams({ desde: diaUruguay(new Date()), limit: '3' }),
         { signal: AbortSignal.timeout(10000) }
