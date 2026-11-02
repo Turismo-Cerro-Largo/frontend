@@ -12,18 +12,18 @@
         { href: '/radios-locales', label: 'Radios locales' },
         { href: '/mapa', label: 'Mapa interactivo' },
         { href: '/sobre-nosotros', label: 'Sobre nosotros' },
-        { href: '/contacto', label: 'Contacto' },
+        
     ];
 
     const redes = [
         {
             label: 'Instagram',
-            href: 'https://instagram.com',
+            href: 'https://www.instagram.com/cerrolargo360/',
             path: 'M7 2H17C19.7614 2 22 4.23858 22 7V17C22 19.7614 19.7614 22 17 22H7C4.23858 22 2 19.7614 2 17V7C2 4.23858 4.23858 2 7 2Z M16 11.37C16.1234 12.2022 15.9813 13.0522 15.5938 13.7988C15.2063 14.5455 14.5931 15.1509 13.8416 15.5297C13.0901 15.9085 12.2384 16.0413 11.4078 15.9089C10.5771 15.7766 9.80977 15.3856 9.21485 14.7913C8.62061 14.196 8.22997 13.4287 8.09761 12.5981C7.96526 11.7674 8.09802 10.9157 8.47686 10.1642C8.85571 9.41267 9.46107 8.79955 10.2078 8.41202C10.9544 8.02449 11.8044 7.88245 12.6366 8.00575C13.4855 8.13157 14.2701 8.53008 14.8724 9.14232C15.4747 9.75455 15.8618 10.5216 15.98 11.37H16Z M17.5 6.5H17.51',
         },
         {
             label: 'Facebook',
-            href: 'https://facebook.com',
+            href: 'https://www.facebook.com/Cerro.Largo.360',
             path: 'M18 2H15C13.6739 2 12.4021 2.52678 11.4645 3.46447C10.5268 4.40215 10 5.67392 10 7V10H7V14H10V22H14V14H17L18 10H14V7C14 6.73478 14.1054 6.48043 14.2929 6.29289C14.4804 6.10536 14.7348 6 15 6H18V2Z',
         },
         {
@@ -119,7 +119,7 @@
                             <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" />
                             <path d="M22 6L12 13L2 6" />
                         </svg>
-                        contacto@cerrolargo360.uy
+                        proyectoturismomelo@gmail.com
                     </a>
 
                     <div class="flex items-center gap-2.5">
