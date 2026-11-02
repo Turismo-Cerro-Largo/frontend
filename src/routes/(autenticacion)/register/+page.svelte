@@ -3,6 +3,7 @@
     import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
     let metodo = $state<'turista' | 'organizador'>('turista');
     let cargando = $state(false);
+    let mostrarPassword = $state(false);
     let error = $state(false);
     let mensajeError = $state('');
 
@@ -60,15 +61,18 @@
                 body: datos,
             });
             if (!respuesta.ok) {
+                const detalle = await respuesta.json().catch(() => null);
                 error = true;
                 mensajeError = respuesta.status === 409
                     ? 'Ya existe una cuenta con este correo o RUT.'
                     : respuesta.status === 502 || respuesta.status === 503
                       ? 'El servidor no está disponible. Revisá el backend.'
-                      : 'No se pudo completar el registro. Revisá los datos.';
+                      : typeof detalle?.message === 'string'
+                        ? detalle.message.slice(0, 300)
+                        : 'No se pudo completar el registro. Revisá los datos.';
                 return;
             }
-            window.location.assign(metodo === 'organizador' ? '/organizador' : '/turista');
+            window.location.assign(metodo === 'organizador' ? '/organizador' : '/');
         } catch {
             error = true;
         } finally {
@@ -142,7 +146,7 @@
                             required
                             minlength="2"
                             maxlength="60"
-                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
+                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '\-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
                             title="Ingresá entre 2 y 60 caracteres. Solo se permiten letras, espacios, apóstrofes y guiones."
                             autocomplete="given-name"
                             class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
@@ -158,7 +162,7 @@
                             required
                             minlength="2"
                             maxlength="60"
-                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
+                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '\-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
                             title="Ingresá entre 2 y 60 caracteres. Solo se permiten letras, espacios, apóstrofes y guiones."
                             autocomplete="family-name"
                             class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
@@ -178,7 +182,7 @@
                         required
                         minlength="2"
                         maxlength="100"
-                        pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9][A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9 .,&amp;'()/-]*$"
+                        pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9][A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9 .,&amp;'\(\)\/\-]*$"
                         title="Ingresá entre 2 y 100 caracteres usando letras, números y signos habituales de una organización."
                         class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
                     />
@@ -204,19 +208,37 @@
             <!-- PASSWORD -->
             <div class="flex flex-col gap-1">
                 <label for="password" class="text-sm font-medium text-slate-700"> Contraseña </label>
-                <input
-                    disabled={cargando}
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    minlength="8"
-                    maxlength="32"
-                    autocomplete="new-password"
-                    pattern="^(?=.*[a-z])(?=.*[A-Z]).*$"
-                    title="La contraseña debe tener al menos 8 caracteres, una letra minúscula y una letra mayúscula."
-                    class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
-                />
+                <div class="relative">
+                    <input
+                        disabled={cargando}
+                        id="password"
+                        name="password"
+                        type={mostrarPassword ? 'text' : 'password'}
+                        required
+                        minlength="8"
+                        maxlength="32"
+                        autocomplete="new-password"
+                        pattern="^(?=.*[a-z])(?=.*[A-Z]).*$"
+                        title="La contraseña debe tener al menos 8 caracteres, una letra minúscula y una letra mayúscula."
+                        class="w-full pr-12 rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
+                    />
+                    <button
+                        type="button"
+                        disabled={cargando}
+                        onclick={() => mostrarPassword = !mostrarPassword}
+                        aria-label={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        aria-controls="password"
+                        aria-pressed={mostrarPassword}
+                        title={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        class="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg text-slate-500 hover:text-green-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                            <circle cx="12" cy="12" r="3" />
+                            {#if mostrarPassword}<path d="m3 3 18 18" />{/if}
+                        </svg>
+                    </button>
+                </div>
             </div>
             <!-- DEPARTAMENTO -->
             <div class="flex flex-col gap-1">
@@ -274,17 +296,16 @@
                 <div transition:slide={{ duration: 250 }} class="flex flex-col gap-4 p-4 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider"> Datos de Organizador </span>
                     <div class="flex flex-col gap-1">
-                        <label for="rut" class="text-sm font-medium text-slate-700"> RUT / RUC </label>
+                        <label for="rut" class="text-sm font-medium text-slate-700"> RUT / RUC (opcional) </label>
                         <input
                             disabled={cargando}
                             id="rut"
                             name="rut"
                             type="text"
-                            required
                             inputmode="numeric"
                             minlength="12"
                             maxlength="12"
-                            pattern="^[0-9]+$"
+                            pattern={'[0-9]{12}'}
                             title="El RUT/RUC debe contener exactamente 12 dígitos numéricos."
                             placeholder="Ej. 211234560018"
                             class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
@@ -300,7 +321,7 @@
                             required
                             minlength="8"
                             maxlength="20"
-                            pattern="^\+?[0-9 -]+$"
+                            pattern="^\+?[0-9 \-]+$"
                             title="Ingresá entre 8 y 20 caracteres. Solo se permiten números, espacios, guiones y un + inicial opcional."
                             autocomplete="tel"
                             placeholder="Ej. 099 123 456"
@@ -354,6 +375,25 @@
                         />
                     </div>
                 </div>
+            {/if}
+            {#if metodo === 'organizador'}
+                <input type="hidden" name="versionDocumentos" value="2026-10-28-v1" />
+                <details class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                    <summary class="cursor-pointer font-medium text-green-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-green-600">Leer condiciones del registro y privacidad</summary>
+                    <div class="mt-3 space-y-3 leading-relaxed">
+                        <p>Al registrarte, declarás que los datos son verdaderos y que estás autorizado para representar a la organización. La solicitud será revisada antes de habilitar la publicación de eventos.</p>
+                        <p>Sos responsable de mantener tu cuenta segura y de publicar información correcta y actualizada. Las imágenes y los contenidos deben ser propios o contar con autorización de uso. El equipo podrá revisar y retirar publicaciones que incumplan estas condiciones.</p>
+                        <p>Tus datos y documentos se utilizarán para verificar el registro, gestionar tu cuenta y comunicarnos con vos. Las fotos del documento de identidad no se muestran públicamente en los lugares ni en los eventos.</p>
+                    </div>
+                </details>
+                <label class="flex items-start gap-2 text-sm text-slate-700">
+                    <input type="checkbox" name="aceptaTerminos" value="si" required disabled={cargando} class="mt-1 rounded border-slate-300 text-green-600" />
+                    <span>Acepto los términos y condiciones para organizadores.</span>
+                </label>
+                <label class="flex items-start gap-2 text-sm text-slate-700">
+                    <input type="checkbox" name="aceptaPrivacidad" value="si" required disabled={cargando} class="mt-1 rounded border-slate-300 text-green-600" />
+                    <span>Acepto la política de privacidad y el tratamiento de mis datos y documentos para verificar el registro.</span>
+                </label>
             {/if}
             <!-- REGISTRARSE -->
             <button

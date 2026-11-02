@@ -1,29 +1,25 @@
-
 import { backendUrl } from '$lib/server/backend';
 import type { TarjetaCategoria } from '$lib/types/categoria';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch }) => {
     try {
-        const respuesta = await fetch(
-            `${backendUrl()}/api/ubicaciones?categoria=Restaurantes`
-        );
+        const respuesta = await fetch(`${backendUrl()}/api/ubicaciones?categoria=Restaurantes`, { signal: AbortSignal.timeout(10000) });
 
         if (!respuesta.ok) {
             throw new Error('Error al obtener restaurantes');
         }
 
-        const elementos =
-            (await respuesta.json()) as TarjetaCategoria[];
+        const elementos = (await respuesta.json()) as TarjetaCategoria[];
 
         return {
             elementos,
-            error: ''
+            error: '',
         };
     } catch {
         return {
             elementos: [] as TarjetaCategoria[],
-            error: 'No se pudieron cargar los restaurantes.'
+            error: 'No se pudieron cargar los restaurantes.',
         };
     }
 };
