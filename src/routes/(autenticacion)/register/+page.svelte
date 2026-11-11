@@ -1,11 +1,15 @@
 <script lang="ts">
         import { slide } from 'svelte/transition';
     import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
+    import Turnstile from '$lib/components/shared/Turnstile.svelte';
     let metodo = $state<'turista' | 'organizador'>('turista');
     let cargando = $state(false);
     let mostrarPassword = $state(false);
     let error = $state(false);
     let mensajeError = $state('');
+    let tokenTurnstile = $state('');
+    let turnstile = $state.raw<ReturnType<typeof Turnstile>>();
+    const accionTurnstile = $derived(metodo === 'organizador' ? 'register-organizador' : 'register');
 
     const TAMANO_MAXIMO_ARCHIVO = 8 * 1024 * 1024;
     const TIPOS_ARCHIVO_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp'];
@@ -40,10 +44,11 @@
 
     const enviar = async (evento: SubmitEvent) => {
         evento.preventDefault();
-        if (cargando) return;
+        if (cargando || !tokenTurnstile) return;
         cargando = true;
         error = false;
         mensajeError = '';
+        let enviado = false;
         try {
             const formulario = evento.currentTarget as HTMLFormElement;
             const datos = new FormData(formulario);
@@ -55,15 +60,18 @@
                     return;
                 }
             }
-            const endpoint = metodo === 'organizador' ? '/api/auth/register-organizador' : '/api/auth/register';
-            const respuesta = await fetch(endpoint, {
+            datos.set('turnstileToken', tokenTurnstile);
+            enviado = true;
+            const respuesta = await fetch(`/api/auth/${accionTurnstile}`, {
                 method: 'POST',
                 body: datos,
             });
             if (!respuesta.ok) {
                 const detalle = await respuesta.json().catch(() => null);
                 error = true;
-                mensajeError = respuesta.status === 409
+                mensajeError = detalle?.code === 'TURNSTILE_UNAVAILABLE'
+                    ? detalle.message
+                    : respuesta.status === 409
                     ? 'Ya existe una cuenta con este correo o RUT.'
                     : respuesta.status === 502 || respuesta.status === 503
                       ? 'El servidor no está disponible. Revisá el backend.'
@@ -76,6 +84,7 @@
         } catch {
             error = true;
         } finally {
+            if (enviado) turnstile?.reiniciar();
             cargando = false;
         }
     };
@@ -101,6 +110,7 @@
                 type="button"
                 disabled={cargando}
                 onclick={() => {
+                    if (metodo !== 'turista') tokenTurnstile = '';
                     metodo = 'turista';
                     error = false;
                 }}
@@ -115,6 +125,7 @@
                 type="button"
                 disabled={cargando}
                 onclick={() => {
+                    if (metodo !== 'organizador') tokenTurnstile = '';
                     metodo = 'organizador';
                     error = false;
                 }}
@@ -396,9 +407,12 @@
                 </label>
             {/if}
             <!-- REGISTRARSE -->
+            {#key accionTurnstile}
+                <Turnstile accion={accionTurnstile} bind:token={tokenTurnstile} bind:this={turnstile} />
+            {/key}
             <button
                 type="submit"
-                disabled={cargando}
+                disabled={cargando || !tokenTurnstile}
                 class="h-11 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:scale-98 transition-all cursor-pointer text-white font-medium rounded-lg mt-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
             >
                 {#if cargando}

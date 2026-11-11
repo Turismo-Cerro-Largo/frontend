@@ -1,19 +1,23 @@
 <script lang="ts">
 
     import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
+    import Turnstile from '$lib/components/shared/Turnstile.svelte';
     import { slide } from 'svelte/transition';
 
     // Variables
     let cargando = $state(false);
     let mostrarPassword = $state(false);
     let error = $state('');
+    let tokenTurnstile = $state('');
+    let turnstile = $state.raw<ReturnType<typeof Turnstile>>();
 
     // Subir el formulario
     const enviar = async (evento: SubmitEvent) => {
         evento.preventDefault();
-        if (cargando) return;
+        if (cargando || !tokenTurnstile) return;
 
         const datos = new FormData(evento.currentTarget as HTMLFormElement);
+        datos.set('turnstileToken', tokenTurnstile);
         error = '';
         cargando = true;
 
@@ -25,6 +29,11 @@
             });
 
             if (!respuesta.ok) {
+                const detalle = await respuesta.json().catch(() => null);
+                if (detalle?.code === 'TURNSTILE_INVALID' || detalle?.code === 'TURNSTILE_UNAVAILABLE') {
+                    error = detalle.message;
+                    return;
+                }
                 error = respuesta.status === 400 || respuesta.status === 401
                     ? 'El correo o la contraseña no coinciden. Revisá tus credenciales e intentá nuevamente.'
                     : respuesta.status === 403
@@ -44,6 +53,7 @@
         } catch {
             error = 'No se pudo conectar con el servidor. Revisá tu conexión e intentá nuevamente.';
         } finally {
+            turnstile?.reiniciar();
             cargando = false;
         }
     };
@@ -127,9 +137,10 @@
             </div>
 
             <a href="/recuperar-contrasena" class="text-sm text-green-700 underline underline-offset-4 self-end">¿Olvidaste tu contraseña?</a>
+            <Turnstile accion="login" bind:token={tokenTurnstile} bind:this={turnstile} />
             <button
                 type="submit"
-                disabled={cargando}
+                disabled={cargando || !tokenTurnstile}
                 class="h-11 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:scale-98 transition-all cursor-pointer text-white font-medium rounded-lg disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
             >
                 {#if cargando}
