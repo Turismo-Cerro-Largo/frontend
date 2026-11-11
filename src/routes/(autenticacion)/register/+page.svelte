@@ -80,14 +80,33 @@
                         : 'No se pudo completar el registro. Revisá los datos.';
                 return;
             }
-            window.location.assign(metodo === 'organizador' ? '/organizador' : '/');
+            const resultado = await respuesta.json().catch(() => null);
+
+const email = String(
+    datos.get('email') ?? ''
+).trim().toLowerCase();
+
+sessionStorage.setItem(
+    'registroPendiente',
+    JSON.stringify({
+        email,
+        tipo: metodo === 'organizador'
+            ? 'ORGANIZADOR'
+            : 'TURISTA',
+        enviado: resultado?.enviado !== false
+    })
+);
+
+window.location.assign('/verificar-email');
         } catch {
             error = true;
         } finally {
             if (enviado) turnstile?.reiniciar();
             cargando = false;
         }
+        
     };
+    
 
     const ingresarConGoogle = () => {
         window.location.href = '/api/auth/google';

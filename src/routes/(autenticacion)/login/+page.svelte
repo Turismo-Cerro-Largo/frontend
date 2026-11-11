@@ -1,5 +1,5 @@
-<script lang="ts">
 
+<script lang="ts">
     import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
     import Turnstile from '$lib/components/shared/Turnstile.svelte';
     import { slide } from 'svelte/transition';
@@ -11,53 +11,102 @@
     let tokenTurnstile = $state('');
     let turnstile = $state.raw<ReturnType<typeof Turnstile>>();
 
-    // Subir el formulario
+    // Enviar formulario de inicio de sesión
     const enviar = async (evento: SubmitEvent) => {
         evento.preventDefault();
+
         if (cargando || !tokenTurnstile) return;
 
-        const datos = new FormData(evento.currentTarget as HTMLFormElement);
+        const datos = new FormData(
+            evento.currentTarget as HTMLFormElement
+        );
+
+        // Agregar token de Cloudflare Turnstile
         datos.set('turnstileToken', tokenTurnstile);
+
         error = '';
         cargando = true;
 
         try {
-            // peticion
             const respuesta = await fetch('/api/auth/login', {
                 method: 'POST',
                 body: datos,
             });
 
+            // Manejar errores del servidor
             if (!respuesta.ok) {
-                const detalle = await respuesta.json().catch(() => null);
-                if (detalle?.code === 'TURNSTILE_INVALID' || detalle?.code === 'TURNSTILE_UNAVAILABLE') {
-                    error = detalle.message;
+                const detalle = await respuesta.json()
+                    .catch(() => null);
+
+                // Error de Cloudflare Turnstile
+                if (
+                    detalle?.code === 'TURNSTILE_INVALID' ||
+                    detalle?.code === 'TURNSTILE_UNAVAILABLE'
+                ) {
+                    error = detalle.message ||
+                        'No se pudo completar la verificación de seguridad.';
                     return;
                 }
-                error = respuesta.status === 400 || respuesta.status === 401
-                    ? 'El correo o la contraseña no coinciden. Revisá tus credenciales e intentá nuevamente.'
-                    : respuesta.status === 403
-                      ? 'No se autorizó el ingreso desde esta dirección. Volvé a abrir el sitio e intentá nuevamente.'
-                      : respuesta.status === 429
-                        ? 'Hubo demasiados intentos. Esperá unos minutos y volvé a intentar.'
-                        : respuesta.status >= 500
-                          ? 'El servicio de ingreso no está disponible en este momento. Intentá nuevamente más tarde.'
-                          : 'No se pudo completar el ingreso. Volvé a intentar.';
+
+                // Error de inicio de sesión o email sin verificar
+                if (
+                    respuesta.status === 403 &&
+                    detalle?.message ===
+                        'Primero debés verificar tu correo electrónico.'
+                ) {
+                    error = 'Primero debés verificar tu correo electrónico.';
+                    return;
+                }
+
+                if (
+                    respuesta.status === 400 ||
+                    respuesta.status === 401
+                ) {
+                    error =
+                        'El correo o la contraseña no coinciden. Revisá tus credenciales e intentá nuevamente.';
+                } else if (respuesta.status === 403) {
+                    error =
+                        'No se autorizó el ingreso desde esta dirección. Volvé a abrir el sitio e intentá nuevamente.';
+                } else if (respuesta.status === 429) {
+                    error =
+                        'Hubo demasiados intentos. Esperá unos minutos y volvé a intentar.';
+                } else if (respuesta.status >= 500) {
+                    error =
+                        'El servicio de ingreso no está disponible en este momento. Intentá nuevamente más tarde.';
+                } else {
+                    error =
+                        'No se pudo completar el ingreso. Volvé a intentar.';
+                }
+
                 return;
             }
 
+            // Inicio de sesión exitoso
             error = '';
 
             const cuenta = await respuesta.json();
-            window.location.assign(cuenta.rol === 'ADMINISTRADOR' ? '/administrador' : cuenta.tipo === 'organizador' ? '/organizador' : '/');
+
+            // Redirigir según el rol
+            window.location.assign(
+                cuenta.rol === 'ADMINISTRADOR'
+                    ? '/administrador'
+                    : cuenta.tipo === 'organizador'
+                        ? '/organizador'
+                        : '/'
+            );
+
         } catch {
-            error = 'No se pudo conectar con el servidor. Revisá tu conexión e intentá nuevamente.';
+            error =
+                'No se pudo conectar con el servidor. Revisá tu conexión e intentá nuevamente.';
+
         } finally {
+            // Reiniciar Turnstile al terminar
             turnstile?.reiniciar();
             cargando = false;
         }
     };
 </script>
+
 
 <svelte:head>
     <title>Ingresar · CerroLargo360</title>
@@ -81,10 +130,24 @@
 
         <!-- Mensaje de error generico -->
         {#if error}
-            <div in:slide|local out:slide|local class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
-                {error}
-            </div>
-        {/if}
+    <div
+        in:slide|local
+        out:slide|local
+        class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        role="alert"
+    >
+        {error}
+    </div>
+
+    {#if error === 'Primero debés verificar tu correo electrónico.'}
+        <a
+            href="/verificar-email"
+            class="mb-4 block rounded-lg border border-green-600 bg-green-50 px-4 py-3 text-center text-sm font-semibold text-green-700 hover:bg-green-100"
+        >
+            Verificar mi correo o reenviar código
+        </a>
+    {/if}
+{/if}
 
         <!-- https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-busy -->
         <form onsubmit={enviar} class="flex flex-col gap-4" aria-busy={cargando}>
