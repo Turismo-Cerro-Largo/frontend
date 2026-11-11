@@ -149,10 +149,7 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <button
-                    type="button"
-                    aria-label="Buscar"
-                    onclick={() => window.location.assign('/lugares')}
+                <a href="/lugares" aria-label="Buscar"
                     class="
                         flex
                         h-10 w-10
@@ -169,7 +166,7 @@
                         <circle cx="11" cy="11" r="6" />
                         <path d="M16 16L20 20" />
                     </svg>
-                </button>
+                </a>
 
                 <MenuCuenta claro={solid || scrolled || menuAbierto} />
             </div>

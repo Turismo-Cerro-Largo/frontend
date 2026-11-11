@@ -1,49 +1,24 @@
-# sv
+# Cerro Largo 360 · Frontend
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Sitio de turismo de Cerro Largo hecho con SvelteKit.
 
-## Creating a project
+## Desarrollo local
 
-If you're seeing this, you've probably already done this step. Congrats!
+1. Arrancá el backend en `http://localhost:4000`.
+2. Copiá `.env.example` a `.env`. Configurá `API_URL` con el origen del backend, sin `/api`. Para el mapa, completá `PUBLIC_MAPBOX_TOKEN` con un token público.
+3. Instalá las dependencias y arrancá el frontend.
 
-```sh
-# create a new project
-npx sv create my-app
+```bash
+pnpm install
+pnpm dev
 ```
 
-To recreate this project with the same configuration:
+Abrí `http://localhost:5173`. Vite reenvía las peticiones de `/api` al backend.
 
-```sh
-# recreate this project
-pnpm dlx sv@0.17.0 create --template minimal --types ts --add tailwindcss="plugins:typography,forms" --install pnpm frontend
-```
+Usá `pnpm check` para revisar el código y `pnpm build` para compilar.
 
-## Developing
+## Organización de las rutas
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+SvelteKit crea las páginas a partir de `src/routes/`. Por ejemplo, `radios-locales/+page.svelte` corresponde a `/radios-locales`. El grupo `(autenticacion)` reúne `/login` y `/register`, y `(dashboard)` agrupa los paneles de administrador, organizador y turista. Los nombres entre paréntesis no aparecen en la URL.
 
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
-
-
-## Proxy de la API
-
-Vite redirige /api al backend definido por API_URL (por defecto http://127.0.0.1:4000), conservando el prefijo /api. Reiniciar el servidor de desarrollo después de cambiar la configuración.
-
-En producción con adapter-node, configurar un proxy inverso en el hosting para enviar /api al backend; el proxy de Vite solo se aplica durante desarrollo.
+`+page.server.ts` carga datos en el servidor y `+layout.svelte` comparte la estructura entre páginas.

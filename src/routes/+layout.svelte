@@ -1,5 +1,6 @@
 <script lang="ts">
     import './layout.css';
+    import RadioFlotante from '$lib/components/shared/RadioFlotante.svelte';
     import favicon from '$lib/assets/favicon.svg';
 
     let { children } = $props();
@@ -9,4 +10,6 @@
     <link rel="icon" href={favicon} />
 </svelte:head>
 
-{@render children()}
+<RadioFlotante>
+    {@render children()}
+</RadioFlotante>
