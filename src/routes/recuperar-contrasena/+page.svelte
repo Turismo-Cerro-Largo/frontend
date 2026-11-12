@@ -1,16 +1,20 @@
 <script lang="ts">
+    import Turnstile from '$lib/components/shared/Turnstile.svelte';
+
+    let tokenTurnstile = $state('');
+    let turnstile = $state.raw<ReturnType<typeof Turnstile>>();
     let cargando = $state(false),
         mensaje = $state(''),
         error = $state('');
     async function enviar(e: SubmitEvent) {
         e.preventDefault();
-        if (cargando) return;
+        if (cargando || !tokenTurnstile) return;
         const email = String(new FormData(e.currentTarget as HTMLFormElement).get('email') || '');
         cargando = true;
         error = '';
         mensaje = '';
         try {
-            const r = await fetch('/api/auth/recuperacion/solicitar', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email }) });
+            const r = await fetch('/api/auth/recuperacion/solicitar', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email, turnstileToken: tokenTurnstile }) });
             const data = await r.json();
             if (!r.ok) {
                 error = data.message || 'No pudimos procesar la solicitud.';
@@ -21,6 +25,7 @@
             error = 'No pudimos conectar con el servidor. Intentá nuevamente.';
         } finally {
             cargando = false;
+            turnstile?.reiniciar();
         }
     }
 </script>
@@ -45,7 +50,8 @@
                 disabled={cargando}
                 class="rounded-lg border-slate-300 focus:ring-green-600 focus:border-green-600"
             />
-            <button disabled={cargando} class="rounded-lg bg-green-700 hover:bg-green-800 text-white py-3 mt-2 disabled:opacity-60"
+            <Turnstile accion="recuperar-contrasena" bind:token={tokenTurnstile} bind:this={turnstile} />
+            <button disabled={cargando || !tokenTurnstile} class="rounded-lg bg-green-700 hover:bg-green-800 text-white py-3 mt-2 disabled:opacity-60"
                 >{cargando ? 'Enviando…' : 'Enviar enlace'}</button
             >
         </form>

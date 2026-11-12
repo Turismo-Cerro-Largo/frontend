@@ -48,7 +48,7 @@
     import { env } from '$env/dynamic/public';
 
     let { accion, token = $bindable('') }: {
-        accion: 'login' | 'register' | 'register-organizador';
+        accion: 'login' | 'register' | 'register-organizador' | 'recuperar-contrasena';
         token?: string;
     } = $props();
 

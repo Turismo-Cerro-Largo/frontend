@@ -1,24 +1,33 @@
 # Cerro Largo 360 · Frontend
 
-Sitio de turismo de Cerro Largo hecho con SvelteKit.
+Cerro Largo 360 es un portal para explorar el departamento. En el sitio se pueden consultar lugares y eventos, navegar el mapa, ver horarios de ómnibus y escuchar radios locales. También incluye paneles para turistas, organizadores y administradores.
+
+Este repositorio contiene el sitio hecho con SvelteKit, Svelte 5, TypeScript y Tailwind CSS. Las páginas consultan la API del repositorio backend. Los mapas usan Mapbox y el reproductor de radios sigue activo al navegar entre páginas.
 
 ## Desarrollo local
 
-1. Arrancá el backend en `http://localhost:4000`.
-2. Copiá `.env.example` a `.env`. Configurá `API_URL` con el origen del backend, sin `/api`. Para el mapa, completá `PUBLIC_MAPBOX_TOKEN` con un token público.
-3. Instalá las dependencias y arrancá el frontend.
+1. Iniciá el backend en `http://localhost:4000`.
+2. Copiá [`.env.example`](.env.example) a `.env`. Indicá el origen del backend en `API_URL`, sin `/api`. Completá `PUBLIC_MAPBOX_TOKEN` para el mapa y `PUBLIC_TURNSTILE_SITE_KEY` para los formularios protegidos.
 
-```bash
+```sh
 pnpm install
 pnpm dev
 ```
 
-Abrí `http://localhost:5173`. Vite reenvía las peticiones de `/api` al backend.
+Abrí `http://localhost:5173`. En desarrollo, Vite reenvía las solicitudes de `/api` al backend. La rama `cloud` incluye la configuración para desplegar en Vercel y reenviar esas rutas al Worker.
 
-Usá `pnpm check` para revisar el código y `pnpm build` para compilar.
+`pnpm check` revisa los tipos y los componentes. `pnpm build` compila el sitio.
 
 ## Organización de las rutas
 
-SvelteKit crea las páginas a partir de `src/routes/`. Por ejemplo, `radios-locales/+page.svelte` corresponde a `/radios-locales`. El grupo `(autenticacion)` reúne `/login` y `/register`, y `(dashboard)` agrupa los paneles de administrador, organizador y turista. Los nombres entre paréntesis no aparecen en la URL.
+SvelteKit define las páginas en [`src/routes/`](src/routes/). Los nombres de grupo entre paréntesis no forman parte de la URL.
 
-`+page.server.ts` carga datos en el servidor y `+layout.svelte` comparte la estructura entre páginas.
+| Carpeta | Qué contiene |
+| --- | --- |
+| `(autenticacion)/` | Inicio de sesión, registro y verificación de correo. |
+| `recuperar-contrasena/` y `restablecer-contrasena/` | Solicitud de un enlace y cambio de contraseña. |
+| `(dashboard)/` | Paneles de turista, organizador y administrador. |
+| `categoria/`, `localidades/`, `lugares/`, `eventos/`, `mapa/` y `planificador/` | Catálogo y herramientas para explorar el departamento. |
+| `transporte/`, `horarios-omnibus/` y `radios-locales/` | Transporte y radios del departamento. |
+
+Los archivos `+page.server.ts` cargan datos en el servidor y `+layout.svelte` comparte estructura entre páginas. Para detalles de trabajo, consultá [`AGENTS.md`](AGENTS.md).
