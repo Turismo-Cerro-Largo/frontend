@@ -149,7 +149,7 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <a href="/lugares" aria-label="Buscar"
+                <a href="/lugares"
                     class="
                         flex
                         h-10 w-10
@@ -162,7 +162,8 @@
                         {solid || scrolled ? 'text-zinc-700 hover:bg-zinc-100 hover:text-black' : 'text-white hover:bg-white/10'}
                     "
                 >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                    <span class="sr-only">Buscar lugares</span>
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
                         <circle cx="11" cy="11" r="6" />
                         <path d="M16 16L20 20" />
                     </svg>

@@ -54,8 +54,9 @@
 
                 <div class="mt-1 flex items-center gap-2">
                     {#each redes as red}
-                        <a href={red.href} target="_blank" rel="noopener noreferrer" aria-label={red.label} class={iconBtn}>
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <a href={red.href} target="_blank" rel="noopener noreferrer" class={iconBtn}>
+                            <span class="sr-only">{red.label}</span>
+                            <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d={red.path} />
                             </svg>
                         </a>

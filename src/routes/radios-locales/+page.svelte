@@ -1,12 +1,11 @@
 <script lang="ts">
+    import RadiosSeo from './RadiosSeo.svelte';
     import { onMount } from 'svelte';
     import { obtenerReproductor } from '$lib/radios/reproductor';
     import Navbar from '$lib/components/shared/Navbar.svelte';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
-    const titulo = 'Radios en vivo de Cerro Largo | Cerro Largo 360';
-    const descripcion = 'Escuchá radios de Melo, Río Branco y otras localidades de Cerro Largo, Uruguay. Encontrá las emisoras con transmisión disponible.';
     let resultados = $state<Record<string, string | null>>({});
     let filtro = $state('');
     const reproductor = obtenerReproductor();
@@ -97,16 +96,7 @@
     });
 </script>
 
-<svelte:head>
-    <title>{titulo}</title>
-    <meta name="description" content={descripcion} />
-    <link rel="canonical" href={data.canonical} />
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="es_UY" />
-    <meta property="og:title" content={titulo} />
-    <meta property="og:description" content={descripcion} />
-    <meta property="og:url" content={data.canonical} />
-</svelte:head>
+<RadiosSeo canonical={data.canonical} />
 
 <Navbar />
 
@@ -114,7 +104,7 @@
     <header class="bg-linear-to-br from-zinc-950 to-zinc-800 px-5 pt-32 pb-14 text-white md:px-10 md:pt-40 md:pb-20">
         <div class="mx-auto max-w-7xl">
             <p class="mb-2 text-xs font-medium tracking-widest text-white/60 uppercase">Cerro Largo · Uruguay</p>
-            <h1 class="text-3xl font-semibold tracking-tight md:text-5xl">Radios locales</h1>
+            <h1 class="text-3xl font-semibold tracking-tight md:text-5xl">Radios de Cerro Largo en vivo</h1>
             <p class="mt-4 max-w-xl text-sm leading-6 text-white/70 md:text-base">Escuchá las emisoras de Melo, Río Branco y otras localidades de Cerro Largo.</p>
         </div>
     </header>
