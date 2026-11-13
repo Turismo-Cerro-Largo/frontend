@@ -6,8 +6,8 @@
     export const slides = [
         { src: 'https://ladiaria.com.uy/media/photologue/photos/cache/paisaje_opt_schema_image.jpeg', destino: 'Centurion' },
         { src: 'https://cfluna.com/darkolighting.com.uy/cdn/files/tmp/compressed/normal/mccxxqfho7eqcg9w9u4s.jpg', destino: 'Río Branco' },
-        { src: 'https://www.ambiente.gub.uy/oan/wp-content/uploads/2020/12/04-11.jpg', destino: 'Aceguá' },
-        { src: 'https://destinocerrolargo.uy/wp-content/uploads/2024/08/cueva_murcielagos1-780x470.jpg', destino: 'Tupambaé' },
+        { src: 'https://www.lavozdemelo.com.uy/wp-content/uploads/2026/10/WhatsApp-Image-2026-10-29-at-21.04.29.jpeg', destino: 'Melo' },
+        { src: 'https://www.lavozdemelo.com.uy/wp-content/uploads/2024/01/lago-merin-laguna-merin-aerea.jpg', destino: 'Laguna Merin' },
     ];
 
     $effect(() => {

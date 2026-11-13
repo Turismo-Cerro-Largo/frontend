@@ -8,13 +8,12 @@
     import HomeProximosEventos from '$lib/components/inicio/HomeProximosEventos.svelte';
     import HomeRecomendados from '$lib/components/inicio/HomeRecomendados.svelte';
     import HomeViaje from '$lib/components/inicio/HomeViaje.svelte';
+    import HomeSeo from '$lib/components/inicio/HomeSeo.svelte';
     import Navbar from '$lib/components/shared/Navbar.svelte';
     let { data }: { data: PageData } = $props();
 </script>
 
-<svelte:head>
-    <title>CerroLargo360</title>
-</svelte:head>
+<HomeSeo />
 
 <Navbar />
 

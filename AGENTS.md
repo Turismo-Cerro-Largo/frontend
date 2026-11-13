@@ -1,120 +1,46 @@
-# AGENTS.md — Cerro Largo 360 / Frontend
+# Cerro Largo 360 · Frontend
 
-> Código revisado: rama `check-point` de `Turismo-Cerro-Largo/frontend` (11/10/2026). La rama solicitada `check-out` no aparece en GitHub. Este documento se basa en lo observado en `check-point`.
+## Alcance y desarrollo local
 
-## Tecnologías y comandos
+En `cloud`, el frontend se publica en Vercel y usa el Worker como API. Las instrucciones locales también sirven con Wrangler en el puerto 4000. El sitio usa SvelteKit, Svelte 5 con runes, TypeScript, Vite, Tailwind CSS y Mapbox GL JS. La API vive en el repositorio hermano.
 
-SvelteKit 2, Svelte 5 (runes), TypeScript, Vite 8, Tailwind CSS 4, Mapbox GL JS 3, `adapter-node`, pnpm. Backend Hono + Prisma en otro repositorio.
+- Arrancá el backend en el puerto 4000. Copiá `.env.example` a `.env`, instalá con `pnpm install` y ejecutá `pnpm dev`. Vite sirve el sitio normalmente en el puerto 5173.
+- `API_URL` es el origen privado del backend, sin `/api`. `PUBLIC_MAPBOX_TOKEN` habilita el mapa y `PUBLIC_TURNSTILE_SITE_KEY` configura el captcha. Los secretos de Google, Gmail y Turnstile quedan en el backend.
+- `pnpm check` sincroniza los tipos de ruta y ejecuta Svelte Check. `pnpm build` compila el sitio y `pnpm preview` previsualiza el resultado. `pnpm format` escribe en `src/`.
 
-- `pnpm install`: instalar dependencias.
-- `pnpm dev`: iniciar Vite (habitualmente puerto 5173).
-- `pnpm check`: comprobar Svelte/TypeScript.
-- `pnpm build`: compilar para producción.
-- `pnpm preview`: previsualizar build.
-- `pnpm format`: formatear y modificar archivos.
+## Organización de rutas
 
-## Estructura
+| Área | Rutas y archivos |
+| --- | --- |
+| Inicio y navegación | `src/routes/+page.server.ts` y `+page.svelte` forman la portada. `+layout.server.ts` publica la cuenta y `+layout.svelte` monta el reproductor global. |
+| Cuenta | `(autenticacion)/` contiene `/login`, `/register` y `/verificar-email`. La recuperación usa `/recuperar-contrasena` y `/restablecer-contrasena`. |
+| Turismo público | `/categoria`, `/localidades`, `/lugares`, `/eventos`, `/mapa` y `/planificador` reúnen catálogo, fichas y mapa. |
+| Transporte y radios | `/transporte`, `/horarios-omnibus` y `/radios-locales`. |
+| Administración | `(dashboard)/administrador/` contiene resumen, categorías, comentarios, eventos, localidades, organizadores, transporte, ubicaciones, usuarios y valoraciones. |
+| Organizador | `(dashboard)/organizador/` contiene el panel, el perfil y la gestión de eventos. |
+| Turista | `(dashboard)/turista/` contiene perfil, explorar, favoritos y valoraciones. |
 
-```text
-src/
-  hooks.server.ts                 # Hook SSR de sesión
-  app.d.ts                        # Tipos App.Locals y PageData
-  lib/
-    server/backend.ts             # URL privada de API
-    types/cuenta.ts               # Tipo de cuenta/rol/estado
-    components/
-      Home/                       # Componentes página principal
-      Mapa/                       # Componentes de mapa
-      shared/                     # Navbar y paginador
-      svg/                        # Recursos SVG
-    hooks/                        # Utilidades reactivas
-    styles/                       # Tokens y estilos organizador
-  routes/
-    +layout.server.ts             # Publica cuenta desde locals
-    +layout.svelte                # Layout principal
-    +page.svelte                  # Home
-    (autenticacion)/
-      +layout.server.ts           # Redirige autenticados
-      login/+page.svelte
-      register/+page.svelte
-    (dashboard)/
-      +layout.server.ts           # Requiere login y rol
-      administrador/              # Dashboard, categorías, ubicaciones
-      organizador/                # Dashboard, perfil, eventos
-      turista/                    # Dashboard turista
-    mapa/+page.svelte
-    radios-locales/+page.svelte
-  routes/layout.css
-static/                            # Recursos, fuentes y SVG
-vite.config.ts                     # SvelteKit, Tailwind, proxy en dev
-.env.example                       # Ejemplo token Mapbox
-```
+Los grupos entre paréntesis organizan archivos y no forman parte de la URL. Usá `+page.server.ts` y `+layout.server.ts` para cargas privadas y los tipos generados `./$types`. `src/lib/components/` reúne componentes por función, `src/lib/server/` contiene módulos exclusivos del servidor, `src/lib/types/` tipos compartidos y `static/` recursos públicos.
 
-Los grupos `(autenticacion)` y `(dashboard)` organizan código y **no aparecen en la URL pública**.
+## Comunicación con la API y sesión
 
-## Sesión y autenticación: flujo real
+- Los formularios del navegador llaman a rutas relativas `/api/...`. En desarrollo, `vite.config.ts` las reenvía al backend usando `API_URL`. En producción, el despliegue debe enrutar esas peticiones al backend. El proxy de Vite es de desarrollo.
+- Desde SSR, usá `backendUrl()` de `src/lib/server/backend.ts` y el `fetch` de la carga cuando corresponda. Reenviá la cookie en las consultas autenticadas al backend.
+- `hooks.server.ts` inicia `event.locals.cuenta` en `null`. Si llega la cookie `session`, consulta `/api/auth/check` y deja la respuesta autenticada fuera de caché. El layout raíz pasa la cuenta a las páginas.
+- El layout de autenticación redirige a usuarios con sesión. El de dashboard valida el rol antes de mostrar el panel. Los layouts no sustituyen la autorización del backend. La cookie de sesión es `HttpOnly` y la emite el backend.
+- Login y registros reutilizan `Turnstile.svelte`. El registro por correo lleva a `/verificar-email`, que confirma o reenvía el código. El turista inicia sesión después de verificar. El organizador también necesita aprobación.
+- La solicitud de recuperación usa el mismo widget con la acción `recuperar-contrasena` y envía JSON con `email` y `turnstileToken`. La pantalla de restablecimiento obtiene el token del fragmento del enlace y envía la contraseña nueva. Google OAuth comienza en `/api/auth/google`.
 
-1. El formulario de `/login` llama a `fetch('/api/auth/login', { method: 'POST', body: FormData(...) })`.
-2. El backend verifica la contraseña y responde con una cookie **firmada**, `session`, con `httpOnly`, `SameSite=Lax` y duración de siete días. No es JWT ni se administra desde un store de Svelte.
-3. En desarrollo, `vite.config.ts` configura `server.proxy['/api']` a `http://localhost:4000`. Así, las solicitudes de `/api` llegan al backend.
-4. En **cada request SSR**, `src/hooks.server.ts` establece `event.locals.cuenta = null`. Si llega la cookie `session`, reenvía la cabecera `Cookie` a `GET ${backendUrl()}/api/auth/check` con timeout de 3 segundos.
-5. Si el backend responde correctamente, el hook asigna su JSON a `event.locals.cuenta`. Si falla, las páginas públicas siguen funcionando como visitante.
-6. `src/routes/+layout.server.ts` devuelve `{ cuenta: locals.cuenta }` para que sea accesible desde las páginas.
-7. El layout de `(autenticacion)` redirige una cuenta válida a su panel; el layout de `(dashboard)` exige estar autenticado y comprueba el rol frente al primer segmento de la URL.
-8. El layout `/organizador/eventos` comprueba adicionalmente `cuenta.estado === 'APROBADO'` y lanza 403 si no corresponde.
-9. Después de login se usa `window.location.assign(destino)` para iniciar una navegación completa y volver a comprobar la sesión en SSR.
+## Catálogo, mapas y radios
 
-**Importante:** `event.locals.cuenta` es información reconstruida para la petición SSR, no una sesión persistente. La identidad persistente se mantiene con la cookie del backend. Los redirects frontend **no reemplazan** la autorización de endpoints en backend.
+- Conservá las cargas SSR del catálogo cuando los datos formen parte de la página pública o su SEO. Mantené títulos, descripciones y enlaces de navegación en las rutas públicas.
+- El detalle de lugar integra Mapbox para mostrar la ubicación. La acción de cómo llegar abre Google Maps. Mantené el orden de coordenadas que espera cada integración.
+- La página de radios carga emisoras desde `src/lib/server/radios.ts`. El módulo consulta Radio Browser, filtra las emisoras de Cerro Largo y usa caché temporal. Las emisoras y los errores de reproducción se manejan en la página y el reproductor compartido.
+- `src/lib/radios/` y `RadioFlotante.svelte` manejan el estado y los controles del reproductor. Mantené el audio en el layout raíz para que navegar entre páginas no corte la reproducción.
 
-### Roles y respuesta de `/check`
+## Estilo, comprobaciones y despliegue
 
-- `TURISTA` ➜ `/turista`.
-- `ORGANIZADOR` ➜ `/organizador`.
-- `ADMINISTRADOR` ➜ `/administrador`.
-
-El backend entrega `{ id, rol, nombre }` y agrega `estado` **solo para organizadores**. `src/lib/types/cuenta.ts` lo declara obligatorio para todas las cuentas, lo que conviene corregir con tipo discriminado o campo opcional.
-
-### Logout y OAuth
-
-El backend ofrece `GET|POST /api/auth/logout` para borrar cookie. Después de logout, actualizar la navegación y los datos de layout. Google OAuth comienza en `/api/auth/google`; la rama actual del backend tiene una redirección fija hacia `http://localhost:5173/turista` que debe parametrizarse para producción.
-
-## Comunicación con backend
-
-- URL de API en servidor: `src/lib/server/backend.ts`, `backendUrl()` usa variable privada `API_URL`, con fallback `http://127.0.0.1:4000` en desarrollo.
-- En `src/routes/(dashboard)/administrador/categorias/+page.server.ts` se usa además `$env/static/private.API_URL`; evitar distintas fuentes de configuración.
-- El proxy `server.proxy` de Vite es **solo para desarrollo**. En producción se necesita un reverse proxy, BFF o esquema de despliegue equivalente para que `/api` y las cookies funcionen.
-- Rutas backend confirmadas: `POST /api/auth/login`, `POST /api/auth/register`, `POST /api/auth/register-organizador`, `GET /api/auth/google`, `GET /api/auth/check`, `GET|POST /api/auth/logout`, `GET /api/categorias`, `GET /api/categorias/:id`, `POST|PUT|DELETE` de categorías con permisos, `GET|PUT /api/organizador/perfil`.
-- No inventar endpoints de eventos, mapas o transporte sin implementarlos en backend.
-
-## Convenciones de implementación
-
-- Escribir componentes `.svelte` con `<script lang="ts">` y runes Svelte 5 (`$state`, `$derived`, etc.), según la configuración actual de Vite.
-- Usar `+page.server.ts` / `+layout.server.ts` y `$lib/server` para operaciones con secretos o acceso SSR; nunca importar variables privadas al cliente.
-- Usar tipos de ruta generados `./$types`, `App.Locals` y `App.PageData`.
-- Mantener los estilos, fuentes, componentes reutilizables y diseño responsive ya existentes; revisar accesibilidad, estados de carga y mensajes de error.
-- Mantener Mapbox GL JS con `PUBLIC_MAPBOX_TOKEN`, que es un token público; no exponer credenciales privadas.
-- Coordinar contratos de API (verbos, validaciones, cuerpos, errores y respuestas) con backend. Para solicitudes SSR autenticadas, garantizar que se reenvíe la cookie a la API cuando sea necesario.
-- Proteger páginas por UX, pero delegar permisos y validación de recursos en backend.
-
-## Configuración local
-
-`.env.example` incluye `PUBLIC_MAPBOX_TOKEN`. Para llamadas internas del servidor se necesita `API_URL` en el entorno adecuado, especialmente en producción. No versionar `.env` ni secretos. En desarrollo, correr backend en puerto 4000 y frontend con `pnpm dev`.
-
-## Checklist para agentes
-
-1. Identificar ruta afectada y si debe ejecutarse en servidor o cliente.
-2. Antes de tocar login o roles, inspeccionar `hooks.server.ts`, layouts de autenticación/dashboard, `app.d.ts`, `types/cuenta.ts` y los middlewares del backend.
-3. Evitar guardar la cookie o secretos en localStorage o stores Svelte; `httpOnly` debe mantenerse.
-4. No asumir que una cuenta organizador está aprobada solo porque tiene rol `ORGANIZADOR`.
-5. Para cada pantalla nueva, comprobar contrato real del backend antes de conectar formularios.
-6. Reusar componentes visuales existentes y validar desktop/móvil.
-7. Ejecutar `pnpm check` y `pnpm build`; comunicar comprobaciones no ejecutadas.
-
-## Riesgos y mejoras sugeridas
-
-- `Cuenta.estado` obligatorio en tipos pero ausente en la respuesta para turista/admin.
-- Petición de validación al backend en cada request SSR: revisar latencia y posibles errores temporales.
-- Uso mixto de `backendUrl()` y variable estática `API_URL`.
-- Proxy `/api` de Vite no funciona automáticamente tras desplegar `adapter-node`.
-- Redirecciones de layout no autorizan mutaciones de API y no sustituyen revisión de propiedad de datos.
-- Revisar CORS, envío de cookies y protección CSRF en despliegues con dominios distintos.
+- Usá runes de Svelte 5, componentes compartidos, estilos existentes y etiquetas accesibles. Mantené estados de carga, error y resultados vacíos en formularios y listados. Comprobá móvil y escritorio en cambios de interfaz.
+- Confirmá contratos, formatos de formularios y permisos con el backend antes de editar integraciones. Para cambios del frontend ejecutá `pnpm check` y `pnpm build`. Probá el flujo desde su página pública o panel.
+- `loca` configura `adapter-auto` en `vite.config.ts`. La rama `cloud` incluye `vercel.json` para Vercel y un rewrite de `/api` al Worker. Al cambiar el dominio, revisá el rewrite, `API_URL`, los orígenes permitidos del backend y el callback de OAuth.
+- Consultá `docs/` para el contexto de los paneles, navegación y flujos de turista. La skill `svelte-code-writer` está registrada en `skills-lock.json`.
