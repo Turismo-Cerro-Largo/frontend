@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { page } from '$app/state';
-    const idUbicacion = $derived(page.params.id);
+    const idUbicacion = $derived(page.params.id ?? "");
     type Estado = 'PENDIENTE_REVISION' | 'PUBLICADO' | 'OCULTADO';
     type Comentario = {
         id: number;

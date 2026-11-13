@@ -6,7 +6,7 @@
         id: number;
         nombre_organizacion: string;
         email: string;
-        rut_ruc: string;
+        rut_ruc: string | null;
         departamento: string;
         telefono: string;
         sitio_web: string | null;
@@ -25,7 +25,7 @@
     let fotos = $state<Record<string, string>>({});
     let imagenError = $state<Record<string, string>>({});
     let urls: string[] = [];
-    let id = $derived(page.params.id);
+    let id = $derived(page.params.id ?? "");
     async function cargar() {
         cargando = true;
         error = '';
@@ -114,7 +114,7 @@
                 <span class="rounded-full bg-[#d7e5db] px-4 py-2 text-sm font-medium">{organizador.estado.replaceAll('_', ' ')}</span>
             </div>
             <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                {#each [['Correo', organizador.email], ['RUT / RUC', organizador.rut_ruc], ['Departamento', organizador.departamento], ['Teléfono', organizador.telefono], ['Sitio web', organizador.sitio_web ?? 'No indicado']] as item}<div
+                {#each [['Correo', organizador.email], ['RUT / RUC', organizador.rut_ruc ?? 'No indicado'], ['Departamento', organizador.departamento], ['Teléfono', organizador.telefono], ['Sitio web', organizador.sitio_web ?? 'No indicado']] as item}<div
                         class="rounded-xl bg-[#f7f8f5] p-4"
                     >
                         <div class="text-xs text-[#68746c]">{item[0]}</div>

@@ -51,7 +51,7 @@
                 <div class="grid gap-2 p-4 sm:grid-cols-2">
                     {#each evento.recursos
                         .filter((r) => r.tipo === 'IMAGEN' && imagen(r.uri))
-                        .sort((a, b) => a.orden - b.orden) as recurso, i (recurso.id ?? `${recurso.uri}-${i}`)}
+                        .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)) as recurso, i (recurso.id ?? `${recurso.uri}-${i}`)}
                         <img src={imagen(recurso.uri)} alt={`Fotografía de ${evento.titulo}`} class="h-60 w-full rounded-xl object-cover" loading="lazy" />
                     {/each}
                 </div>

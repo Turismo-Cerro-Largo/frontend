@@ -10,6 +10,7 @@
     const opciones = [
         { nombre: 'Resumen', ruta: '/administrador' },
         { nombre: 'Ubicaciones', ruta: '/administrador/ubicaciones' },
+        { nombre: 'Localidades', ruta: '/administrador/localidades' },
         { nombre: 'Categorias', ruta: '/administrador/categorias' },
         { nombre: 'Organizadores', ruta: '/administrador/organizadores' },
         { nombre: 'Transporte', ruta: '/administrador/transporte' },
@@ -27,7 +28,7 @@
         cerrandoSesion = true;
         errorSesion = '';
         try {
-            const respuesta = await fetch('/api/auth/logout');
+            const respuesta = await fetch('/api/auth/logout', { method: 'POST' });
             if (!respuesta.ok) throw new Error('No se pudo cerrar sesión');
             await goto('/', { replaceState: true, invalidateAll: true });
         } catch {

@@ -1,42 +1,33 @@
-# sv
+# Cerro Largo 360 · Frontend
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Cerro Largo 360 es un portal para explorar el departamento. En el sitio se pueden consultar lugares y eventos, navegar el mapa, ver horarios de ómnibus y escuchar radios locales. También incluye paneles para turistas, organizadores y administradores.
 
-## Creating a project
+Este repositorio contiene el sitio hecho con SvelteKit, Svelte 5, TypeScript y Tailwind CSS. Las páginas consultan la API del repositorio backend. Los mapas usan Mapbox y el reproductor de radios sigue activo al navegar entre páginas.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Desarrollo local
 
-```sh
-# create a new project
-npx sv create my-app
-```
-
-To recreate this project with the same configuration:
+1. Iniciá el backend en `http://localhost:4000`.
+2. Copiá [`.env.example`](.env.example) a `.env`. Indicá el origen del backend en `API_URL`, sin `/api`. Completá `PUBLIC_MAPBOX_TOKEN` para el mapa y `PUBLIC_TURNSTILE_SITE_KEY` para los formularios protegidos.
 
 ```sh
-# recreate this project
-pnpm dlx sv@0.17.0 create --template minimal --types ts --add tailwindcss="plugins:typography,forms" --install pnpm frontend
+pnpm install
+pnpm dev
 ```
 
-## Developing
+Abrí `http://localhost:5173`. En desarrollo, Vite reenvía las solicitudes de `/api` al backend. La rama `cloud` incluye la configuración para desplegar en Vercel y reenviar esas rutas al Worker.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+`pnpm check` revisa los tipos y los componentes. `pnpm build` compila el sitio.
 
-```sh
-npm run dev
+## Organización de las rutas
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+SvelteKit define las páginas en [`src/routes/`](src/routes/). Los nombres de grupo entre paréntesis no forman parte de la URL.
 
-## Building
+| Carpeta | Qué contiene |
+| --- | --- |
+| `(autenticacion)/` | Inicio de sesión, registro y verificación de correo. |
+| `recuperar-contrasena/` y `restablecer-contrasena/` | Solicitud de un enlace y cambio de contraseña. |
+| `(dashboard)/` | Paneles de turista, organizador y administrador. |
+| `categoria/`, `localidades/`, `lugares/`, `eventos/`, `mapa/` y `planificador/` | Catálogo y herramientas para explorar el departamento. |
+| `transporte/`, `horarios-omnibus/` y `radios-locales/` | Transporte y radios del departamento. |
 
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+Los archivos `+page.server.ts` cargan datos en el servidor y `+layout.svelte` comparte estructura entre páginas. Para detalles de trabajo, consultá [`AGENTS.md`](AGENTS.md).

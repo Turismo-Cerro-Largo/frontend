@@ -18,5 +18,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         }
     }
 
-    return resolve(event);
+    const response = await resolve(event);
+    if (event.locals.cuenta) response.headers.set('cache-control', 'private, no-store');
+    return response;
 }

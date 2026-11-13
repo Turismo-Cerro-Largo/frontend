@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { page } from '$app/state';
-    import { mesActualUruguay, precargarCalendario, precargarDetalle } from './prefetch';
+    import { mesActualUruguay, precargarCalendario, precargarDetalle } from '$lib/admin/eventos';
 
     type Estado = 'BORRADOR' | 'PENDIENTE_REVISION' | 'PUBLICADO' | 'RECHAZADO' | 'CANCELADO' | 'FINALIZADO';
 

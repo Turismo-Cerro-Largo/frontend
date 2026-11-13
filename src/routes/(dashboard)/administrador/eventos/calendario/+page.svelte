@@ -11,7 +11,7 @@
         etiquetasEstado,
         type EventoResumen,
         type EstadoEvento,
-    } from '../prefetch';
+    } from '$lib/admin/eventos';
 
     let mes = $state(mesActualUruguay());
     let eventos = $state<EventoResumen[]>([]);
