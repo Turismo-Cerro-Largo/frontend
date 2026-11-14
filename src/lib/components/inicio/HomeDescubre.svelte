@@ -171,6 +171,32 @@
         selectLocalidad((selectedIndex + 1) % localidades.length);
     }
 
+    let gesto: { id: number; x: number; y: number } | null = null;
+
+    function iniciarGesto(event: TouchEvent) {
+        gesto = null;
+        if (event.touches.length !== 1 || localidades.length < 2) return;
+        if (event.target instanceof Element && event.target.closest('a, button')) return;
+
+        const dedo = event.touches[0];
+        gesto = { id: dedo.identifier, x: dedo.clientX, y: dedo.clientY };
+    }
+
+    function terminarGesto(event: TouchEvent) {
+        const inicio = gesto;
+        gesto = null;
+        if (!inicio || event.touches.length) return;
+
+        const dedo = Array.from(event.changedTouches).find((touch) => touch.identifier === inicio.id);
+        if (!dedo) return;
+        const horizontal = dedo.clientX - inicio.x;
+        const vertical = dedo.clientY - inicio.y;
+        if (Math.abs(horizontal) < 45 || Math.abs(horizontal) <= Math.abs(vertical) * 1.5) return;
+
+        if (horizontal < 0) nextLocalidad();
+        else previousLocalidad();
+    }
+
     function handleMapLoad() {
         clearMapListeners();
 
@@ -238,7 +264,11 @@
 
             <div class="order-2 lg:order-1">
                 <div>
-                    <article class={`h-140 w-full min-w-0 overflow-hidden ${card} sm:h-152 lg:h-152`} aria-live="polite">
+                    <article class={`h-140 w-full min-w-0 touch-pan-y touch-pinch-zoom overflow-hidden ${card} sm:h-152 lg:h-152`} aria-live="polite"
+                        ontouchstart={iniciarGesto}
+                        ontouchend={terminarGesto}
+                        ontouchcancel={() => { gesto = null; }}
+                    >
                         <div class="flex h-full flex-col bg-white">
                             <div class="relative h-56 shrink-0 overflow-hidden bg-zinc-100 sm:h-64 lg:h-72">
                                 <img src={selected.img} alt={selected.nombre} class="absolute inset-0 h-full w-full object-cover" />
