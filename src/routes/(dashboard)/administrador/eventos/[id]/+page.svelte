@@ -91,7 +91,7 @@
         error = '';
         mensaje = '';
         try {
-            const res = await fetch(`/api/eventos/${evento.id}/estado`, {
+            const res = await fetch(`/api/admin/eventos/${evento.id}/estado`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
