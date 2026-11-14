@@ -38,6 +38,11 @@
                 const detalle = await respuesta.json()
                     .catch(() => null);
 
+                if (respuesta.status === 403 && detalle?.code === "CUENTA_BLOQUEADA") {
+                    window.location.assign("/cuenta-bloqueada");
+                    return;
+                }
+
                 // Error de Cloudflare Turnstile
                 if (
                     detalle?.code === 'TURNSTILE_INVALID' ||

@@ -167,7 +167,7 @@ window.location.assign('/verificar-email');
             {#if metodo === 'turista'}
                 <div transition:slide={{ duration: 200 }} class="flex flex-col gap-4">
                     <div class="flex flex-col gap-1">
-                        <label for="nombres" class="text-sm font-medium text-slate-700"> Nombres </label>
+                        <label for="nombres" class="text-sm font-medium text-slate-700">Nombres <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="nombres"
@@ -183,7 +183,7 @@ window.location.assign('/verificar-email');
                         />
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="apellidos" class="text-sm font-medium text-slate-700"> Apellidos </label>
+                        <label for="apellidos" class="text-sm font-medium text-slate-700">Apellidos <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="apellidos"
@@ -203,7 +203,7 @@ window.location.assign('/verificar-email');
             <!-- CAMPO ORGANIZADOR -->
             {#if metodo === 'organizador'}
                 <div transition:slide={{ duration: 200 }} class="flex flex-col gap-1">
-                    <label for="nombreOrganizacion" class="text-sm font-medium text-slate-700"> Nombre de la organización </label>
+                    <label for="nombreOrganizacion" class="text-sm font-medium text-slate-700">Nombre de la organización <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                     <input
                         disabled={cargando}
                         id="nombreOrganizacion"
@@ -220,7 +220,7 @@ window.location.assign('/verificar-email');
             {/if}
             <!-- EMAIL -->
             <div class="flex flex-col gap-1">
-                <label for="email" class="text-sm font-medium text-slate-700"> Correo electrónico </label>
+                <label for="email" class="text-sm font-medium text-slate-700">Correo electrónico <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                 <input
                     disabled={cargando}
                     id="email"
@@ -237,7 +237,7 @@ window.location.assign('/verificar-email');
             </div>
             <!-- PASSWORD -->
             <div class="flex flex-col gap-1">
-                <label for="password" class="text-sm font-medium text-slate-700"> Contraseña </label>
+                <label for="password" class="text-sm font-medium text-slate-700">Contraseña <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                 <div class="relative">
                     <input
                         disabled={cargando}
@@ -272,7 +272,7 @@ window.location.assign('/verificar-email');
             </div>
             <!-- DEPARTAMENTO -->
             <div class="flex flex-col gap-1">
-                <label for="departamento" class="text-sm font-medium text-slate-700"> Departamento </label>
+                <label for="departamento" class="text-sm font-medium text-slate-700">Departamento <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                 <select
                     disabled={cargando}
                     id="departamento"
@@ -292,7 +292,7 @@ window.location.assign('/verificar-email');
             {#if metodo === 'turista'}
                 <div transition:slide={{ duration: 200 }} class="flex flex-col gap-4">
                     <div class="flex flex-col gap-1">
-                        <label for="genero" class="text-sm font-medium text-slate-700"> Género </label>
+                        <label for="genero" class="text-sm font-medium text-slate-700">Género <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <select
                             disabled={cargando}
                             id="genero"
@@ -307,7 +307,7 @@ window.location.assign('/verificar-email');
                         </select>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="fecha_nacimiento" class="text-sm font-medium text-slate-700"> Fecha de nacimiento </label>
+                        <label for="fecha_nacimiento" class="text-sm font-medium text-slate-700">Fecha de nacimiento <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="fecha_nacimiento"
@@ -342,7 +342,7 @@ window.location.assign('/verificar-email');
                         />
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="telefono" class="text-sm font-medium text-slate-700"> Teléfono </label>
+                        <label for="telefono" class="text-sm font-medium text-slate-700">Teléfono <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="telefono"
@@ -359,7 +359,7 @@ window.location.assign('/verificar-email');
                         />
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="fotoCedulaFrente" class="text-sm font-medium text-slate-700"> Cédula (Frente) </label>
+                        <label for="fotoCedulaFrente" class="text-sm font-medium text-slate-700">Cédula (Frente) <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="fotoCedulaFrente"
@@ -382,7 +382,7 @@ window.location.assign('/verificar-email');
                         />
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="fotoCedulaDorso" class="text-sm font-medium text-slate-700"> Cédula (Dorso) </label>
+                        <label for="fotoCedulaDorso" class="text-sm font-medium text-slate-700">Cédula (Dorso) <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="fotoCedulaDorso"

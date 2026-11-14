@@ -1,3 +1,4 @@
+import { redirect } from "@sveltejs/kit";
 import { backendUrl } from '$lib/server/backend';
 import type { Handle } from "@sveltejs/kit";
 
@@ -15,6 +16,12 @@ export const handle: Handle = async ({ event, resolve }) => {
         // Si hay cuenta se guarda
         if (respuesta?.ok) {
             event.locals.cuenta = await respuesta.json();
+        } else if (respuesta?.status === 403 && event.route.id?.startsWith("/(dashboard)/")) {
+            const detalle = await respuesta.json().catch(() => null);
+            if (detalle?.code === "CUENTA_BLOQUEADA") {
+                event.cookies.delete("session", { path: "/" });
+                redirect(303, "/cuenta-bloqueada");
+            }
         }
     }
 

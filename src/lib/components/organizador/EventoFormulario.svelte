@@ -3,7 +3,9 @@
   import { onMount, untrack } from 'svelte';
   import { goto } from '$app/navigation';
   import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
+  import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
   import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
+  import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
   import type { Map, Marker } from 'mapbox-gl';
   import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -82,6 +84,13 @@
   let mensaje = $state('');
 
   let localidades = $state<string[]>([]);
+  let estadoDireccion = $state('');
+  const busquedaDireccion = crearBusquedaDireccion({
+    localidades: () => localidades,
+    localidad: (valor) => { localidad = valor; },
+    direccion: (valor) => { direccion = valor; },
+    estado: (valor) => { estadoDireccion = valor; }
+  });
 
   // OBTENER CATEGORÍAS DE LA BASE DE DATOS
   async function cargarCategorias() {
@@ -171,6 +180,7 @@
           } else {
             marcador.setLngLat([longitud!, latitud!]);
           }
+          void busquedaDireccion.buscar(lngLat.lng, lngLat.lat);
         });
       } catch (error) {
         mensajeMapa =
@@ -182,6 +192,7 @@
 
     return () => {
       destruido = true;
+      busquedaDireccion.cancelar();
       marcador?.remove();
       mapa?.remove();
     };
@@ -334,7 +345,7 @@
       <div class="space-y-5">
         <div>
           <label for="nombre" class="mb-2 block text-sm font-semibold">
-            Nombre del evento *
+            Nombre del evento <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
           </label>
 
           <input
@@ -349,7 +360,7 @@
         <!-- CATEGORÍA DINÁMICA -->
         <div>
           <label for="categoria" class="mb-2 block text-sm font-semibold">
-            Categoría del evento *
+            Categoría del evento <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
           </label>
 
           <select
@@ -395,7 +406,7 @@
 
         <div>
           <label for="descripcion" class="mb-2 block text-sm font-semibold">
-            Descripción *
+            Descripción <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
           </label>
 
           <textarea
@@ -423,7 +434,7 @@
       <div class="grid gap-5 md:grid-cols-2">
         <div>
           <label for="fecha" class="mb-2 block text-sm font-semibold">
-            Fecha de inicio *
+            Fecha de inicio <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
           </label>
           <input
             id="fecha"
@@ -435,7 +446,7 @@
 
         <div>
           <label for="horaInicio" class="mb-2 block text-sm font-semibold">
-            Hora de inicio *
+            Hora de inicio <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
           </label>
           <input
             id="horaInicio"
@@ -489,6 +500,7 @@
           <select
             id="localidad" name="localidad"
             bind:value={localidad}
+            onchange={busquedaDireccion.editarLocalidad}
             class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3"
           >
             <option value="">Seleccionar localidad</option>
@@ -505,6 +517,7 @@
           <input
             id="direccion" name="direccion"
             bind:value={direccion}
+            oninput={busquedaDireccion.editarDireccion}
             maxlength="150"
             placeholder="Ej: Plaza Constitución, Melo"
             class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3"
@@ -523,6 +536,7 @@
         ></div>
       </div>
 
+      <EstadoDireccionMapa estado={estadoDireccion} />
       {#if mensajeMapa}
         <p class="mt-2 text-sm text-red-700">{mensajeMapa}</p>
       {/if}

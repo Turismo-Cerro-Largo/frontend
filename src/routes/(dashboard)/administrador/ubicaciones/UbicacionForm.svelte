@@ -1,6 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
+    import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
+    import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
     import { subirRecursosDelFormulario } from '$lib/admin/subir-recursos';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import { goto } from '$app/navigation';
@@ -65,21 +67,32 @@
             const p = marcador.getLngLat();
             form.latitud = Number(p.lat.toFixed(6));
             form.longitud = Number(p.lng.toFixed(6));
+            void busquedaDireccion.buscar(form.longitud, form.latitud);
         });
         mapa.on('click', (e: any) => {
             form.latitud = Number(e.lngLat.lat.toFixed(6));
             form.longitud = Number(e.lngLat.lng.toFixed(6));
             marcador.setLngLat([form.longitud, form.latitud]);
+            void busquedaDireccion.buscar(form.longitud, form.latitud);
         });
         mapa.on('load', () => mapa.resize());
     }
     function moverMapa() {
         if (mapa && marcador && Number.isFinite(form.latitud) && Number.isFinite(form.longitud)) {
             marcador.setLngLat([form.longitud, form.latitud]);
+            busquedaDireccion.cancelar();
+            estadoDireccion = '';
             mapa.flyTo({ center: [form.longitud, form.latitud], zoom: Math.max(mapa.getZoom(), 11) });
         }
     }
     let localidadesDisponibles = $state<string[]>([]);
+    let estadoDireccion = $state('');
+    const busquedaDireccion = crearBusquedaDireccion({
+        localidades: () => localidadesDisponibles,
+        localidad: (valor) => { form.localidad = valor; },
+        direccion: (valor) => { form.direccion = valor; },
+        estado: (valor) => { estadoDireccion = valor; }
+    });
     let errorLocalidades = $state('');
     let cargandoLocalidades = $state(true);
     onMount(() => {
@@ -128,6 +141,7 @@
         void cargar();
         return () => {
             activo = false;
+            busquedaDireccion.cancelar();
             mapa?.remove();
         };
     });
@@ -222,6 +236,7 @@
             <p class="text-sm text-slate-500">Hacé clic para marcar un lugar, arrastrá el marcador o usá la rueda del mouse para acercar y alejar.</p>
             {#if !PUBLIC_MAPBOX_TOKEN}<p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">Falta PUBLIC_MAPBOX_TOKEN en el .env del frontend.</p>{/if}
             <div bind:this={contenedor} class="h-90 w-full min-w-0 max-w-full overflow-hidden rounded-xl bg-slate-100 md:h-120"></div>
+            <EstadoDireccionMapa estado={estadoDireccion} />
             <div class="grid gap-3 sm:grid-cols-2">
                 <label class="text-sm"
                     >Latitud<input type="number" step="any" min="-90" max="90" bind:value={form.latitud} onchange={moverMapa} class="mt-1 w-full rounded-lg border p-2" /></label
@@ -245,10 +260,10 @@
                 >Descripción *<textarea required rows="5" maxlength="5000" bind:value={form.descripcion} class="mt-1 w-full rounded-lg border p-2"></textarea></label
             >
             <div class="grid gap-3 sm:grid-cols-2">
-                <label class="block min-w-0 text-sm">Localidad *
+                <label class="block min-w-0 text-sm">Localidad <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
                     <span class="relative mt-1 flex items-center">
                         <span aria-hidden="true" class="pointer-events-none absolute left-3.5 text-[22px] leading-none text-[#2f6d50]">⌖</span>
-                        <select required bind:value={form.localidad} disabled={cargandoLocalidades || (!localidadesDisponibles.length && !form.localidad)} class="min-h-12 w-full cursor-pointer appearance-none rounded-[11px] border border-[#b7cebd] bg-white py-2.5 pl-10 pr-9 text-sm font-semibold text-[#233c35] disabled:cursor-not-allowed disabled:opacity-60">
+                        <select required bind:value={form.localidad} onchange={busquedaDireccion.editarLocalidad} disabled={cargandoLocalidades || (!localidadesDisponibles.length && !form.localidad)} class="min-h-12 w-full cursor-pointer appearance-none rounded-[11px] border border-[#b7cebd] bg-white py-2.5 pl-10 pr-9 text-sm font-semibold text-[#233c35] disabled:cursor-not-allowed disabled:opacity-60">
                             <option value="" disabled>{cargandoLocalidades ? 'Cargando localidades…' : 'Seleccionar localidad'}</option>
                             {#if form.localidad && !localidadesDisponibles.includes(form.localidad)}
                                 <option value={form.localidad}>{form.localidad} (valor actual)</option>
@@ -265,7 +280,7 @@
                     ></label
                 >
             </div>
-            <label class="block text-sm">Dirección<input bind:value={form.direccion} class="mt-1 w-full rounded-lg border p-2" /></label>
+            <label class="block text-sm">Dirección<input bind:value={form.direccion} oninput={busquedaDireccion.editarDireccion} class="mt-1 w-full rounded-lg border p-2" /></label>
             <div class="grid gap-3 sm:grid-cols-2">
                 <label class="text-sm">Teléfono<input bind:value={form.telefono} class="mt-1 w-full rounded-lg border p-2" /></label><label class="text-sm"
                     >Horario<input bind:value={form.horario} class="mt-1 w-full rounded-lg border p-2" /></label

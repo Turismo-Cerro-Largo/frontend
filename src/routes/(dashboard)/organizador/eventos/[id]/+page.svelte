@@ -2,7 +2,9 @@
     import { onMount, tick } from 'svelte';
     import { goto } from '$app/navigation';
     import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
+    import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
     import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
+    import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
     import 'mapbox-gl/dist/mapbox-gl.css';
 
     import { page } from '$app/state';
@@ -34,6 +36,13 @@
     let horaFin = $state('');
 
     let localidades = $state<string[]>([]);
+    let estadoDireccion = $state('');
+    const busquedaDireccion = crearBusquedaDireccion({
+      localidades: () => localidades,
+      localidad: (valor) => { localidad = valor; },
+      direccion: (valor) => { direccion = valor; },
+      estado: (valor) => { estadoDireccion = valor; }
+    });
 
     const aISO = (fecha: string, hora: string) => (fecha && hora ? new Date(`${fecha}T${hora}:00-03:00`).toISOString() : '');
     const inicio = $derived(aISO(fechaInicio, horaInicio));
@@ -104,6 +113,7 @@
                     longitud = lngLat.lng.toFixed(7);
                     marcador?.remove();
                     if (mapa) marcador = new mapboxgl.Marker({ color: '#D89994' }).setLngLat(lngLat).addTo(mapa);
+                    void busquedaDireccion.buscar(lngLat.lng, lngLat.lat);
                 });
             } catch (e) {
                 if (activo) error = e instanceof Error ? e.message : 'No se pudo cargar el evento';
@@ -114,6 +124,7 @@
 
         return () => {
             activo = false;
+            busquedaDireccion.cancelar();
             marcador?.remove();
             mapa?.remove();
         };
@@ -217,7 +228,7 @@
                 <h2 class="mb-5 text-xl font-bold text-[#26382e]">Información del evento</h2>
                 <div class="space-y-5">
                     <div>
-                        <label for="titulo" class="mb-2 block text-sm font-semibold">Nombre del evento *</label>
+                        <label for="titulo" class="mb-2 block text-sm font-semibold">Nombre del evento <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span></label>
                         <input
                             id="titulo"
                             name="titulo"
@@ -230,7 +241,7 @@
                         />
                     </div>
                     <div>
-                        <label for="id_categoria" class="mb-2 block text-sm font-semibold">Categoría del evento *</label>
+                        <label for="id_categoria" class="mb-2 block text-sm font-semibold">Categoría del evento <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span></label>
                         <select id="id_categoria" name="id_categoria" bind:value={categoriaId} required class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3">
                             <option value="">Seleccionar categoría</option>
                             {#each categorias as categoria (categoria.id)}
@@ -239,7 +250,7 @@
                         </select>
                     </div>
                     <div>
-                        <label for="descripcion" class="mb-2 block text-sm font-semibold">Descripción *</label>
+                        <label for="descripcion" class="mb-2 block text-sm font-semibold">Descripción <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span></label>
                         <textarea
                             id="descripcion"
                             name="descripcion"
@@ -258,7 +269,7 @@
                 <h2 class="mb-5 text-xl font-bold text-[#26382e]">Fecha y horario</h2>
                 <div class="grid gap-5 md:grid-cols-2">
                     <div>
-                        <label for="fecha" class="mb-2 block text-sm font-semibold">Fecha de inicio *</label><input
+                        <label for="fecha" class="mb-2 block text-sm font-semibold">Fecha de inicio <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span></label><input
                             id="fecha"
                             type="date"
                             bind:value={fechaInicio}
@@ -267,7 +278,7 @@
                         />
                     </div>
                     <div>
-                        <label for="horaInicio" class="mb-2 block text-sm font-semibold">Hora de inicio *</label><input
+                        <label for="horaInicio" class="mb-2 block text-sm font-semibold">Hora de inicio <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span></label><input
                             id="horaInicio"
                             type="time"
                             bind:value={horaInicio}
@@ -302,7 +313,7 @@
                 <div class="grid gap-5 md:grid-cols-2">
                     <div>
                         <label for="localidad" class="mb-2 block text-sm font-semibold">Localidad</label>
-                        <select id="localidad" name="localidad" bind:value={localidad} class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3">
+                        <select id="localidad" name="localidad" bind:value={localidad} onchange={busquedaDireccion.editarLocalidad} class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3">
                             <option value="">Seleccionar localidad</option>
                             {#each localidades as opcion}
                                 <option value={opcion}>{opcion}</option>
@@ -314,6 +325,7 @@
                             id="direccion"
                             name="direccion"
                             bind:value={direccion}
+                            oninput={busquedaDireccion.editarDireccion}
                             maxlength="130"
                             placeholder="Ej: Plaza Constitución, Melo"
                             class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3"
@@ -322,6 +334,7 @@
                 </div>
                 <p class="mb-2 mt-6 text-sm font-semibold">Ubicación en el mapa</p>
                 <div class="overflow-hidden rounded-2xl border border-[#cbd5cd]"><div bind:this={mapaElemento} class="h-105 w-full"></div></div>
+                <EstadoDireccionMapa estado={estadoDireccion} />
                 <input type="hidden" name="latitud" value={latitud} />
                 <input type="hidden" name="longitud" value={longitud} />
 
