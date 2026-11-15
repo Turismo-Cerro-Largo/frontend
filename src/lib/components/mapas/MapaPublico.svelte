@@ -5,7 +5,11 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import type { LugarMapa } from '$lib/types/mapa';
 import type { LocalidadPublica } from '$lib/types/localidad';
-let {lugares, localidades, vista3d=false, zoomMaximo=12}:{lugares:LugarMapa[];localidades:LocalidadPublica[];vista3d?:boolean;zoomMaximo?:number}=$props();
+import { iconoCategoria } from './iconos';
+let {lugares, localidades, vista3d=false, oscuro, zoomMaximo=12, pantallaCompleta=false, seleccionado, seleccionar}:{
+    lugares:LugarMapa[];localidades:LocalidadPublica[];vista3d?:boolean;zoomMaximo?:number;
+    oscuro?:boolean;pantallaCompleta?:boolean;seleccionado?:LugarMapa;seleccionar?:(grupo:LugarMapa[])=>void;
+}=$props();
 let contenedor:HTMLDivElement;
 let mapa=$state<mapboxgl.Map|null>(null);
 let fallo=$state('');
@@ -27,6 +31,10 @@ $effect(()=>{
     mapa.easeTo({pitch:vista3d?60:0,bearing:vista3d?-20:0,duration:500});
 });
 $effect(()=>{
+    if(!mapa || !listo || oscuro===undefined) return;
+    mapa.setConfigProperty('basemap','lightPreset',oscuro?'night':'day');
+});
+$effect(()=>{
     const m=mapa;
     if(!m || !listo) return;
     const grupos=new Map<string,LugarMapa[]>();
@@ -46,11 +54,34 @@ $effect(()=>{
             const p=document.createElement('p');p.textContent=`${l.categoria.nombre} · ${l.localidad}`;contenido.append(p);
         }
         const boton=document.createElement('button');boton.type='button';boton.textContent=grupo.length>1?String(grupo.length):'●';boton.setAttribute('aria-label',grupo.map(l=>l.nombre).join(', '));boton.style.cssText='background:#28654d;color:white;border:3px solid white;border-radius:50%;width:36px;height:36px;box-shadow:0 2px 8px #0005;cursor:pointer;';
-        const marker=new mapboxgl.Marker({element:boton}).setLngLat([lon,lat]).setPopup(new mapboxgl.Popup({offset:22}).setDOMContent(contenido)).addTo(m);
+        const tipo = grupo.find((lugar) => lugar.evento)?.categoria.nombre ?? grupo[0].categoria.nombre;
+        const icono = pantallaCompleta ? iconoCategoria(tipo) : undefined;
+        if (icono) {
+            boton.style.backgroundColor = icono.color;
+            if (grupo.length === 1) {
+                const imagen = document.createElement('img');
+                imagen.src = `/iconos-mapa/${icono.archivo}.svg`;
+                imagen.alt = '';
+                imagen.style.cssText = 'width:20px;height:20px;margin:auto;';
+                boton.replaceChildren(imagen);
+            }
+        }
+        const marker=new mapboxgl.Marker({element:boton}).setLngLat([lon,lat]);
+        const alSeleccionar=seleccionar;
+        if(alSeleccionar) boton.addEventListener('click',()=>alSeleccionar(grupo));
+        else marker.setPopup(new mapboxgl.Popup({offset:22}).setDOMContent(contenido));
+        marker.addTo(m);
         marcadores.push(marker);bounds.extend([lon,lat]);
     }
-    if(!bounds.isEmpty())m.fitBounds(bounds,{padding:65,maxZoom:zoomMaximo,duration:500});
+    if(!bounds.isEmpty())m.fitBounds(bounds,{padding:pantallaCompleta?20:65,maxZoom:zoomMaximo,duration:500});
     return ()=>marcadores.forEach(m=>m.remove());
+});
+$effect(()=>{
+    if(!mapa || !listo || !seleccionado) return;
+    const lat=Number(seleccionado.latitud), lon=Number(seleccionado.longitud);
+    if(Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat)<=90 && Math.abs(lon)<=180) {
+        mapa.easeTo({center:[lon,lat],zoom:Math.max(mapa.getZoom(),13)});
+    }
 });
 $effect(()=>{
     const m=mapa;
@@ -88,5 +119,5 @@ $effect(()=>{
     }
     return ()=>marcadores.forEach(marker=>marker.remove());
 });</script>
-<div class="mapa"><div bind:this={contenedor} class="lienzo" aria-label="Mapa interactivo de lugares publicados"></div>{#if fallo}<p class="fallo" role="status">{fallo}</p>{/if}</div>
-<style>.mapa{position:relative;min-height:500px;height:65vh;border-radius:16px;overflow:hidden;background:#e6ede5}.lienzo{width:100%;height:100%}.fallo{position:absolute;bottom:16px;left:16px;right:16px;padding:14px;border-radius:8px;background:white;color:#8a4120;box-shadow:0 2px 10px #0002;font-size:13px}@media(max-width:600px){.mapa{min-height:380px;height:55vh}}</style>
+<div class="mapa" class:pantallaCompleta><div bind:this={contenedor} class="lienzo" aria-label="Mapa interactivo de lugares publicados"></div>{#if fallo}<p class="fallo" role="status">{fallo}</p>{/if}</div>
+<style>.mapa{position:relative;min-height:500px;height:65vh;border-radius:16px;overflow:hidden;background:#e6ede5}.lienzo{width:100%;height:100%}.fallo{position:absolute;bottom:16px;left:16px;right:16px;padding:14px;border-radius:8px;background:white;color:#8a4120;box-shadow:0 2px 10px #0002;font-size:13px}@media(max-width:600px){.mapa{min-height:380px;height:55vh}}.mapa.pantallaCompleta{height:100%;min-height:0;border-radius:0}</style>
