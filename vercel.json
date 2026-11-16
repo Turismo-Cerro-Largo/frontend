@@ -1,0 +1,9 @@
+{
+  "framework": "sveltekit",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://cerro-largo-api-cloud-2.baa4ts.workers.dev/api/:path*"
+    }
+  ]
+}

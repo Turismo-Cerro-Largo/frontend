@@ -14,7 +14,7 @@ pnpm install
 pnpm dev
 ```
 
-Abrí `http://localhost:5173`. En desarrollo, Vite reenvía las solicitudes de `/api` al backend. La rama `cloud` incluye la configuración para desplegar en Vercel y reenviar esas rutas al Worker.
+Abrí `http://localhost:5173`. En desarrollo, Vite reenvía las solicitudes de `/api` al backend. En `cloud-2`, configurá un proyecto Vercel nuevo con esta rama como producción. Cargá `API_URL`, `PUBLIC_MAPBOX_TOKEN` y `PUBLIC_TURNSTILE_SITE_KEY`. `vercel.json` envía `/api` al Worker nuevo. Si cambia su dominio, actualizá tanto el destino del rewrite como `API_URL`.
 
 `pnpm check` revisa los tipos y los componentes. `pnpm build` compila el sitio.
 
