@@ -12,6 +12,32 @@ const paginasPublicas = [
 
 const maxUrls = 50_000;
 
+function frecuencia(ruta: string) {
+    if (ruta === '/' || ruta === '/eventos' || ruta.startsWith('/eventos/')) return 'daily';
+    return ruta === '/radios-locales' || ruta === '/horarios-omnibus' ? 'monthly' : 'weekly';
+}
+
+function prioridad(ruta: string) {
+    if (ruta === '/') return '1.0';
+    if (['/eventos', '/lugares', '/localidades', '/mapa', '/mapa-2'].includes(ruta)) return '0.8';
+    if (ruta.startsWith('/lugares/') || ruta.startsWith('/localidades/') || ruta.startsWith('/eventos/')) return '0.7';
+    return '0.6';
+}
+
+async function agregarLocalidades(fetcher: typeof fetch, rutas: Set<string>) {
+    const respuesta = await fetcher(`${backendUrl()}/api/localidades`, {
+        signal: AbortSignal.timeout(5000)
+    });
+    if (!respuesta.ok) throw new Error('No se pudieron cargar las localidades');
+    const localidades: unknown = await respuesta.json();
+    if (!Array.isArray(localidades) || !localidades.every((item) =>
+        typeof item?.slug === 'string' && /^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/.test(item.slug)
+    )) {
+        throw new Error('Las localidades devolvieron un formato inválido');
+    }
+    for (const { slug } of localidades) rutas.add(`/localidades/${slug}`);
+}
+
 async function agregarEventos(fetcher: typeof fetch, rutas: Set<string>) {
     const limit = 100;
     const ahora = new Date();
@@ -45,6 +71,7 @@ async function agregarLugares(fetcher: typeof fetch, rutas: Set<string>) {
 export const GET: RequestHandler = async ({ url, fetch }) => {
     const rutas = new Set(paginasPublicas);
     try {
+        await agregarLocalidades(fetch, rutas);
         await agregarEventos(fetch, rutas);
         await agregarLugares(fetch, rutas);
     } catch {
@@ -56,7 +83,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 
     const entradas = Array.from(rutas).slice(0, maxUrls).map((ruta) => {
         const enlace = escaparXml(new URL(ruta, url.origin).href);
-        return `<url><loc>${enlace}</loc></url>`;
+        return `<url><loc>${enlace}</loc><changefreq>${frecuencia(ruta)}</changefreq><priority>${prioridad(ruta)}</priority></url>`;
     });
     return new Response(
         `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entradas.join('')}</urlset>`,
