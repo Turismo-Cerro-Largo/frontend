@@ -36,7 +36,7 @@
             await enviar(`lugares/${data.lugar.id}/valoracion`, 'POST', { calificacion: Number(form.get('calificacion')), texto: form.get('texto') });
             await invalidateAll();
             esError = false;
-            mensaje = 'Recibimos tu valoración. La revisaremos antes de publicarla.';
+            mensaje = 'Tu valoración ya está publicada.';
         } catch (e) {
             esError = true;
             mensaje = (e as Error).message;
@@ -108,7 +108,7 @@
                         {#key data.lugar.id}<Estrellas disabled={ocupado} />{/key}
                         <label class="t-field"
                             >Comentario (opcional)<textarea name="texto" rows="4" maxlength="2000" placeholder="Compartí tu experiencia con otros visitantes…" disabled={ocupado}
-                            ></textarea><small>Hasta 2000 caracteres. Tu valoración será revisada antes de publicarse.</small></label
+                            ></textarea><small>Hasta 2000 caracteres. Las malas palabras se reemplazan por asteriscos.</small></label
                         >
                         <div class="t-actions"><button class="t-button" type="submit" disabled={ocupado}>{ocupado ? 'Enviando…' : 'Enviar valoración'}</button></div>
                     </form>

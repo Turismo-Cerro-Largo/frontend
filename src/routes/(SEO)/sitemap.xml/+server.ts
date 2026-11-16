@@ -5,7 +5,7 @@ import type { RequestHandler } from './$types';
 
 const paginasPublicas = [
     '/', '/eventos', '/lugares', '/localidades', '/mapa', '/mapa-2',
-    '/horarios-omnibus', '/radios-locales',
+    '/horarios-omnibus', '/radios-locales', '/sobre-nosotros', '/privacidad', '/terminos',
     '/categoria/alojamiento', '/categoria/cultura', '/categoria/eventos',
     '/categoria/naturaleza', '/categoria/restaurantes'
 ];
