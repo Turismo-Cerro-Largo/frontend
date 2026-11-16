@@ -1,6 +1,6 @@
 import { backendUrl } from './backend';
 
-type EventoSeo = { id: number; titulo: string; descripcion: string | null };
+type EventoSeo = { id: number; titulo: string; descripcion: string | null; fin?: string | null };
 
 export function escaparXml(texto: string) {
     return texto
@@ -10,15 +10,18 @@ export function escaparXml(texto: string) {
         .replace(/>/g, '&gt;');
 }
 
-export async function eventosSeo(fetcher: typeof fetch, limit: number, pagina = 1): Promise<EventoSeo[]> {
-    const respuesta = await fetcher(`${backendUrl()}/api/eventos?limit=${limit}&pagina=${pagina}`, {
+export async function eventosSeo(fetcher: typeof fetch, limit: number, pagina = 1, desde?: string): Promise<EventoSeo[]> {
+    const parametros = new URLSearchParams({ limit: String(limit), pagina: String(pagina) });
+    if (desde) parametros.set('desde', desde);
+    const respuesta = await fetcher(`${backendUrl()}/api/eventos?${parametros}`, {
         signal: AbortSignal.timeout(5000)
     });
     if (!respuesta.ok) throw new Error('No se pudo cargar la agenda');
     const eventos: unknown = await respuesta.json();
     if (!Array.isArray(eventos) || !eventos.every((evento) =>
         Number.isSafeInteger(evento?.id) && evento.id > 0 && typeof evento.titulo === 'string' &&
-        (evento.descripcion === null || typeof evento.descripcion === 'string')
+        (evento.descripcion === null || typeof evento.descripcion === 'string') &&
+        (!desde || evento.fin === null || (typeof evento.fin === 'string' && Number.isFinite(Date.parse(evento.fin))))
     )) {
         throw new Error('La agenda devolvió un formato inválido');
     }

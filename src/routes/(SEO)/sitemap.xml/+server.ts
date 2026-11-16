@@ -1,5 +1,6 @@
 import { backendUrl } from '$lib/server/backend';
 import { escaparXml, eventosSeo } from '$lib/server/seo';
+import { diaUruguay } from '$lib/utils/agenda';
 import type { RequestHandler } from './$types';
 
 const paginasPublicas = [
@@ -13,9 +14,13 @@ const maxUrls = 50_000;
 
 async function agregarEventos(fetcher: typeof fetch, rutas: Set<string>) {
     const limit = 100;
+    const ahora = new Date();
+    const hoy = diaUruguay(ahora);
     for (let pagina = 1; pagina <= Math.ceil(maxUrls / limit) && rutas.size < maxUrls; pagina++) {
-        const eventos = await eventosSeo(fetcher, limit, pagina);
-        for (const evento of eventos) rutas.add(`/eventos/${evento.id}`);
+        const eventos = await eventosSeo(fetcher, limit, pagina, hoy);
+        for (const evento of eventos) {
+            if (!evento.fin || Date.parse(evento.fin) >= ahora.getTime()) rutas.add(`/eventos/${evento.id}`);
+        }
         if (eventos.length < limit) break;
     }
 }
