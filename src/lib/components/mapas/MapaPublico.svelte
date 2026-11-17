@@ -14,13 +14,14 @@ let contenedor:HTMLDivElement;
 let mapa=$state<mapboxgl.Map|null>(null);
 let fallo=$state('');
 let listo=$state(false);
+let encuadrado=false;
 onMount(()=>{
     const token=env.PUBLIC_MAPBOX_TOKEN;
     if(!token?.startsWith('pk.')) {fallo='El mapa no está configurado. Podés consultar los lugares en la lista.';return;}
     try {
         const m=new mapboxgl.Map({container:contenedor,accessToken:token,style:'mapbox://styles/mapbox/standard',center:[-54.17,-32.35],zoom:8,maxBounds:[[-55.7,-33.4],[-52.9,-31.4]],maxPitch:60});
         mapa=m;
-        m.addControl(new mapboxgl.NavigationControl(),'top-right');
+        m.addControl(new mapboxgl.NavigationControl(),pantallaCompleta?'top-left':'top-right');
         m.on('load',()=>{listo=true;fallo='';});
         m.on('error',()=>{fallo='No se pudo cargar una parte del mapa. Revisá la conexión; los lugares siguen disponibles en la lista.';});
         return ()=>{mapa=null;m.remove();};
@@ -73,7 +74,10 @@ $effect(()=>{
         marker.addTo(m);
         marcadores.push(marker);bounds.extend([lon,lat]);
     }
-    if(!bounds.isEmpty())m.fitBounds(bounds,{padding:pantallaCompleta?20:65,maxZoom:zoomMaximo,duration:500});
+    if(!bounds.isEmpty() && (!pantallaCompleta || !encuadrado)){
+        m.fitBounds(bounds,{padding:pantallaCompleta?20:65,maxZoom:zoomMaximo,duration:500});
+        encuadrado=true;
+    }
     return ()=>marcadores.forEach(m=>m.remove());
 });
 $effect(()=>{
@@ -120,4 +124,4 @@ $effect(()=>{
     return ()=>marcadores.forEach(marker=>marker.remove());
 });</script>
 <div class="mapa" class:pantallaCompleta><div bind:this={contenedor} class="lienzo" aria-label="Mapa interactivo de lugares publicados"></div>{#if fallo}<p class="fallo" role="status">{fallo}</p>{/if}</div>
-<style>.mapa{position:relative;min-height:500px;height:65vh;border-radius:16px;overflow:hidden;background:#e6ede5}.lienzo{width:100%;height:100%}.fallo{position:absolute;bottom:16px;left:16px;right:16px;padding:14px;border-radius:8px;background:white;color:#8a4120;box-shadow:0 2px 10px #0002;font-size:13px}@media(max-width:600px){.mapa{min-height:380px;height:55vh}}.mapa.pantallaCompleta{height:100%;min-height:0;border-radius:0}</style>
+<style>.mapa{position:relative;min-height:500px;height:65vh;border-radius:16px;overflow:hidden;background:#e6ede5}.lienzo{width:100%;height:100%}.fallo{position:absolute;bottom:16px;left:16px;right:16px;padding:14px;border-radius:8px;background:white;color:#8a4120;box-shadow:0 2px 10px #0002;font-size:13px}@media(max-width:600px){.mapa{min-height:380px;height:55vh}}.mapa.pantallaCompleta{height:100%;min-height:0;border-radius:0}.pantallaCompleta :global(.mapboxgl-ctrl-top-left){top:64px}</style>

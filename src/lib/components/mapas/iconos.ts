@@ -3,6 +3,7 @@ const iconos: Record<string, { archivo: string; color: string }> = {
     restaurantes: { archivo: 'restaurantes', color: '#ea580c' },
     cultura: { archivo: 'cultura', color: '#9333ea' },
     eventos: { archivo: 'eventos', color: '#db2777' },
+    compras: { archivo: 'compras', color: '#0891b2' },
     naturaleza: { archivo: 'naturaleza', color: '#16a34a' }
 };
 
