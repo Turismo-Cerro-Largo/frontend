@@ -95,7 +95,7 @@
                 </div>
             </section>
             <section class="t-panel">
-                <h2>Tu experiencia</h2>
+                <h2 id="tu-experiencia">Tu experiencia</h2>
                 {#if data.personal?.valoracion}<div class="t-stars" aria-label={`${data.personal.valoracion.calificacion} de 5 estrellas`}>
                         {'★'.repeat(data.personal.valoracion.calificacion)}{'☆'.repeat(5 - data.personal.valoracion.calificacion)}
                     </div>

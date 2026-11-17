@@ -4,7 +4,7 @@ import { diaUruguay } from '$lib/utils/agenda';
 import type { RequestHandler } from './$types';
 
 const paginasPublicas = [
-    '/', '/eventos', '/lugares', '/localidades', '/mapa', '/mapa-2',
+    '/', '/eventos', '/lugares', '/localidades', '/mapa',
     '/horarios-omnibus', '/radios-locales', '/sobre-nosotros', '/privacidad', '/terminos',
     '/categoria/alojamiento', '/categoria/cultura', '/categoria/eventos',
     '/categoria/naturaleza', '/categoria/restaurantes'
@@ -19,7 +19,7 @@ function frecuencia(ruta: string) {
 
 function prioridad(ruta: string) {
     if (ruta === '/') return '1.0';
-    if (['/eventos', '/lugares', '/localidades', '/mapa', '/mapa-2'].includes(ruta)) return '0.8';
+    if (['/eventos', '/lugares', '/localidades', '/mapa'].includes(ruta)) return '0.8';
     if (ruta.startsWith('/lugares/') || ruta.startsWith('/localidades/') || ruta.startsWith('/eventos/')) return '0.7';
     return '0.6';
 }
