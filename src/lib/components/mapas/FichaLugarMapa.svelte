@@ -81,6 +81,9 @@
 {/snippet}
 
 <div class="ficha-mapa">
+    <div class="cierre-flotante">
+        <button class="cerrar" onclick={cerrar} aria-label="Volver a explorar lugares">{@render icono('cerrar')}</button>
+    </div>
     <div class="hero">
         {#if portada}
             <button class="abrir-foto" onclick={() => pestana = 'fotos'} aria-label={`Ver fotos de ${lugar.nombre}`}>
@@ -88,7 +91,6 @@
                 <span class="ver-fotos">Ver fotos</span>
             </button>
         {:else}<div class="sin-foto">Cerro Largo 360</div>{/if}
-        <button class="cerrar" onclick={cerrar} aria-label="Volver a explorar lugares">{@render icono('cerrar')}</button>
     </div>
     <header>
         <h1>{lugar.nombre}</h1>
@@ -203,7 +205,8 @@
     .abrir-foto { display:block; width:100%; position:relative; text-align:left; }
     .ver-fotos { position:absolute; right:18px; bottom:18px; background:#fff; color:#303d37; border-radius:20px; padding:7px 15px; font-size:12px; font-weight:600; box-shadow:0 2px 10px #0002; }
     .sin-foto { display:grid; place-items:center; color:#285c46; }
-    .cerrar { position:absolute; right:16px; top:16px; width:44px; height:44px; display:grid; place-items:center; background:#fffe; border-radius:50%; box-shadow:0 2px 12px #0002; }
+    .cierre-flotante { position:sticky; top:16px; height:0; display:flex; justify-content:flex-end; padding-right:16px; z-index:3; pointer-events:none; }
+    .cerrar { width:44px; height:44px; display:grid; place-items:center; flex-shrink:0; background:#fffe; border-radius:50%; box-shadow:0 2px 12px #0002; pointer-events:auto; }
     svg { width:21px; height:21px; flex-shrink:0; }
     header { padding:24px 24px 15px; }
     h1 { font-size:27px; line-height:1.25; font-weight:550; margin:0 0 10px; letter-spacing:-.6px; }
@@ -265,5 +268,6 @@
     .ver-ficha { display:flex; justify-content:space-between; align-items:center; margin:0 24px; padding:20px 0 28px; color:#087e8b; font-size:13px; }
     .mensaje { padding:8px 24px; font-size:13px; }
     .vacio { color:#68716c; margin-bottom:18px; }
+    @media (max-width:767px) { .cerrar { position:fixed; top:16px; right:16px; z-index:4; } }
     @media (max-width:400px) { header,section { padding-left:18px; padding-right:18px; } .resumen { gap:14px; } .nota { min-width:94px; } }
 </style>
