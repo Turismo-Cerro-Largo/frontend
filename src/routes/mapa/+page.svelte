@@ -171,9 +171,11 @@
         </svg>
     </button>
     <div class="marco-panel">
+    {#if !detalle}
     <button class="cerrar-menu-movil" type="button" aria-label="Cerrar menú del mapa" onclick={cerrarPanel}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg>
     </button>
+    {/if}
     <aside class:menuInicial={!seleccionado} inert={!panelAbierto} class:seleccionado={Boolean(seleccionado)} id="panel-lugares" bind:this={panel} tabindex="-1" aria-label="Lugares del mapa">
         {#if seleccionado}
             {#if !detalle}<button class="volver" type="button" onclick={volver}>← Ver lugares</button>{/if}
