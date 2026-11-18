@@ -3,15 +3,22 @@ import { env } from '$env/dynamic/public';
 import type { HandleClientError } from '@sveltejs/kit';
 import posthog from 'posthog-js';
 
-const contadores = { $pageview: 0, $exception: 0 };
-const limites = { $pageview: 50, $exception: 5 };
+const contadores = { $pageview: 0, $exception: 0, $autocapture: 0 };
+const limites = { $pageview: 50, $exception: 5, $autocapture: 200 };
 
 export function init() {
     if (dev || env.PUBLIC_POSTHOG_ENABLED === 'false') return;
 
     posthog.init(env.PUBLIC_POSTHOG_KEY || 'phc_uRFh8r84qYyn8u5zwLkdzEdTr4LTanXDaUoE8o23u6kK', {
         api_host: 'https://us.i.posthog.com',
-        autocapture: false,
+        autocapture: {
+            dom_event_allowlist: ['click'],
+            element_allowlist: ['a', 'button'],
+            capture_copied_text: false,
+            css_selector_ignorelist: ['.ph-no-autocapture', '[data-ph-no-autocapture]', 'form']
+        },
+        mask_all_text: true,
+        mask_all_element_attributes: true,
         capture_pageview: 'history_change',
         capture_pageleave: false,
         capture_exceptions: {
