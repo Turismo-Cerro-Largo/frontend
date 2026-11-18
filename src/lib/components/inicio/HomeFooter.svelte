@@ -40,10 +40,11 @@
 </script>
 
 <footer class="w-full border-t border-zinc-100 bg-white font-Poppins">
-    <div class="{container} py-14 md:py-16">
+    <div data-nosnippet class="{container} py-14 md:py-16">
         <div class="grid grid-cols-1 gap-12 md:grid-cols-[1.3fr_1fr_1fr_1.2fr] md:gap-8">
             <div class="flex flex-col gap-4">
                 <a href="/" class="text-[19px] font-semibold tracking-[-0.03em] text-zinc-900">
+                    <img src="/SEO/logo-seo-1080.png" alt="Logo de Cerro Largo 360" width="96" height="96" loading="lazy" class="mb-3 h-24 w-24 object-contain" />
                     Cerro Largo
                     <span class="font-normal opacity-70">360</span>
                 </a>

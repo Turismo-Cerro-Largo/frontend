@@ -7,6 +7,8 @@
 
 <svelte:head>
     <link rel="icon" type="image/png" sizes="48x48" href="/SEO/favicon-48.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/SEO/icono-512.png" />
+    <link rel="apple-touch-icon" href="/SEO/icono-512.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
 </svelte:head>
 

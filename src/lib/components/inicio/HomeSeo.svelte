@@ -3,9 +3,9 @@
 
     const nombre = 'Cerro Largo 360';
     const titulo = 'Turismo en Cerro Largo, Uruguay | Cerro Largo 360';
-    const descripcion = 'Descubrí qué hacer en Cerro Largo, Uruguay. Explorá lugares y localidades, consultá la agenda de eventos y los horarios de ómnibus, y escuchá radios locales.';
+    const descripcion = 'Descubrí Cerro Largo con Cerro Largo 360: lugares para visitar en Melo, Río Branco y Laguna Merín, eventos, mapa turístico, ómnibus y radios locales.';
     const imagenAlt = 'Cerro Largo 360, turismo en Cerro Largo, Uruguay';
-    const canonical = $derived(new URL('/', page.url).href);
+    const canonical = $derived(new URL('/', page.url.hostname.endsWith('.vercel.app') ? 'https://cerrolargo360.vercel.app' : page.url.origin).href);
     const imagen = $derived(new URL('/SEO/open-graph-1200x630.png', canonical).href);
     const logo = $derived(new URL('/SEO/logo-seo-1080.png', canonical).href);
     const rss = $derived(new URL('/rss.xml', canonical).href);
@@ -16,6 +16,7 @@
                 '@type': 'Organization',
                 '@id': canonical + '#organization',
                 name: nombre,
+                alternateName: 'CerroLargo360',
                 url: canonical,
                 logo: { '@type': 'ImageObject', url: logo },
                 sameAs: ['https://www.instagram.com/cerrolargo360/']
@@ -25,6 +26,7 @@
                 '@id': canonical + '#website',
                 url: canonical,
                 name: nombre,
+                alternateName: 'CerroLargo360',
                 inLanguage: 'es-UY',
                 publisher: { '@id': canonical + '#organization' }
             },
@@ -36,6 +38,7 @@
                 description: descripcion,
                 inLanguage: 'es-UY',
                 isPartOf: { '@id': canonical + '#website' },
+                publisher: { '@id': canonical + '#organization' },
                 primaryImageOfPage: { '@type': 'ImageObject', url: imagen, caption: imagenAlt },
                 about: { '@type': 'AdministrativeArea', name: 'Cerro Largo', containedInPlace: { '@type': 'Country', name: 'Uruguay' } }
             }
@@ -57,6 +60,7 @@
     <meta property="og:description" content={descripcion} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={imagen} />
+    <meta property="og:image:secure_url" content={imagen} />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
