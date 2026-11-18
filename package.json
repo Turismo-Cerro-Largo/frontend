@@ -32,7 +32,8 @@
     "vite": "^8.3.2"
   },
   "dependencies": {
-    "mapbox-gl": "^3.32.0"
+    "mapbox-gl": "^3.32.0",
+    "posthog-js": "^1.450.1"
   },
   "overrides": {
     "cookie": "0.7.2",
