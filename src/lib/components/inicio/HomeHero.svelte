@@ -42,10 +42,6 @@
                 <span class="text-[clamp(2.6rem,6vw,7.5rem)]">Disfruta del turismo</span>
                 <span class="mt-2 text-[clamp(3rem,7vw,8.5rem)]">En Cerro Largo</span>
             </h1>
-            <p class="mt-6 max-w-xl pr-6 text-base leading-relaxed text-white drop-shadow-md md:text-lg">
-                Cerro Largo 360: descubrí lugares para visitar en Melo, Río Branco y Laguna Merín,
-                eventos y un mapa turístico para planificar tu viaje por Cerro Largo, Uruguay.
-            </p>
         </div>
     </div>
 
