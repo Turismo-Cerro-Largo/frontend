@@ -17,7 +17,7 @@ export function init() {
         mask_all_text: true,
         mask_all_element_attributes: true,
         capture_pageview: 'history_change',
-        capture_pageleave: false,
+        capture_pageleave: true,
         capture_exceptions: {
             capture_unhandled_errors: true,
             capture_unhandled_rejections: true,
@@ -26,12 +26,12 @@ export function init() {
         disable_session_recording: true,
         capture_heatmaps: false,
         capture_dead_clicks: false,
-        capture_performance: false,
+        capture_performance: { web_vitals: true, network_timing: false },
         person_profiles: 'never',
         persistence: 'memory',
         advanced_disable_feature_flags: true,
         before_send(event) {
-            if (!event || !['$pageview', '$exception', '$autocapture'].includes(event.event)) return null;
+            if (!event || !['$pageview', '$pageleave', '$web_vitals', '$exception', '$autocapture'].includes(event.event)) return null;
             for (const propiedad of ['$current_url', '$referrer', '$initial_current_url', '$initial_referrer']) {
                 const valor = event.properties[propiedad];
                 if (typeof valor !== 'string') continue;
