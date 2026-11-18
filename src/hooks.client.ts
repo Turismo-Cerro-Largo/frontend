@@ -3,9 +3,6 @@ import { env } from '$env/dynamic/public';
 import type { HandleClientError } from '@sveltejs/kit';
 import posthog from 'posthog-js';
 
-const contadores = { $pageview: 0, $exception: 0, $autocapture: 0 };
-const limites = { $pageview: 50, $exception: 5, $autocapture: 200 };
-
 export function init() {
     if (dev || env.PUBLIC_POSTHOG_ENABLED === 'false') return;
 
@@ -34,10 +31,7 @@ export function init() {
         persistence: 'memory',
         advanced_disable_feature_flags: true,
         before_send(event) {
-            if (!event || !(event.event in limites)) return null;
-            const tipo = event.event as keyof typeof limites;
-            if (contadores[tipo] >= limites[tipo]) return null;
-            contadores[tipo]++;
+            if (!event || !['$pageview', '$exception', '$autocapture'].includes(event.event)) return null;
             for (const propiedad of ['$current_url', '$referrer', '$initial_current_url', '$initial_referrer']) {
                 const valor = event.properties[propiedad];
                 if (typeof valor !== 'string') continue;
