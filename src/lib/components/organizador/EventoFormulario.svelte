@@ -6,6 +6,7 @@
   import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
   import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
   import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
+    import { crearNavegacionLocalidades } from '$lib/localidades/navegacion-mapa';
   import type { Map, Marker } from 'mapbox-gl';
   import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -85,7 +86,8 @@
 
   let localidades = $state<string[]>([]);
   let estadoDireccion = $state('');
-  const busquedaDireccion = crearBusquedaDireccion({
+  const navegacionLocalidades = crearNavegacionLocalidades();
+    const busquedaDireccion = crearBusquedaDireccion({
     localidades: () => localidades,
     localidad: (valor) => { localidad = valor; },
     direccion: (valor) => { direccion = valor; },
@@ -124,7 +126,7 @@
     let destruido = false;
 
     obtenerLocalidadesPublicas()
-      .then((datos) => { if (!destruido) localidades = datos.map((item) => item.nombre); })
+      .then((datos) => { if (!destruido) { navegacionLocalidades.establecerLocalidades(datos); localidades = datos.map((item) => item.nombre); } })
       .catch((error) => { if (!destruido) mensaje = error instanceof Error ? error.message : 'No se pudieron cargar las localidades.'; });
 
     // CARGAR CATEGORÍAS AL ABRIR EL FORMULARIO
@@ -152,6 +154,7 @@
           zoom: latitud === null ? 9 : 13
         });
 
+        navegacionLocalidades.establecerMapa(mapa);
         mapa.addControl(
           new mapboxgl.NavigationControl(),
           'top-right'
@@ -500,7 +503,7 @@
           <select
             id="localidad" name="localidad"
             bind:value={localidad}
-            onchange={busquedaDireccion.editarLocalidad}
+            onchange={(evento) => { busquedaDireccion.editarLocalidad(); navegacionLocalidades.seleccionar(evento.currentTarget.value); }}
             class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3"
           >
             <option value="">Seleccionar localidad</option>

@@ -5,6 +5,7 @@
     import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
     import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
     import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
+    import { crearNavegacionLocalidades } from '$lib/localidades/navegacion-mapa';
     import 'mapbox-gl/dist/mapbox-gl.css';
 
     let categorias = $state<{ id: number; nombre: string }[]>([]);
@@ -22,6 +23,7 @@
     let localidad = $state('');
     let direccion = $state('');
     let estadoDireccion = $state('');
+    const navegacionLocalidades = crearNavegacionLocalidades();
     const busquedaDireccion = crearBusquedaDireccion({
       localidades: () => localidades,
       localidad: (valor) => { localidad = valor; },
@@ -53,7 +55,7 @@
             });
 
         obtenerLocalidadesPublicas()
-            .then((datos) => { if (activo) localidades = datos.map((item) => item.nombre); })
+            .then((datos) => { if (activo) { navegacionLocalidades.establecerLocalidades(datos); localidades = datos.map((item) => item.nombre); } })
             .catch((e) => { if (activo) error = e.message; });
 
         // Cargar el mapa
@@ -68,6 +70,7 @@
                     center: [-54.167, -32.366],
                     zoom: 9,
                 });
+                navegacionLocalidades.establecerMapa(mapa);
                 mapa.addControl(new mapboxgl.NavigationControl(), 'top-right');
                 mapa.on('click', ({ lngLat }) => {
                     latitud = lngLat.lat.toFixed(7);
@@ -216,7 +219,7 @@
             <div class="grid gap-5 md:grid-cols-2">
                 <div>
                     <label for="localidad" class="mb-2 block text-sm font-semibold">Localidad</label>
-                    <select id="localidad" name="localidad" bind:value={localidad} onchange={busquedaDireccion.editarLocalidad} class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3">
+                    <select id="localidad" name="localidad" bind:value={localidad} onchange={(evento) => { busquedaDireccion.editarLocalidad(); navegacionLocalidades.seleccionar(evento.currentTarget.value); }} class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3">
                         <option value="">Seleccionar localidad</option>
                         {#each localidades as opcion}
                             <option value={opcion}>{opcion}</option>

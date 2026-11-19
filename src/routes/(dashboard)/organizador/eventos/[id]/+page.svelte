@@ -5,6 +5,7 @@
     import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
     import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
     import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
+    import { crearNavegacionLocalidades } from '$lib/localidades/navegacion-mapa';
     import 'mapbox-gl/dist/mapbox-gl.css';
 
     import { page } from '$app/state';
@@ -37,6 +38,7 @@
 
     let localidades = $state<string[]>([]);
     let estadoDireccion = $state('');
+    const navegacionLocalidades = crearNavegacionLocalidades();
     const busquedaDireccion = crearBusquedaDireccion({
       localidades: () => localidades,
       localidad: (valor) => { localidad = valor; },
@@ -76,6 +78,7 @@
                 const [categoriasData, datos] = await Promise.all([rc.json(), re.json()]);
                 if (!activo) return;
                 categorias = categoriasData.categorias;
+                navegacionLocalidades.establecerLocalidades(localidadesData);
                 localidades = localidadesData.map((item) => item.nombre);
                 evento = datos.evento as Evento;
                 if (!['BORRADOR', 'RECHAZADO'].includes(evento.estado)) return;
@@ -104,6 +107,7 @@
                     center: longitud && latitud ? [Number(longitud), Number(latitud)] : [-54.167, -32.366],
                     zoom: latitud && longitud ? 13 : 9,
                 });
+                navegacionLocalidades.establecerMapa(mapa);
                 mapa.addControl(new mapboxgl.NavigationControl(), 'top-right');
                 if (longitud && latitud) {
                     marcador = new mapboxgl.Marker({ color: '#D89994' }).setLngLat([Number(longitud), Number(latitud)]).addTo(mapa);
@@ -313,7 +317,7 @@
                 <div class="grid gap-5 md:grid-cols-2">
                     <div>
                         <label for="localidad" class="mb-2 block text-sm font-semibold">Localidad</label>
-                        <select id="localidad" name="localidad" bind:value={localidad} onchange={busquedaDireccion.editarLocalidad} class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3">
+                        <select id="localidad" name="localidad" bind:value={localidad} onchange={(evento) => { busquedaDireccion.editarLocalidad(); navegacionLocalidades.seleccionar(evento.currentTarget.value); }} class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3">
                             <option value="">Seleccionar localidad</option>
                             {#each localidades as opcion}
                                 <option value={opcion}>{opcion}</option>
