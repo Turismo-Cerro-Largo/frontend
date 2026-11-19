@@ -5,5 +5,6 @@ export type LocalidadPublica = {
     descripcion: string | null;
     latitud: number | null;
     longitud: number | null;
+    limites?: [[number, number], [number, number]] | null;
     icono: string | null;
 };

@@ -3,6 +3,7 @@
     import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
     import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
     import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
+    import { crearNavegacionLocalidades } from '$lib/localidades/navegacion-mapa';
     import { subirRecursosDelFormulario } from '$lib/admin/subir-recursos';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import { goto } from '$app/navigation';
@@ -61,6 +62,7 @@
         mapa.scrollZoom.enable();
         mapa.doubleClickZoom.enable();
         mapa.touchZoomRotate.enable();
+        navegacionLocalidades.establecerMapa(mapa);
         mapa.addControl(new mb.NavigationControl(), 'top-right');
         marcador = new mb.Marker({ draggable: true, color: '#477967' }).setLngLat([form.longitud, form.latitud]).addTo(mapa);
         marcador.on('dragend', () => {
@@ -87,6 +89,7 @@
     }
     let localidadesDisponibles = $state<string[]>([]);
     let estadoDireccion = $state('');
+    const navegacionLocalidades = crearNavegacionLocalidades();
     const busquedaDireccion = crearBusquedaDireccion({
         localidades: () => localidadesDisponibles,
         localidad: (valor) => { form.localidad = valor; },
@@ -98,7 +101,7 @@
     onMount(() => {
         let activo = true;
         obtenerLocalidadesPublicas()
-            .then((datos) => { if (activo) localidadesDisponibles = datos.map((item) => item.nombre); })
+            .then((datos) => { if (activo) { navegacionLocalidades.establecerLocalidades(datos); localidadesDisponibles = datos.map((item) => item.nombre); } })
             .catch(() => { if (activo) errorLocalidades = 'No se pudieron cargar las localidades.'; })
             .finally(() => { if (activo) cargandoLocalidades = false; });
         async function cargar() {
@@ -263,7 +266,7 @@
                 <label class="block min-w-0 text-sm">Localidad <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
                     <span class="relative mt-1 flex items-center">
                         <span aria-hidden="true" class="pointer-events-none absolute left-3.5 text-[22px] leading-none text-[#2f6d50]">⌖</span>
-                        <select required bind:value={form.localidad} onchange={busquedaDireccion.editarLocalidad} disabled={cargandoLocalidades || (!localidadesDisponibles.length && !form.localidad)} class="min-h-12 w-full cursor-pointer appearance-none rounded-[11px] border border-[#b7cebd] bg-white py-2.5 pl-10 pr-9 text-sm font-semibold text-[#233c35] disabled:cursor-not-allowed disabled:opacity-60">
+                        <select required bind:value={form.localidad} onchange={(evento) => { busquedaDireccion.editarLocalidad(); navegacionLocalidades.seleccionar(evento.currentTarget.value); }} disabled={cargandoLocalidades || (!localidadesDisponibles.length && !form.localidad)} class="min-h-12 w-full cursor-pointer appearance-none rounded-[11px] border border-[#b7cebd] bg-white py-2.5 pl-10 pr-9 text-sm font-semibold text-[#233c35] disabled:cursor-not-allowed disabled:opacity-60">
                             <option value="" disabled>{cargandoLocalidades ? 'Cargando localidades…' : 'Seleccionar localidad'}</option>
                             {#if form.localidad && !localidadesDisponibles.includes(form.localidad)}
                                 <option value={form.localidad}>{form.localidad} (valor actual)</option>
