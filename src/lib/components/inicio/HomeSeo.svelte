@@ -5,6 +5,7 @@
     const nombre = 'Cerro Largo 360';
     const titulo = 'Turismo en Cerro Largo: qué hacer y eventos | Cerro Largo 360';
     const descripcion = 'Descubrí qué hacer en Cerro Largo, Uruguay: lugares para visitar, eventos, naturaleza y cultura en Melo, Río Branco y Laguna Merín. Planificá tu visita.';
+    const descripcionSocial = 'Descubrí qué hacer en Cerro Largo, Uruguay. Explorá lugares y localidades, consultá la agenda de eventos y los horarios de ómnibus, y escuchá radios locales.';
     const palabrasClave = [
         'turismo en Cerro Largo', 'qué hacer en Cerro Largo', 'eventos en Cerro Largo',
         'visitar Cerro Largo', 'visita Cerro Largo', 'lugares para visitar en Cerro Largo',
@@ -82,7 +83,7 @@
     <meta property="og:site_name" content={nombre} />
     <meta property="og:locale" content="es_UY" />
     <meta property="og:title" content={titulo} />
-    <meta property="og:description" content={descripcion} />
+    <meta property="og:description" content={descripcionSocial} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={imagen} />
     <meta property="og:image:secure_url" content={imagen} />
@@ -93,7 +94,7 @@
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={titulo} />
-    <meta name="twitter:description" content={descripcion} />
+    <meta name="twitter:description" content={descripcionSocial} />
     <meta name="twitter:image" content={imagen} />
     <meta name="twitter:image:alt" content={imagenAlt} />
 
