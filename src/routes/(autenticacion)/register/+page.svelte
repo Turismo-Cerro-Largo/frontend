@@ -2,6 +2,7 @@
         import { slide } from 'svelte/transition';
     import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
     import Turnstile from '$lib/components/shared/Turnstile.svelte';
+    import { registrarEvento } from '$lib/analitica';
     let metodo = $state<'turista' | 'organizador'>('turista');
     let cargando = $state(false);
     let mostrarPassword = $state(false);
@@ -62,10 +63,12 @@
             }
             datos.set('turnstileToken', tokenTurnstile);
             enviado = true;
+            registrarEvento('registro_enviado', { tipo: metodo });
             const respuesta = await fetch(`/api/auth/${accionTurnstile}`, {
                 method: 'POST',
                 body: datos,
             });
+            registrarEvento('registro_resultado', { tipo: metodo, estado: respuesta.status, exito: respuesta.ok });
             if (!respuesta.ok) {
                 const detalle = await respuesta.json().catch(() => null);
                 error = true;
@@ -73,11 +76,11 @@
                     ? detalle.message
                     : respuesta.status === 409
                     ? 'Ya existe una cuenta con este correo o RUT.'
+                    : typeof detalle?.message === 'string'
+                      ? detalle.message.slice(0, 300)
                     : respuesta.status === 502 || respuesta.status === 503
                       ? 'El servidor no está disponible. Revisá el backend.'
-                      : typeof detalle?.message === 'string'
-                        ? detalle.message.slice(0, 300)
-                        : 'No se pudo completar el registro. Revisá los datos.';
+                      : 'No se pudo completar el registro. Revisá los datos.';
                 return;
             }
             const resultado = await respuesta.json().catch(() => null);
@@ -100,6 +103,8 @@ sessionStorage.setItem(
 window.location.assign('/verificar-email');
         } catch {
             error = true;
+            mensajeError = 'No se pudo conectar. Revisá tu conexión y volvé a intentar.';
+            registrarEvento('registro_resultado', { tipo: metodo, estado: 0, exito: false });
         } finally {
             if (enviado) turnstile?.reiniciar();
             cargando = false;
