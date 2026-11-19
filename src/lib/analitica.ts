@@ -1,6 +1,7 @@
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/public';
 import type { PostHog } from 'posthog-js';
+import { idVisitante } from '$lib/visitas';
 
 let cliente: PostHog | undefined;
 let pendiente: Promise<PostHog | undefined> | undefined;
@@ -21,6 +22,7 @@ async function cargar() {
             disable_session_recording: true,
             person_profiles: 'never',
             persistence: 'memory',
+            bootstrap: { distinctID: idVisitante(), isIdentifiedID: false },
             advanced_disable_feature_flags: true,
             mask_all_text: true,
             mask_all_element_attributes: true,
@@ -75,13 +77,12 @@ export async function actualizarAnalitica(rol: string | undefined, ruta: string)
             capture_value_css_selector_allowlist: [],
             capture_copied_text: false
         },
-        capture_pageleave: true,
+        capture_pageleave: false,
         capture_exceptions: { capture_unhandled_errors: true, capture_unhandled_rejections: true, capture_console_errors: false },
         capture_performance: { web_vitals: true, network_timing: false },
         capture_heatmaps: organizador,
         capture_dead_clicks: organizador
     });
-    ph.capture('$pageview', { seccion: organizador ? 'organizador' : resena ? 'resenas' : 'registro' });
     if (organizador || resena) ph.startSessionRecording();
 }
 
