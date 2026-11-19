@@ -9,6 +9,7 @@
     import { enviar } from '$lib/turista/api';
     import { estados } from '$lib/turista/valoraciones';
     import Icono from '$lib/components/turista/Icono.svelte';
+    import { registrarEvento } from '$lib/analitica';
     import '$lib/components/turista/turista.css';
     let { data } = $props();
     let ocupado = $state(false);
@@ -37,9 +38,11 @@
             await invalidateAll();
             esError = false;
             mensaje = 'Tu valoración ya está publicada.';
+            registrarEvento('resena_resultado', { exito: true });
         } catch (e) {
             esError = true;
             mensaje = (e as Error).message;
+            registrarEvento('resena_resultado', { exito: false });
         } finally {
             ocupado = false;
         }
@@ -104,7 +107,7 @@
                     {#if data.personal.valoracion.estado === 'PENDIENTE_REVISION'}<EliminarValoracion id={data.personal.valoracion.id} />{/if}
                     <div class="t-actions"><a class="t-link" href="/turista/valoraciones">Ver mis valoraciones →</a></div>
                 {:else if data.personal}<p>¿Ya visitaste este lugar? Elegí de 1 a 5 estrellas y, si querés, contanos cómo fue.</p>
-                    <form onsubmit={valorar}>
+                    <form data-analitica="resena" onsubmit={valorar}>
                         {#key data.lugar.id}<Estrellas disabled={ocupado} />{/key}
                         <label class="t-field"
                             >Comentario (opcional)<textarea name="texto" rows="4" maxlength="2000" placeholder="Compartí tu experiencia con otros visitantes…" disabled={ocupado}
