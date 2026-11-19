@@ -51,7 +51,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
     destino.searchParams.set('addressdetails', '1');
     const respuesta = await fetch(destino, {
       headers: {
-        'User-Agent': 'CerroLargo360/1.0',
+        'User-Agent': 'CerroLargo360/1.0 (+https://cerrolargo360.vercel.app)',
         'Accept-Language': 'es-UY,es;q=0.9'
       },
       signal: AbortSignal.timeout(5000)
