@@ -4,8 +4,10 @@
     import { page } from '$app/state';
     import { onNavigate } from '$app/navigation';
     import { actualizarAnalitica, pausarAnalitica } from '$lib/analitica';
+    import { registrarVisita } from '$lib/visitas';
 
     let { children } = $props();
+    $effect(() => { registrarVisita(page.url.pathname, page.data.cuenta?.rol); });
     onNavigate(() => { pausarAnalitica(); });
     $effect(() => { void actualizarAnalitica(page.data.cuenta?.rol, page.url.pathname).catch(() => undefined); });
 </script>
