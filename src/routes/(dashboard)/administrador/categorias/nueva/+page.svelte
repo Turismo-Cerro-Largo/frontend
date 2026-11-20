@@ -64,7 +64,7 @@
             <div class="space-y-2">
                 <label for="nombre" class="block text-sm font-semibold text-[#36463c]">
                     Nombre de la categoría
-                    <span class="text-[#b4534c]">*</span>
+                    <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
                 </label>
 
                 <input
@@ -91,7 +91,7 @@
             <div class="space-y-2">
                 <label for="descripcion" class="block text-sm font-semibold text-[#36463c]">
                     Descripción
-                    <span class="text-[#b4534c]">*</span>
+                    <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
                 </label>
 
                 <textarea

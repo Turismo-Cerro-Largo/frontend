@@ -5,7 +5,7 @@
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
-    type Estado = 'BORRADOR' | 'PENDIENTE_REVISION' | 'PUBLICADO' | 'RECHAZADO' | 'CANCELADO' | 'FINALIZADO';
+    import type { EstadoEvento as Estado } from '$lib/types/evento';
     const etiquetas: Record<Estado, string> = {
         BORRADOR: 'Borrador',
         PENDIENTE_REVISION: 'Pendiente',

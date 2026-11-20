@@ -1,0 +1,15 @@
+{
+    "name": "Cerro Largo 360",
+    "short_name": "Cerro Largo 360",
+    "lang": "es-UY",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "/SEO/icono-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

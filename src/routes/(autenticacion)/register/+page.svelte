@@ -1,10 +1,16 @@
 <script lang="ts">
         import { slide } from 'svelte/transition';
     import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
+    import Turnstile from '$lib/components/shared/Turnstile.svelte';
+    import { registrarEvento } from '$lib/analitica';
     let metodo = $state<'turista' | 'organizador'>('turista');
     let cargando = $state(false);
+    let mostrarPassword = $state(false);
     let error = $state(false);
     let mensajeError = $state('');
+    let tokenTurnstile = $state('');
+    let turnstile = $state.raw<ReturnType<typeof Turnstile>>();
+    const accionTurnstile = $derived(metodo === 'organizador' ? 'register-organizador' : 'register');
 
     const TAMANO_MAXIMO_ARCHIVO = 8 * 1024 * 1024;
     const TIPOS_ARCHIVO_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp'];
@@ -39,10 +45,11 @@
 
     const enviar = async (evento: SubmitEvent) => {
         evento.preventDefault();
-        if (cargando) return;
+        if (cargando || !tokenTurnstile) return;
         cargando = true;
         error = false;
         mensajeError = '';
+        let enviado = false;
         try {
             const formulario = evento.currentTarget as HTMLFormElement;
             const datos = new FormData(formulario);
@@ -54,27 +61,57 @@
                     return;
                 }
             }
-            const endpoint = metodo === 'organizador' ? '/api/auth/register-organizador' : '/api/auth/register';
-            const respuesta = await fetch(endpoint, {
+            datos.set('turnstileToken', tokenTurnstile);
+            enviado = true;
+            registrarEvento('registro_enviado', { tipo: metodo });
+            const respuesta = await fetch(`/api/auth/${accionTurnstile}`, {
                 method: 'POST',
                 body: datos,
             });
+            registrarEvento('registro_resultado', { tipo: metodo, estado: respuesta.status, exito: respuesta.ok });
             if (!respuesta.ok) {
+                const detalle = await respuesta.json().catch(() => null);
                 error = true;
-                mensajeError = respuesta.status === 409
+                mensajeError = detalle?.code === 'TURNSTILE_UNAVAILABLE'
+                    ? detalle.message
+                    : respuesta.status === 409
                     ? 'Ya existe una cuenta con este correo o RUT.'
+                    : typeof detalle?.message === 'string'
+                      ? detalle.message.slice(0, 300)
                     : respuesta.status === 502 || respuesta.status === 503
                       ? 'El servidor no está disponible. Revisá el backend.'
                       : 'No se pudo completar el registro. Revisá los datos.';
                 return;
             }
-            window.location.assign(metodo === 'organizador' ? '/organizador' : '/turista');
+            const resultado = await respuesta.json().catch(() => null);
+
+const email = String(
+    datos.get('email') ?? ''
+).trim().toLowerCase();
+
+sessionStorage.setItem(
+    'registroPendiente',
+    JSON.stringify({
+        email,
+        tipo: metodo === 'organizador'
+            ? 'ORGANIZADOR'
+            : 'TURISTA',
+        enviado: resultado?.enviado !== false
+    })
+);
+
+window.location.assign('/verificar-email');
         } catch {
             error = true;
+            mensajeError = 'No se pudo conectar. Revisá tu conexión y volvé a intentar.';
+            registrarEvento('registro_resultado', { tipo: metodo, estado: 0, exito: false });
         } finally {
+            if (enviado) turnstile?.reiniciar();
             cargando = false;
         }
+        
     };
+    
 
     const ingresarConGoogle = () => {
         window.location.href = '/api/auth/google';
@@ -97,6 +134,7 @@
                 type="button"
                 disabled={cargando}
                 onclick={() => {
+                    if (metodo !== 'turista') tokenTurnstile = '';
                     metodo = 'turista';
                     error = false;
                 }}
@@ -111,6 +149,7 @@
                 type="button"
                 disabled={cargando}
                 onclick={() => {
+                    if (metodo !== 'organizador') tokenTurnstile = '';
                     metodo = 'organizador';
                     error = false;
                 }}
@@ -133,7 +172,7 @@
             {#if metodo === 'turista'}
                 <div transition:slide={{ duration: 200 }} class="flex flex-col gap-4">
                     <div class="flex flex-col gap-1">
-                        <label for="nombres" class="text-sm font-medium text-slate-700"> Nombres </label>
+                        <label for="nombres" class="text-sm font-medium text-slate-700">Nombres <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="nombres"
@@ -142,14 +181,14 @@
                             required
                             minlength="2"
                             maxlength="60"
-                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
+                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '\-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
                             title="Ingresá entre 2 y 60 caracteres. Solo se permiten letras, espacios, apóstrofes y guiones."
                             autocomplete="given-name"
                             class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
                         />
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="apellidos" class="text-sm font-medium text-slate-700"> Apellidos </label>
+                        <label for="apellidos" class="text-sm font-medium text-slate-700">Apellidos <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="apellidos"
@@ -158,7 +197,7 @@
                             required
                             minlength="2"
                             maxlength="60"
-                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
+                            pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?:[ '\-][A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$"
                             title="Ingresá entre 2 y 60 caracteres. Solo se permiten letras, espacios, apóstrofes y guiones."
                             autocomplete="family-name"
                             class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
@@ -169,7 +208,7 @@
             <!-- CAMPO ORGANIZADOR -->
             {#if metodo === 'organizador'}
                 <div transition:slide={{ duration: 200 }} class="flex flex-col gap-1">
-                    <label for="nombreOrganizacion" class="text-sm font-medium text-slate-700"> Nombre de la organización </label>
+                    <label for="nombreOrganizacion" class="text-sm font-medium text-slate-700">Nombre de la organización <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                     <input
                         disabled={cargando}
                         id="nombreOrganizacion"
@@ -178,7 +217,7 @@
                         required
                         minlength="2"
                         maxlength="100"
-                        pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9][A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9 .,&amp;'()/-]*$"
+                        pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9][A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9 .,&amp;'\(\)\/\-]*$"
                         title="Ingresá entre 2 y 100 caracteres usando letras, números y signos habituales de una organización."
                         class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
                     />
@@ -186,7 +225,7 @@
             {/if}
             <!-- EMAIL -->
             <div class="flex flex-col gap-1">
-                <label for="email" class="text-sm font-medium text-slate-700"> Correo electrónico </label>
+                <label for="email" class="text-sm font-medium text-slate-700">Correo electrónico <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                 <input
                     disabled={cargando}
                     id="email"
@@ -203,24 +242,42 @@
             </div>
             <!-- PASSWORD -->
             <div class="flex flex-col gap-1">
-                <label for="password" class="text-sm font-medium text-slate-700"> Contraseña </label>
-                <input
-                    disabled={cargando}
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    minlength="8"
-                    maxlength="32"
-                    autocomplete="new-password"
-                    pattern="^(?=.*[a-z])(?=.*[A-Z]).*$"
-                    title="La contraseña debe tener al menos 8 caracteres, una letra minúscula y una letra mayúscula."
-                    class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
-                />
+                <label for="password" class="text-sm font-medium text-slate-700">Contraseña <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
+                <div class="relative">
+                    <input
+                        disabled={cargando}
+                        id="password"
+                        name="password"
+                        type={mostrarPassword ? 'text' : 'password'}
+                        required
+                        minlength="8"
+                        maxlength="32"
+                        autocomplete="new-password"
+                        pattern="^(?=.*[a-z])(?=.*[A-Z]).*$"
+                        title="La contraseña debe tener al menos 8 caracteres, una letra minúscula y una letra mayúscula."
+                        class="w-full pr-12 rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
+                    />
+                    <button
+                        type="button"
+                        disabled={cargando}
+                        onclick={() => mostrarPassword = !mostrarPassword}
+                        aria-label={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        aria-controls="password"
+                        aria-pressed={mostrarPassword}
+                        title={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        class="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg text-slate-500 hover:text-green-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                            <circle cx="12" cy="12" r="3" />
+                            {#if mostrarPassword}<path d="m3 3 18 18" />{/if}
+                        </svg>
+                    </button>
+                </div>
             </div>
             <!-- DEPARTAMENTO -->
             <div class="flex flex-col gap-1">
-                <label for="departamento" class="text-sm font-medium text-slate-700"> Departamento </label>
+                <label for="departamento" class="text-sm font-medium text-slate-700">Departamento <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                 <select
                     disabled={cargando}
                     id="departamento"
@@ -240,7 +297,7 @@
             {#if metodo === 'turista'}
                 <div transition:slide={{ duration: 200 }} class="flex flex-col gap-4">
                     <div class="flex flex-col gap-1">
-                        <label for="genero" class="text-sm font-medium text-slate-700"> Género </label>
+                        <label for="genero" class="text-sm font-medium text-slate-700">Género <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <select
                             disabled={cargando}
                             id="genero"
@@ -255,7 +312,7 @@
                         </select>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="fecha_nacimiento" class="text-sm font-medium text-slate-700"> Fecha de nacimiento </label>
+                        <label for="fecha_nacimiento" class="text-sm font-medium text-slate-700">Fecha de nacimiento <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="fecha_nacimiento"
@@ -274,24 +331,23 @@
                 <div transition:slide={{ duration: 250 }} class="flex flex-col gap-4 p-4 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider"> Datos de Organizador </span>
                     <div class="flex flex-col gap-1">
-                        <label for="rut" class="text-sm font-medium text-slate-700"> RUT / RUC </label>
+                        <label for="rut" class="text-sm font-medium text-slate-700"> RUT / RUC (opcional) </label>
                         <input
                             disabled={cargando}
                             id="rut"
                             name="rut"
                             type="text"
-                            required
                             inputmode="numeric"
                             minlength="12"
                             maxlength="12"
-                            pattern="^[0-9]+$"
+                            pattern={'[0-9]{12}'}
                             title="El RUT/RUC debe contener exactamente 12 dígitos numéricos."
                             placeholder="Ej. 211234560018"
                             class="rounded-lg border-slate-300 text-slate-800 focus:border-green-600 focus:ring-green-600"
                         />
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="telefono" class="text-sm font-medium text-slate-700"> Teléfono </label>
+                        <label for="telefono" class="text-sm font-medium text-slate-700">Teléfono <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="telefono"
@@ -300,7 +356,7 @@
                             required
                             minlength="8"
                             maxlength="20"
-                            pattern="^\+?[0-9 -]+$"
+                            pattern="^\+?[0-9 \-]+$"
                             title="Ingresá entre 8 y 20 caracteres. Solo se permiten números, espacios, guiones y un + inicial opcional."
                             autocomplete="tel"
                             placeholder="Ej. 099 123 456"
@@ -308,7 +364,7 @@
                         />
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="fotoCedulaFrente" class="text-sm font-medium text-slate-700"> Cédula (Frente) </label>
+                        <label for="fotoCedulaFrente" class="text-sm font-medium text-slate-700">Cédula (Frente) <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="fotoCedulaFrente"
@@ -331,7 +387,7 @@
                         />
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label for="fotoCedulaDorso" class="text-sm font-medium text-slate-700"> Cédula (Dorso) </label>
+                        <label for="fotoCedulaDorso" class="text-sm font-medium text-slate-700">Cédula (Dorso) <span class="ml-1 text-xs font-semibold text-red-700">Obligatorio</span></label>
                         <input
                             disabled={cargando}
                             id="fotoCedulaDorso"
@@ -355,10 +411,32 @@
                     </div>
                 </div>
             {/if}
+            {#if metodo === 'organizador'}
+                <input type="hidden" name="versionDocumentos" value="2026-10-28-v1" />
+                <details class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                    <summary class="cursor-pointer font-medium text-green-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-green-600">Leer condiciones del registro y privacidad</summary>
+                    <div class="mt-3 space-y-3 leading-relaxed">
+                        <p>Al registrarte, declarás que los datos son verdaderos y que estás autorizado para representar a la organización. La solicitud será revisada antes de habilitar la publicación de eventos.</p>
+                        <p>Sos responsable de mantener tu cuenta segura y de publicar información correcta y actualizada. Las imágenes y los contenidos deben ser propios o contar con autorización de uso. El equipo podrá revisar y retirar publicaciones que incumplan estas condiciones.</p>
+                        <p>Tus datos y documentos se utilizarán para verificar el registro, gestionar tu cuenta y comunicarnos con vos. Las fotos del documento de identidad no se muestran públicamente en los lugares ni en los eventos.</p>
+                    </div>
+                </details>
+                <label class="flex items-start gap-2 text-sm text-slate-700">
+                    <input type="checkbox" name="aceptaTerminos" value="si" required disabled={cargando} class="mt-1 rounded border-slate-300 text-green-600" />
+                    <span>Acepto los términos y condiciones para organizadores.</span>
+                </label>
+                <label class="flex items-start gap-2 text-sm text-slate-700">
+                    <input type="checkbox" name="aceptaPrivacidad" value="si" required disabled={cargando} class="mt-1 rounded border-slate-300 text-green-600" />
+                    <span>Acepto la política de privacidad y el tratamiento de mis datos y documentos para verificar el registro.</span>
+                </label>
+            {/if}
             <!-- REGISTRARSE -->
+            {#key accionTurnstile}
+                <Turnstile accion={accionTurnstile} bind:token={tokenTurnstile} bind:this={turnstile} />
+            {/key}
             <button
                 type="submit"
-                disabled={cargando}
+                disabled={cargando || !tokenTurnstile}
                 class="h-11 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:scale-98 transition-all cursor-pointer text-white font-medium rounded-lg mt-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
             >
                 {#if cargando}

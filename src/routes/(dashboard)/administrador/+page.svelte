@@ -1,19 +1,9 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    type Evento = { id: number; titulo: string; estado: string; creado_en: string };
-    type Organizador = { id: number; nombre_organizacion: string; creado_en: string };
-    type Mes = { clave: string; mes: string; total: number };
-    type Resumen = {
-        totales: { usuarios: number; organizadores: number; eventos: number; eventosPublicados: number; ubicaciones: number; empresas: number; horariosPublicados: number };
-        pendientes: { eventos: number; organizadores: number };
-        esteMes: { usuarios: number; eventos: number };
-        eventosPorMes: Mes[];
-        ultimosEventos: Evento[];
-        ultimosOrganizadores: Organizador[];
-    };
+    import type { ResumenAdmin } from '$lib/types/admin';
 
-    let resumen = $state<Resumen | null>(null);
+    let resumen = $state<ResumenAdmin | null>(null);
     let cargando = $state(true);
     let error = $state('');
     let noAutorizado = $state(false);
@@ -32,7 +22,7 @@
                 return;
             }
             if (!respuesta.ok) throw new Error(`Error HTTP ${respuesta.status}`);
-            resumen = (await respuesta.json()) as Resumen;
+            resumen = (await respuesta.json()) as ResumenAdmin;
         } catch (e) {
             error = e instanceof Error ? e.message : 'No se pudo cargar el resumen';
         } finally {

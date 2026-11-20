@@ -88,6 +88,7 @@
             disabled={cargando}
             class="rounded-xl border border-[#bfd0c3] bg-white px-4 py-2 text-sm font-medium disabled:opacity-60">Actualizar</button
         >
+        <a href="/administrador/usuarios/nuevo" class="rounded-lg bg-[#38634a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2e503c]">Crear administrador</a>
     </header>
     <div class="grid gap-4 sm:grid-cols-3">
         {#each [{ t: 'Turistas', v: resumen.turistas }, { t: 'Administradores', v: resumen.administradores }, { t: 'Registrados en 30 días', v: resumen.recientes }] as estadistica}

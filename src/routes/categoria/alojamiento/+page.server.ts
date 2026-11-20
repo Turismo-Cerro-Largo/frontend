@@ -1,4 +1,3 @@
-
 import { backendUrl } from '$lib/server/backend';
 import type { PageServerLoad } from './$types';
 
@@ -18,26 +17,22 @@ type Alojamiento = {
 
 export const load: PageServerLoad = async ({ fetch }) => {
     try {
-        const respuesta = await fetch(
-            `${backendUrl()}/api/ubicaciones?categoria=Alojamiento`
-        );
+        const respuesta = await fetch(`${backendUrl()}/api/ubicaciones?categoria=Alojamiento`, { signal: AbortSignal.timeout(10000) });
 
         if (!respuesta.ok) {
             throw new Error('Error al cargar los alojamientos');
         }
 
-        const alojamientos =
-            (await respuesta.json()) as Alojamiento[];
+        const alojamientos = (await respuesta.json()) as Alojamiento[];
 
         return {
             alojamientos,
-            error: ''
+            error: '',
         };
-
     } catch {
         return {
             alojamientos: [] as Alojamiento[],
-            error: 'No se pudieron cargar los alojamientos.'
+            error: 'No se pudieron cargar los alojamientos.',
         };
     }
 };
