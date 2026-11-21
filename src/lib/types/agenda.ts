@@ -2,6 +2,7 @@ export type Medio = { id: number; tipo: 'IMAGEN' | 'VIDEO'; descripcion: string 
 export type EventoPublico = {
     id: number;
     titulo: string;
+    categoria?: import('./mapa').CategoriaMarcador;
     descripcion: string;
     inicio: string;
     fin: string | null;
