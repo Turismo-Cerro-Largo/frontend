@@ -41,7 +41,7 @@
         </section>
         <section aria-label="Resultados de eventos">
             <h2 class="resultados">{data.desde ? 'Eventos durante las fechas elegidas' : 'Eventos del mes'}</h2>
-            {#if data.eventos.length}<div class="tarjetas">{#each data.eventos as evento (evento.id)}<EventoCard {evento} />{/each}</div>
+            {#if data.eventos.length}<div class="tarjetas">{#each data.eventos as evento, indice (evento.id)}<EventoCard {evento} prioritaria={indice === 0} />{/each}</div>
             {:else}<div class="t-empty"><h3>No hay eventos publicados para esta búsqueda</h3><p>Probá otro mes o cambiá las fechas.</p></div>{/if}
             <nav class="t-pagination" aria-label="Páginas de eventos">{#if data.pagina>1}<a class="t-link" href={paginar(data.pagina-1)}>Anterior</a>{/if}{#if data.eventos.length===12}<a class="t-link" href={paginar(data.pagina+1)}>Más eventos →</a>{/if}</nav>
         </section>

@@ -12,7 +12,7 @@
     <div class="t-grid">
         {#each data.localidades as localidad (localidad.id)}
             <a class="t-panel localidad-card" href={'/localidades/' + localidad.slug}>
-                {#if localidad.icono}<img src={localidad.icono} alt="" class="localidad-icono" />{:else}<span class="localidad-icono localidad-placeholder" aria-hidden="true">⌖</span>{/if}
+                {#if localidad.icono}<img decoding="async" loading="lazy" fetchpriority="auto" src={localidad.icono} alt="" class="localidad-icono" />{:else}<span class="localidad-icono localidad-placeholder" aria-hidden="true">⌖</span>{/if}
                 <strong>{localidad.nombre}</strong><span aria-hidden="true">→</span>
             </a>
         {/each}

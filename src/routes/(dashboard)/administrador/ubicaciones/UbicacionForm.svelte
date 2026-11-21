@@ -330,11 +330,11 @@
             </div>
             {#each recursos as recurso, i}<div class="flex items-center gap-3 rounded-lg bg-slate-50 p-2">
                     <div class="h-16 w-24 shrink-0 overflow-hidden rounded bg-slate-200">
-                        {#if recurso.tipo === 'IMAGEN'}<img alt={`Imagen ${i + 1}`} src={recurso.uri} class="h-full w-full object-cover" />{:else}<video
+                        {#if recurso.tipo === 'IMAGEN'}<img decoding="async" loading="lazy" fetchpriority="auto" alt={`Imagen ${i + 1}`} src={recurso.uri} class="h-full w-full object-cover" />{:else}<video
                                 src={recurso.uri}
                                 class="h-full w-full object-cover"
                                 controls
-                                preload="metadata"><track kind="captions" /></video
+                                preload="none"><track kind="captions" /></video
                             >{/if}
                     </div>
                     <div class="min-w-0 flex-1">

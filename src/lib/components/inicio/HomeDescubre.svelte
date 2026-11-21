@@ -271,7 +271,7 @@
                     >
                         <div class="flex h-full flex-col bg-white">
                             <div class="relative h-56 shrink-0 overflow-hidden bg-zinc-100 sm:h-64 lg:h-72">
-                                <img src={selected.img} alt={selected.nombre} class="absolute inset-0 h-full w-full object-cover" />
+                                <img decoding="async" loading="lazy" fetchpriority="auto" src={selected.img} alt={selected.nombre} class="absolute inset-0 h-full w-full object-cover" />
 
                                 <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent"></div>
 

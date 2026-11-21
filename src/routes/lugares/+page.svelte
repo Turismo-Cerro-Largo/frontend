@@ -43,7 +43,7 @@
         <div class="t-actions"><a class="t-link" href="/localidades">Ver todas las localidades</a>{#if data.localidad || data.buscar}<a class="t-link" href="/lugares">Quitar filtros</a>{/if}<a class="t-link" href="/eventos">Buscar eventos →</a></div>
         <p class="t-date" style="margin-bottom:20px">{data.total} {data.total === 1 ? 'lugar disponible' : 'lugares disponibles'}</p>
         {#if data.lugares.length}<div class="t-grid">
-                {#each data.lugares as lugar (lugar.id)}<LugarCard {lugar} />{/each}
+                {#each data.lugares as lugar, indice (lugar.id)}<LugarCard {lugar} prioritaria={indice === 0} />{/each}
             </div>{:else}<div class="t-empty">
                 <Icono nombre="explorar" size={36} />
                 <h2>{data.buscar ? 'No encontramos lugares con esa búsqueda' : data.localidad ? 'Todavía no hay lugares publicados en esta localidad' : 'Pronto habrá lugares para explorar'}</h2>

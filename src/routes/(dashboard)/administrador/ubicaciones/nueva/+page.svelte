@@ -298,7 +298,7 @@
                     {#each vistasPrevias as vista (vista.url)}
                         <div class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
                             {#if vista.tipo === 'IMAGEN'}
-                                <img src={vista.url} alt={vista.nombre} loading="lazy" class="block h-28 w-full object-cover sm:h-32" />
+                                <img decoding="async" fetchpriority="auto" src={vista.url} alt={vista.nombre} loading="lazy" class="block h-28 w-full object-cover sm:h-32" />
                             {:else}
                                 <video src={vista.url} controls muted preload="metadata" class="block h-28 w-full bg-black object-contain sm:h-32" aria-label={vista.nombre}>
                                     <track kind="captions" />

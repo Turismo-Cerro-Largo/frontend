@@ -24,8 +24,8 @@
         <p class="t-intro">{descripcion}</p>
         {#if data.lugares.length}
             <div class="t-grid">
-                {#each data.lugares as lugar (lugar.id)}
-                    <LugarCard {lugar} />
+                {#each data.lugares as lugar, indice (lugar.id)}
+                    <LugarCard {lugar} prioritaria={indice === 0} />
                 {/each}
             </div>
         {:else}

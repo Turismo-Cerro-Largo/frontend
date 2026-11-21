@@ -578,7 +578,7 @@
       {#if evento?.recursos.length}
         <div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
           {#each evento.recursos as recurso (recurso.id)}
-            <img
+            <img decoding="async" loading="lazy" fetchpriority="auto"
               src={recurso.uri}
               alt="Imagen guardada del evento"
               class="h-28 w-full rounded-xl object-cover"

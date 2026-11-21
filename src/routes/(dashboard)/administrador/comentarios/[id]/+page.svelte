@@ -91,11 +91,11 @@
                 {#if comentario.recursos?.length}<article class="rounded-2xl border border-[#e0e6df] bg-white p-6">
                         <h2 class="mb-4 text-lg font-semibold">Recursos adjuntos</h2>
                         <div class="grid gap-3 sm:grid-cols-2">
-                            {#each comentario.recursos as recurso, i}{#if recurso.tipo === 'IMAGEN'}<img
+                            {#each comentario.recursos as recurso, i}{#if recurso.tipo === 'IMAGEN'}<img decoding="async" loading="lazy" fetchpriority="auto"
                                         src={recurso.uri}
                                         alt={`Recurso del comentario ${i + 1}`}
                                         class="h-52 w-full rounded-xl object-cover"
-                                    />{:else if recurso.tipo === 'VIDEO'}<video src={recurso.uri} controls class="w-full rounded-xl"><track kind="captions" /></video>{/if}{/each}
+                                    />{:else if recurso.tipo === 'VIDEO'}<video preload="none" src={recurso.uri} controls class="w-full rounded-xl"><track kind="captions" /></video>{/if}{/each}
                         </div>
                     </article>{/if}
             </div>

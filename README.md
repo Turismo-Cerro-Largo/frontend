@@ -1,5 +1,7 @@
 # Cerro Largo 360 · Frontend
 
+Las páginas públicas reutilizan la consulta de sesión hasta 30 segundos. Los paneles privados, autenticación y acciones la comprueban nuevamente; el backend valida siempre los permisos. Las imágenes principales tienen prioridad alta y las secundarias se cargan al acercarse a la pantalla. Los enlaces precargan datos al tocarlos. Ejecutá `node --test tests/consulta-sesion.test.mjs` para probar la gestión de consultas.
+
 Cerro Largo 360 es un portal para explorar el departamento. En el sitio se pueden consultar lugares y eventos, navegar el mapa, ver horarios de ómnibus y escuchar radios locales. También incluye paneles para turistas, organizadores y administradores.
 
 Este repositorio contiene el sitio hecho con SvelteKit, Svelte 5, TypeScript y Tailwind CSS. Las páginas consultan la API del repositorio backend. Los mapas usan Mapbox y el reproductor de radios sigue activo al navegar entre páginas.

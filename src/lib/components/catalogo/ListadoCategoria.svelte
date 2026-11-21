@@ -52,10 +52,10 @@
             </p>
 
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {#each elementos as item (item.id)}
+                {#each elementos as item, indice (item.id)}
                     <article class="overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow hover:shadow-lg">
                         {#if item.imagen}
-                            <img src={item.imagen} alt={`Fotografía de ${item.nombre}`} class="h-52 w-full object-cover" loading="lazy" />
+                            <img decoding="async" src={item.imagen} alt={`Fotografía de ${item.nombre}`} class="h-52 w-full object-cover" loading={indice === 0 ? 'eager' : 'lazy'} fetchpriority={indice === 0 ? 'high' : 'auto'} />
                         {:else}
                             <div class="flex h-52 items-center justify-center bg-[#d7e5db] text-zinc-600">Sin fotografía</div>
                         {/if}

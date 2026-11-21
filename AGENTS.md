@@ -1,5 +1,11 @@
 # Cerro Largo 360 · Frontend
 
+## Sesiones y carga en cloud-2
+
+Esta rama conserva el adaptador de Vercel y el proxy de `/api` al Worker. `hooks.server.ts` consulta la cuenta solo para páginas, datos y acciones. `consulta-sesion.ts` agrupa solicitudes simultáneas y reutiliza respuestas válidas hasta 30 segundos en páginas públicas, con claves hasheadas y un máximo de 500 entradas. Los dashboards, autenticación y acciones comprueban la cuenta sin reutilizar la caché; los permisos siempre se validan en el backend. Las respuestas de páginas con cookie no se almacenan en caché HTTP.
+
+La precarga de datos de enlaces usa `tap`. Conservá `decoding="async"`, imágenes secundarias con carga diferida y una única imagen principal con prioridad alta. Las pruebas de estas consultas se ejecutan con `node --test tests/consulta-sesion.test.mjs`.
+
 ## Alcance y desarrollo local
 
 Esta guía describe la rama `loca`. El sitio usa SvelteKit, Svelte 5 con runes, TypeScript, Vite, Tailwind CSS y Mapbox GL JS. La API vive en el repositorio hermano.

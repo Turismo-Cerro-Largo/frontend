@@ -19,12 +19,17 @@
     });
 </script>
 
+<svelte:head>
+    <link rel="preconnect" href="https://ladiaria.com.uy" />
+    <link rel="preload" as="image" href={slides[0].src} fetchpriority="high" />
+</svelte:head>
+
 <section class="relative h-[65svh] min-h-125 w-full overflow-hidden bg-black md:h-[calc(100svh-80px)] md:min-h-162.5">
     {#key contador}
-        <img
+        <img decoding="async"
             src={slides[contador].src}
             alt={slides[contador].destino}
-            loading={contador === 0 ? 'eager' : 'lazy'}
+            loading="eager"
             fetchpriority={contador === 0 ? 'high' : 'auto'}
             class="absolute inset-0 h-full w-full object-cover animate-kenburns"
             in:fade={{ duration: 1800, easing: sineInOut }}

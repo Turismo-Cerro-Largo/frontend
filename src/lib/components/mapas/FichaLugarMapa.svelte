@@ -87,7 +87,7 @@
     <div class="hero">
         {#if portada}
             <button class="abrir-foto" onclick={() => pestana = 'fotos'} aria-label={`Ver fotos de ${lugar.nombre}`}>
-                <img src={`/api/recursos/${portada.id}`} alt={portada.descripcion || lugar.nombre} />
+                <img decoding="async" src={`/api/recursos/${portada.id}`} alt={portada.descripcion || lugar.nombre} loading="eager" fetchpriority="high" />
                 <span class="ver-fotos">Ver fotos</span>
             </button>
         {:else}<div class="sin-foto">Cerro Largo 360</div>{/if}

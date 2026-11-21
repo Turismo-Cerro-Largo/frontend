@@ -136,7 +136,7 @@
         </div>
         <a
             href="/administrador/eventos"
-            data-sveltekit-preload-data="hover"
+            data-sveltekit-preload-data="tap"
             class="inline-flex items-center rounded-xl border bg-white px-4 py-2 text-sm font-medium text-[#477967] hover:bg-slate-50"
         >← Volver al listado</a>
     </header>
@@ -234,7 +234,7 @@
                                     {#each celda.eventos as evento (evento.id)}
                                         <a
                                             href={`/administrador/eventos/${evento.id}`}
-                                            data-sveltekit-preload-data="hover"
+                                            data-sveltekit-preload-data="tap"
                                             onpointerenter={() => precargarDetalle(evento.id)}
                                             onfocus={() => precargarDetalle(evento.id)}
                                             class={`block rounded-lg border px-1.5 py-1.5 text-xs transition-colors ${estiloEstado(evento.estado)}`}

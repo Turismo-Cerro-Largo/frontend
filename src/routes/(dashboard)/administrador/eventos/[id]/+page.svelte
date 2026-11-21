@@ -116,10 +116,10 @@
 <svelte:head><title>Revisión de evento | Cerro Largo 360</title></svelte:head>
 <section class="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
     <nav class="flex flex-wrap items-center gap-4" aria-label="Navegación de eventos">
-        <a href="/administrador/eventos" data-sveltekit-preload-data="hover" class="text-sm font-medium text-[#477967] hover:underline">← Volver a eventos</a>
+        <a href="/administrador/eventos" data-sveltekit-preload-data="tap" class="text-sm font-medium text-[#477967] hover:underline">← Volver a eventos</a>
         <a
             href={`/administrador/eventos/calendario?mes=${mesEvento}`}
-            data-sveltekit-preload-data="hover"
+            data-sveltekit-preload-data="tap"
             onpointerenter={() => precargarCalendario(mesEvento)}
             onfocus={() => precargarCalendario(mesEvento)}
             class="text-sm font-medium text-[#477967] hover:underline"
@@ -186,7 +186,7 @@
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     class="block overflow-hidden rounded-xl border"
-                                    ><img
+                                    ><img decoding="async" fetchpriority="auto"
                                         src={urlArchivo(recurso.uri)}
                                         alt={`Recurso ${i + 1} del evento`}
                                         class="h-52 w-full object-cover"
