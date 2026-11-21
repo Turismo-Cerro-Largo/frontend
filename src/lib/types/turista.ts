@@ -23,7 +23,7 @@ export type Lugar = {
     sitio_web: string | null;
     latitud: string;
     longitud: string;
-    categoria: { id: number; nombre: string };
+    categoria: import('./mapa').CategoriaMarcador & { id: number };
 };
 export type EstadoValoracion = 'PENDIENTE_REVISION' | 'PUBLICADO' | 'OCULTADO';
 export type Valoracion = { id: number; texto: string | null; calificacion: number; estado: EstadoValoracion };
