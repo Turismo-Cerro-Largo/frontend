@@ -1,8 +1,8 @@
 .t-public {
-    --t-green: #245c4e;
-    --t-ink: #233c35;
-    --t-muted: #64736d;
-    --t-line: #dce5de;
+    --t-green: var(--color-brand, #245c4e);
+    --t-ink: var(--color-ink, #233c35);
+    --t-muted: var(--color-muted, #64736d);
+    --t-line: var(--color-line, #dce5de);
     color: var(--t-ink);
     background: #f6f7f2;
     min-height: 100dvh;
@@ -99,7 +99,8 @@
 .t-panel {
     background: #fff;
     border: 1px solid var(--t-line);
-    border-radius: 14px;
+    border-radius: var(--radius-panel, 20px);
+    box-shadow: var(--shadow-panel);
     padding: 28px;
 }
 .t-panel h2 {

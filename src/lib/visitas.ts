@@ -1,5 +1,5 @@
-import { dev } from '$app/environment';
-import { env } from '$env/dynamic/public';
+import { dev } from '$app/env';
+import * as env from '$app/env/public';
 
 let visitante = '';
 let rutaActual = '';

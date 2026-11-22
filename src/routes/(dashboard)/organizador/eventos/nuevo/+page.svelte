@@ -1,11 +1,11 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
-    import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
-    import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
-    import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
-    import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
-    import { crearNavegacionLocalidades } from '$lib/localidades/navegacion-mapa';
+    import { obtenerLocalidadesPublicas } from '#lib/localidades/api.ts';
+    import EstadoDireccionMapa from '#lib/components/EstadoDireccionMapa.svelte';
+    import { PUBLIC_MAPBOX_TOKEN } from '$app/env/public';
+    import { crearBusquedaDireccion } from '#lib/localidades/direccion-mapa.ts';
+    import { crearNavegacionLocalidades } from '#lib/localidades/navegacion-mapa.ts';
     import 'mapbox-gl/dist/mapbox-gl.css';
 
     let categorias = $state<{ id: number; nombre: string }[]>([]);

@@ -1,4 +1,4 @@
-import { backendUrl } from '$lib/server/backend';
+import { backendUrl } from '#lib/server/backend.ts';
 import type { PageServerLoad } from './$types';
 
 type Alojamiento = {

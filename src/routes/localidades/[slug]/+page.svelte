@@ -1,8 +1,8 @@
 <script lang="ts">
-    import Navbar from '$lib/components/shared/Navbar.svelte';
-    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
-    import LugarCard from '$lib/components/turista/LugarCard.svelte';
-    import '$lib/components/turista/turista.css';
+    import Navbar from '#lib/components/shared/Navbar.svelte';
+    import HomeFooter from '#lib/components/inicio/HomeFooter.svelte';
+    import LugarCard from '#lib/components/turista/LugarCard.svelte';
+    import '#lib/components/turista/turista.css';
     import type { PageProps } from './$types';
 
     let { data }: PageProps = $props();
@@ -24,8 +24,8 @@
         <p class="t-intro">{descripcion}</p>
         {#if data.lugares.length}
             <div class="t-grid">
-                {#each data.lugares as lugar (lugar.id)}
-                    <LugarCard {lugar} />
+                {#each data.lugares as lugar, indice (lugar.id)}
+                    <LugarCard {lugar} prioritaria={indice === 0} />
                 {/each}
             </div>
         {:else}

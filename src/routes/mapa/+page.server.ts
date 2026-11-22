@@ -1,8 +1,8 @@
-import { cargarMapa } from '$lib/server/mapa';
-import { consultar } from '$lib/server/turista';
-import { diaUruguay } from '$lib/utils/agenda';
-import type { EventoPublico } from '$lib/types/agenda';
-import type { DetalleLugar } from '$lib/types/turista';
+import { cargarMapa } from '#lib/server/mapa.ts';
+import { consultar } from '#lib/server/turista.ts';
+import { diaUruguay } from '#lib/utils/agenda.ts';
+import type { EventoPublico } from '#lib/types/agenda.ts';
+import type { DetalleLugar } from '#lib/types/turista.ts';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {

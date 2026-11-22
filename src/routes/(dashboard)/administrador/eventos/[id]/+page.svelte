@@ -1,11 +1,12 @@
 <script lang="ts">
+    import { dialogo } from '#lib/actions/dialogo.ts';
     import { onMount, onDestroy, tick } from 'svelte';
-    import { env } from '$env/dynamic/public';
+    import * as env from '$app/env/public';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import type { Map as MapboxMap } from 'mapbox-gl';
     import { page } from '$app/state';
-    import { consultarDetalle, invalidarCalendario, invalidarDetalle, mesActualUruguay, mesDeEvento, precargarCalendario } from '$lib/admin/eventos';
-    import type { EventoDetalle as Evento } from '$lib/types/admin-eventos';
+    import { consultarDetalle, invalidarCalendario, invalidarDetalle, mesActualUruguay, mesDeEvento, precargarCalendario } from '#lib/admin/eventos.ts';
+    import type { EventoDetalle as Evento } from '#lib/types/admin-eventos.ts';
     let evento = $state<Evento | null>(null);
     const mesEvento = $derived(evento ? mesDeEvento(evento.inicio) : mesActualUruguay());
     let elementoMapa = $state<HTMLDivElement | undefined>(undefined);
@@ -116,10 +117,10 @@
 <svelte:head><title>Revisión de evento | Cerro Largo 360</title></svelte:head>
 <section class="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
     <nav class="flex flex-wrap items-center gap-4" aria-label="Navegación de eventos">
-        <a href="/administrador/eventos" data-sveltekit-preload-data="hover" class="text-sm font-medium text-[#477967] hover:underline">← Volver a eventos</a>
+        <a href="/administrador/eventos" data-sveltekit-preload-data="tap" class="text-sm font-medium text-[#477967] hover:underline">← Volver a eventos</a>
         <a
             href={`/administrador/eventos/calendario?mes=${mesEvento}`}
-            data-sveltekit-preload-data="hover"
+            data-sveltekit-preload-data="tap"
             onpointerenter={() => precargarCalendario(mesEvento)}
             onfocus={() => precargarCalendario(mesEvento)}
             class="text-sm font-medium text-[#477967] hover:underline"
@@ -186,7 +187,7 @@
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     class="block overflow-hidden rounded-xl border"
-                                    ><img
+                                    ><img decoding="async" fetchpriority="auto"
                                         src={urlArchivo(recurso.uri)}
                                         alt={`Recurso ${i + 1} del evento`}
                                         class="h-52 w-full object-cover"
@@ -244,8 +245,8 @@
                 </div>
             </aside>
         </div>
-        {#if decision}<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="presentation">
-                <div role="dialog" aria-modal="true" aria-labelledby="titulo-decision" class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        {#if decision}
+                <dialog use:dialogo onclose={() => (decision = null)} oncancel={(event) => { if (guardando) event.preventDefault(); }} aria-labelledby="titulo-decision" class="m-auto max-h-[92dvh] overflow-y-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
                     <h2 id="titulo-decision" class="text-xl font-semibold">{decision === 'PUBLICADO' ? '¿Aprobar este evento?' : '¿Rechazar este evento?'}</h2>
                     <p class="mt-2 text-sm text-slate-600">{decision === 'PUBLICADO' ? 'El evento pasará a estar publicado.' : 'El organizador verá el motivo del rechazo.'}</p>
                     {#if decision === 'RECHAZADO'}<textarea
@@ -268,7 +269,6 @@
                         >
                     </div>
                     {#if error}<p role="alert" class="mt-3 text-sm text-rose-700">{error}</p>{/if}
-                </div>
-            </div>{/if}
+                </dialog>{/if}
     {/if}
 </section>

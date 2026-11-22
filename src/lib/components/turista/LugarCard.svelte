@@ -1,13 +1,13 @@
 <script lang="ts">
     import Icono from './Icono.svelte';
-    import type { Lugar } from '$lib/types/turista';
-    let { lugar }: { lugar: Lugar } = $props();
+    import type { Lugar } from '#lib/types/turista.ts';
+    let { lugar, prioritaria = false }: { lugar: Lugar; prioritaria?: boolean } = $props();
 </script>
 
 <a class="t-lugar" href={`/lugares/${lugar.id}`}>
     {#if lugar.recursos?.find(r => r.tipo === "IMAGEN")}
         {@const foto = lugar.recursos.find(r => r.tipo === "IMAGEN")}
-        <img src={`/api/recursos/${foto?.id}`} alt={foto?.descripcion || lugar.nombre} loading="lazy" style="width:100%;height:190px;object-fit:cover" />
+        <img decoding="async" src={`/api/recursos/${foto?.id}`} alt={foto?.descripcion || lugar.nombre} loading={prioritaria ? 'eager' : 'lazy'} fetchpriority={prioritaria ? 'high' : 'auto'} style="width:100%;height:190px;object-fit:cover" />
     {:else}<div class="t-lugar-symbol"><Icono nombre="explorar" size={34} /><span>{lugar.localidad}</span></div>{/if}
     <div class="t-lugar-content">
         <span class="t-eyebrow">{lugar.categoria.nombre}</span>

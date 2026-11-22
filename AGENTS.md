@@ -4,6 +4,8 @@
 
 Esta guía describe la rama `loca`. El sitio usa SvelteKit, Svelte 5 con runes, TypeScript, Vite, Tailwind CSS y Mapbox GL JS. La API vive en el repositorio hermano.
 
+El frontend usa SvelteKit 3 y requiere Node 22.17 o superior. Los imports internos usan `#lib/` con extensión; las variables permitidas se declaran en `src/env.ts` y se importan desde `$app/env/private` o `$app/env/public`. Los secretos permanecen privados. Usá `$app/env` para `dev` y `browser`, y `@sveltejs/kit/hooks` para los tipos de hooks. La navegación que conserva foco y desplazamiento usa `reset: false`.
+
 - Arrancá el backend en el puerto 4000. Copiá `.env.example` a `.env`, instalá con `pnpm install` y ejecutá `pnpm dev`. Vite sirve el sitio normalmente en el puerto 5173.
 - `API_URL` es el origen privado del backend, sin `/api`. `PUBLIC_MAPBOX_TOKEN` habilita el mapa y `PUBLIC_TURNSTILE_SITE_KEY` configura el captcha. Los secretos de Google, Gmail y Turnstile quedan en el backend.
 - `pnpm check` sincroniza los tipos de ruta y ejecuta Svelte Check. `pnpm build` compila el sitio y `pnpm preview` previsualiza el resultado. `pnpm format` escribe en `src/`.
@@ -26,12 +28,14 @@ Los grupos entre paréntesis organizan archivos y no forman parte de la URL. Us�
 
 - Los formularios del navegador llaman a rutas relativas `/api/...`. En desarrollo, `vite.config.ts` las reenvía al backend usando `API_URL`. En producción, el despliegue debe enrutar esas peticiones al backend. El proxy de Vite es de desarrollo.
 - Desde SSR, usá `backendUrl()` de `src/lib/server/backend.ts` y el `fetch` de la carga cuando corresponda. Reenviá la cookie en las consultas autenticadas al backend.
-- `hooks.server.ts` inicia `event.locals.cuenta` en `null`. Si llega la cookie `session`, consulta `/api/auth/check` y deja la respuesta autenticada fuera de caché. El layout raíz pasa la cuenta a las páginas.
+- `hooks.server.ts` inicia `event.locals.cuenta` en `null`. Consulta `/api/auth/check` solo para páginas y sus datos, sin consultar por recursos o rutas `/api`. En páginas públicas reutiliza la cuenta hasta 30 segundos, con claves de caché hasheadas y peticiones simultáneas agrupadas. Los dashboards, autenticación y acciones consultan siempre al backend; sus permisos siguen verificándose en la API. Las respuestas de páginas con cookie quedan fuera de la caché HTTP. El layout raíz pasa la cuenta a las páginas. La precarga global de datos comienza al tocar/presionar un enlace, no al pasar el cursor.
 - El layout de autenticación redirige a usuarios con sesión. El de dashboard valida el rol antes de mostrar el panel. Los layouts no sustituyen la autorización del backend. La cookie de sesión es `HttpOnly` y la emite el backend.
 - Login y registros reutilizan `Turnstile.svelte`. El registro por correo lleva a `/verificar-email`, que confirma o reenvía el código. El turista inicia sesión después de verificar. El organizador también necesita aprobación.
 - La solicitud de recuperación usa el mismo widget con la acción `recuperar-contrasena` y envía JSON con `email` y `turnstileToken`. La pantalla de restablecimiento obtiene el token del fragmento del enlace y envía la contraseña nueva. Google OAuth comienza en `/api/auth/google`.
 
 ## Catálogo, mapas y radios
+
+- Las imágenes usan `decoding="async"`. La portada y la primera imagen principal de fichas/listados usan `loading="eager"` y `fetchpriority="high"`; las secundarias, `loading="lazy"` y prioridad automática. Conservá un único recurso destacado por vista. Los avatares visibles usan prioridad baja. Los videos remotos y el reproductor de radio no precargan datos. No agregues preloads globales para imágenes privadas o de páginas que no se están viendo.
 
 - Conservá las cargas SSR del catálogo cuando los datos formen parte de la página pública o su SEO. Mantené títulos, descripciones y enlaces de navegación en las rutas públicas.
 - El detalle de lugar integra Mapbox para mostrar la ubicación. La acción de cómo llegar abre Google Maps. Mantené el orden de coordenadas que espera cada integración.

@@ -1,7 +1,8 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
     import Navbar from './Navbar.svelte';
-    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
+    import HomeFooter from '#lib/components/inicio/HomeFooter.svelte';
+    import SeoPagina from './SeoPagina.svelte';
 
     let { titulo, descripcion, children }: {
         titulo: string;
@@ -10,10 +11,7 @@
     } = $props();
 </script>
 
-<svelte:head>
-    <title>{titulo} | Cerro Largo 360</title>
-    <meta name="description" content={descripcion} />
-</svelte:head>
+<SeoPagina {titulo} {descripcion} />
 
 <Navbar solid />
 <main class="mx-auto max-w-3xl px-6 pb-16 pt-32 text-zinc-700">

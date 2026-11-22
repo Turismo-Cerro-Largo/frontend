@@ -2,11 +2,11 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
   import { goto } from '$app/navigation';
-  import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
-  import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
-  import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
-  import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
-    import { crearNavegacionLocalidades } from '$lib/localidades/navegacion-mapa';
+  import { obtenerLocalidadesPublicas } from '#lib/localidades/api.ts';
+  import EstadoDireccionMapa from '#lib/components/EstadoDireccionMapa.svelte';
+  import { PUBLIC_MAPBOX_TOKEN } from '$app/env/public';
+  import { crearBusquedaDireccion } from '#lib/localidades/direccion-mapa.ts';
+    import { crearNavegacionLocalidades } from '#lib/localidades/navegacion-mapa.ts';
   import type { Map, Marker } from 'mapbox-gl';
   import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -15,12 +15,12 @@
     fechaInput,
     guardarEvento,
     obtenerCategorias
-  } from '$lib/organizador/eventos';
+  } from '#lib/organizador/eventos.ts';
 
   import type {
     CategoriaEvento,
     Evento
-  } from '$lib/types/evento';
+  } from '#lib/types/evento.ts';
 
   let { evento = null }: { evento?: Evento | null } = $props();
 
@@ -578,7 +578,7 @@
       {#if evento?.recursos.length}
         <div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
           {#each evento.recursos as recurso (recurso.id)}
-            <img
+            <img decoding="async" loading="lazy" fetchpriority="auto"
               src={recurso.uri}
               alt="Imagen guardada del evento"
               class="h-28 w-full rounded-xl object-cover"

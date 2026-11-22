@@ -1,13 +1,14 @@
 <script lang="ts">
-    import Navbar from '$lib/components/shared/Navbar.svelte';
-    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
-    import '$lib/components/turista/turista.css';
-    import LugarCard from '$lib/components/turista/LugarCard.svelte';
-    import Icono from '$lib/components/turista/Icono.svelte';
+    import SeoPagina from '#lib/components/shared/SeoPagina.svelte';
+    import Navbar from '#lib/components/shared/Navbar.svelte';
+    import HomeFooter from '#lib/components/inicio/HomeFooter.svelte';
+    import '#lib/components/turista/turista.css';
+    import LugarCard from '#lib/components/turista/LugarCard.svelte';
+    import Icono from '#lib/components/turista/Icono.svelte';
     let { data } = $props();
 </script>
 
-<svelte:head><title>Explorar lugares · Cerro Largo 360</title></svelte:head>
+<SeoPagina titulo={data.localidad ? `Lugares para visitar en ${data.localidad}` : 'Lugares para visitar en Cerro Largo'} descripcion="Explorá lugares turísticos de Cerro Largo: naturaleza, cultura, gastronomía y alojamiento. Encontrá direcciones, fotos y reseñas para planificar tu visita." parametros={['localidad', 'pagina']} />
 <div class="t-public">
     <Navbar solid />
     <main style="max-width:1200px;margin:auto;padding:130px 24px 64px">
@@ -43,7 +44,7 @@
         <div class="t-actions"><a class="t-link" href="/localidades">Ver todas las localidades</a>{#if data.localidad || data.buscar}<a class="t-link" href="/lugares">Quitar filtros</a>{/if}<a class="t-link" href="/eventos">Buscar eventos →</a></div>
         <p class="t-date" style="margin-bottom:20px">{data.total} {data.total === 1 ? 'lugar disponible' : 'lugares disponibles'}</p>
         {#if data.lugares.length}<div class="t-grid">
-                {#each data.lugares as lugar (lugar.id)}<LugarCard {lugar} />{/each}
+                {#each data.lugares as lugar, indice (lugar.id)}<LugarCard {lugar} prioritaria={indice === 0} />{/each}
             </div>{:else}<div class="t-empty">
                 <Icono nombre="explorar" size={36} />
                 <h2>{data.buscar ? 'No encontramos lugares con esa búsqueda' : data.localidad ? 'Todavía no hay lugares publicados en esta localidad' : 'Pronto habrá lugares para explorar'}</h2>

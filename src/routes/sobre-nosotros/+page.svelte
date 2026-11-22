@@ -1,5 +1,5 @@
 <script lang="ts">
-    import PaginaInformativa from '$lib/components/shared/PaginaInformativa.svelte';
+    import PaginaInformativa from '#lib/components/shared/PaginaInformativa.svelte';
 
     const equipo = [
         ['Julio Herrera', 'Líder del proyecto, frontend y seguridad'],

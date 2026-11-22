@@ -1,8 +1,30 @@
 <script lang="ts">
+    import { onMount } from 'svelte';
     import { sineInOut } from 'svelte/easing';
     import { fade } from 'svelte/transition';
 
     let contador: number = $state(0);
+    let hero: HTMLElement;
+    let pausado = $state(false);
+    let visible = $state(false);
+    let documentoVisible = $state(true);
+    let movimientoReducido = $state(false);
+    onMount(() => {
+        const preferencia = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const actualizarPreferencia = () => movimientoReducido = preferencia.matches;
+        const actualizarVisibilidad = () => documentoVisible = document.visibilityState === 'visible';
+        actualizarPreferencia();
+        actualizarVisibilidad();
+        const observador = new IntersectionObserver(([entrada]) => visible = entrada.isIntersecting, { threshold: .05 });
+        observador.observe(hero);
+        preferencia.addEventListener('change', actualizarPreferencia);
+        document.addEventListener('visibilitychange', actualizarVisibilidad);
+        return () => {
+            observador.disconnect();
+            preferencia.removeEventListener('change', actualizarPreferencia);
+            document.removeEventListener('visibilitychange', actualizarVisibilidad);
+        };
+    });
     export const slides = [
         { src: 'https://ladiaria.com.uy/media/photologue/photos/cache/paisaje_opt_schema_image.jpeg', destino: 'Centurion' },
         { src: 'https://cfluna.com/darkolighting.com.uy/cdn/files/tmp/compressed/normal/mccxxqfho7eqcg9w9u4s.jpg', destino: 'Río Branco' },
@@ -11,6 +33,7 @@
     ];
 
     $effect(() => {
+        if (pausado || !visible || !documentoVisible || movimientoReducido) return;
         const intervalo = setInterval(() => {
             contador = (contador + 1) % slides.length;
         }, 6000);
@@ -19,16 +42,22 @@
     });
 </script>
 
-<section class="relative h-[65svh] min-h-125 w-full overflow-hidden bg-black md:h-[calc(100svh-80px)] md:min-h-162.5">
+<svelte:head>
+    <link rel="preconnect" href="https://ladiaria.com.uy" />
+    <link rel="preload" as="image" href={slides[0].src} fetchpriority="high" />
+</svelte:head>
+
+<section bind:this={hero} class="relative h-[65svh] min-h-125 w-full overflow-hidden bg-black md:h-[calc(100svh-80px)] md:min-h-162.5">
     {#key contador}
-        <img
+        <img decoding="async"
             src={slides[contador].src}
             alt={slides[contador].destino}
-            loading={contador === 0 ? 'eager' : 'lazy'}
+            loading="eager"
             fetchpriority={contador === 0 ? 'high' : 'auto'}
             class="absolute inset-0 h-full w-full object-cover animate-kenburns"
-            in:fade={{ duration: 1800, easing: sineInOut }}
-            out:fade={{ duration: 1200, easing: sineInOut }}
+            class:animacionActiva={!pausado && visible && documentoVisible && !movimientoReducido}
+            in:fade={{ duration: movimientoReducido ? 0 : 400, easing: sineInOut }}
+            out:fade={{ duration: movimientoReducido ? 0 : 300, easing: sineInOut }}
         />
     {/key}
 
@@ -65,6 +94,9 @@
             {String(slides.length).padStart(2, '0')}
         </span>
     </div>
+    <button type="button" class="absolute bottom-5 left-1/2 z-20 grid size-11 -translate-x-1/2 place-items-center rounded-full border border-white/50 bg-black/35 text-white focus-visible:outline-white md:bottom-9" aria-label={pausado ? 'Reanudar carrusel' : 'Pausar carrusel'} aria-pressed={pausado} onclick={() => pausado = !pausado}>
+        <svg viewBox="0 0 24 24" fill="currentColor" class="size-4" aria-hidden="true">{#if pausado}<path d="m8 5 11 7-11 7z" />{:else}<path d="M6 5h4v14H6zm8 0h4v14h-4z" />{/if}</svg>
+    </button>
 </section>
 
 <style>
@@ -79,6 +111,11 @@
 
     .animate-kenburns {
         animation: kenburns 6.5s ease-out forwards;
+        animation-play-state: paused;
+    }
+    .animacionActiva {
+        animation-play-state: running;
         will-change: transform;
     }
+    @media (prefers-reduced-motion: reduce) { .animate-kenburns { animation: none; } }
 </style>

@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { enviar } from '$lib/turista/api';
-    import Galeria from '$lib/components/turista/Galeria.svelte';
-    import type { DetalleLugar } from '$lib/types/turista';
+    import { enviar } from '#lib/turista/api.ts';
+    import Galeria from '#lib/components/turista/Galeria.svelte';
+    import type { DetalleLugar } from '#lib/types/turista.ts';
 
     let { detalle, turista = false, cerrar }: {
         detalle: DetalleLugar;
@@ -87,7 +87,7 @@
     <div class="hero">
         {#if portada}
             <button class="abrir-foto" onclick={() => pestana = 'fotos'} aria-label={`Ver fotos de ${lugar.nombre}`}>
-                <img src={`/api/recursos/${portada.id}`} alt={portada.descripcion || lugar.nombre} />
+                <img decoding="async" src={`/api/recursos/${portada.id}`} alt={portada.descripcion || lugar.nombre} loading="eager" fetchpriority="high" />
                 <span class="ver-fotos">Ver fotos</span>
             </button>
         {:else}<div class="sin-foto">Cerro Largo 360</div>{/if}

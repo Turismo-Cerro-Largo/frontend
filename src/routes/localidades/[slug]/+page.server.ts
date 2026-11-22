@@ -1,6 +1,6 @@
-import { consultar } from '$lib/server/turista';
-import type { LocalidadPublica } from '$lib/types/localidad';
-import type { Lugar } from '$lib/types/turista';
+import { consultar } from '#lib/server/turista.ts';
+import type { LocalidadPublica } from '#lib/types/localidad.ts';
+import type { Lugar } from '#lib/types/turista.ts';
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 

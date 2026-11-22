@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { container, section, h2, cardInteractive } from '$lib/styles/tokens';
+    import { container, section, h2, cardInteractive } from '#lib/styles/tokens.ts';
 
     const datos = [
         {
@@ -27,7 +27,7 @@
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {#each datos as dato}
                 <a href={dato.link} target="_blank" rel="noopener noreferrer" class="{cardInteractive} group flex items-center gap-4 p-4">
-                    <img src={dato.icono} alt={dato.name} loading="lazy" class="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-zinc-100" />
+                    <img decoding="async" fetchpriority="auto" src={dato.icono} alt={dato.name} loading="lazy" class="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-zinc-100" />
 
                     <div class="min-w-0 flex-1">
                         <h3 class="truncate font-medium text-zinc-900">{dato.name}</h3>

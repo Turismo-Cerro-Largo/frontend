@@ -139,7 +139,7 @@
                     {#each localidades as localidad (localidad.id)}
                         <article class="flex items-center gap-4 rounded-xl border border-[#e0e8df] p-3">
                             {#if localidad.icono}
-                                <img src={localidad.icono} alt="" class="h-14 w-14 shrink-0 rounded-xl border object-cover" />
+                                <img decoding="async" loading="lazy" fetchpriority="auto" src={localidad.icono} alt="" class="h-14 w-14 shrink-0 rounded-xl border object-cover" />
                             {:else}
                                 <span class="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-[#e7f0e8] text-2xl text-[#2f6d50]" aria-hidden="true">⌖</span>
                             {/if}

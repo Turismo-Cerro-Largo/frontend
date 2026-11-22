@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { container, eyebrow, iconBtn } from '$lib/styles/tokens';
+    import { container, eyebrow, iconBtn } from '#lib/styles/tokens.ts';
 
     const explora = [
         { href: '/lugares', label: 'Destinos' },

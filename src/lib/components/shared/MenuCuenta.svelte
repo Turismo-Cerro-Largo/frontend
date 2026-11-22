@@ -49,7 +49,7 @@
 <div class="cuenta" class:claro class:abierto class:autenticada={!!cuenta} bind:this={contenedor}>
     {#if cuenta}
         <button class="acceso" bind:this={boton} aria-expanded={abierto} onclick={() => (abierto = !abierto)}>
-            {#if cuenta.foto}<img src={cuenta.foto} alt="" />{:else}<span class="avatar">{cuenta.nombre.charAt(0).toUpperCase()}</span>{/if}
+            {#if cuenta.foto}<img decoding="async" loading="eager" fetchpriority="low" src={cuenta.foto} alt="" />{:else}<span class="avatar">{cuenta.nombre.charAt(0).toUpperCase()}</span>{/if}
             <span class="nombre">{cuenta.nombre}</span><span class="flecha" aria-hidden="true">⌄</span>
         </button>
         {#if abierto}

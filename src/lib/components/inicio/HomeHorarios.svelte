@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { container, section, h2 } from '$lib/styles/tokens';
-    import { diasSinFecha } from '$lib/transporte/dias';
-    import { URUBUS_URL } from '$lib/transporte/urubus';
-    import type { HorarioOmnibus } from '$lib/types/transporte';
+    import { container, section, h2 } from '#lib/styles/tokens.ts';
+    import { diasSinFecha } from '#lib/transporte/dias.ts';
+    import { URUBUS_URL } from '#lib/transporte/urubus.ts';
+    import type { HorarioOmnibus } from '#lib/types/transporte.ts';
     let { horarios, error = false }: { horarios: HorarioOmnibus[]; error?: boolean } = $props();
 </script>
 

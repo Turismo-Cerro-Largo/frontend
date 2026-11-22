@@ -69,7 +69,7 @@
 
     // Actualizar la URL al cambiar el filtro manualmente.
     function cambiarEstado(nuevoEstado: string) {
-        const url = new URL(page.url);
+        const url = new URL(page.url.href);
 
         if (nuevoEstado === 'TODOS') {
             url.searchParams.delete('estado');
@@ -80,8 +80,7 @@
         pagina = 1;
 
         void goto(`${url.pathname}${url.search}`, {
-            keepFocus: true,
-            noScroll: true,
+            reset: false,
         });
     }
 

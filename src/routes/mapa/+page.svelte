@@ -1,17 +1,28 @@
 <script lang="ts">
     import { onDestroy, onMount, tick } from 'svelte';
-    import MapaPublico from '$lib/components/mapas/MapaPublico.svelte';
-    import FichaLugarMapa from '$lib/components/mapas/FichaLugarMapa.svelte';
-    import Galeria from '$lib/components/turista/Galeria.svelte';
-    import { iconoCategoria } from '$lib/components/mapas/iconos';
-    import { rangoEvento } from '$lib/utils/agenda';
+    import MapaPublico from '#lib/components/mapas/MapaPublico.svelte';
+    import FichaLugarMapa from '#lib/components/mapas/FichaLugarMapa.svelte';
+    import Galeria from '#lib/components/turista/Galeria.svelte';
+    import { iconoCategoria } from '#lib/components/mapas/iconos.ts';
+    import { rangoEvento } from '#lib/utils/agenda.ts';
     import type { PageProps } from './$types';
-    import type { LugarMapa } from '$lib/types/mapa';
-    import type { DetalleLugar } from '$lib/types/turista';
+    import type { LugarMapa } from '#lib/types/mapa.ts';
+    import type { DetalleLugar } from '#lib/types/turista.ts';
 
     let { data }: PageProps = $props();
     let buscar = $state('');
     let categoriasSeleccionadas = $state<string[]>([]);
+    let categoriasAmpliadas = $state(false);
+    let localidadId = $state('');
+    const localidadesDisponibles = $derived(data.localidades.map((localidad) => ({
+        ...localidad,
+        latitud: localidad.latitud ?? (localidad.limites ? (localidad.limites[0][1] + localidad.limites[1][1]) / 2 : null),
+        longitud: localidad.longitud ?? (localidad.limites ? (localidad.limites[0][0] + localidad.limites[1][0]) / 2 : null)
+    })).filter(({ latitud, longitud }) =>
+        latitud !== null && longitud !== null && Number.isFinite(latitud) && Number.isFinite(longitud) &&
+        Math.abs(latitud) <= 90 && Math.abs(longitud) <= 180
+    ).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')));
+    const localidadSeleccionada = $derived(localidadesDisponibles.find(({ id }) => String(id) === localidadId));
     let panelAbierto = $state(false);
     let vista3d = $state(false);
     let oscuro = $state(false);
@@ -45,12 +56,21 @@
             localidad: evento.lugar_evento || 'Cerro Largo',
             latitud: Number(evento.latitud),
             longitud: Number(evento.longitud),
-            categoria: { nombre: 'Eventos' },
+            categoria: evento.categoria || { nombre: 'Eventos' },
             evento
         }))
     ]);
+    function prioridadCategoria(nombre: string) {
+        const categoria = normalizar(nombre);
+        const indice = ['alojamiento', 'restaurantes', 'cultura', 'eventos', 'naturaleza']
+            .findIndex((principal) => categoria.includes(principal));
+        return indice === -1 ? 5 : indice;
+    }
+
     const categorias = $derived([...new Set(puntos.map((lugar) => lugar.categoria.nombre))]
-        .sort((a, b) => a.localeCompare(b, 'es')));
+        .sort((a, b) => prioridadCategoria(a) - prioridadCategoria(b) || a.localeCompare(b, 'es')));
+    const categoriasVisibles = $derived(categoriasAmpliadas ? categorias : categorias.slice(0, 5));
+    const seleccionadasOcultas = $derived(categorias.slice(5).filter((nombre) => categoriasSeleccionadas.includes(nombre)).length);
     const consulta = $derived(normalizar(busquedaAplicada));
     const lugares = $derived(puntos.filter((lugar) =>
         (!categoriasSeleccionadas.length || categoriasSeleccionadas.includes(lugar.categoria.nombre)) &&
@@ -146,7 +166,7 @@
 
 <main class="explorador">
     <div class="mapa">
-        <MapaPublico {lugares} localidades={[]} pantallaCompleta {seleccionado} {seleccionar} {vista3d} {oscuro} />
+        <MapaPublico {lugares} localidades={[]} {localidadSeleccionada} pantallaCompleta {seleccionado} {seleccionar} {vista3d} {oscuro} />
         <div class="controles" role="group" aria-label="Controles del mapa">
             <button class="icono" type="button" aria-label="Vista 3D" title={vista3d ? 'Cambiar a 2D' : 'Cambiar a 3D'} aria-pressed={vista3d} onclick={() => vista3d = !vista3d}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -223,14 +243,28 @@
                     {#if buscando}<span class="rueda" role="status" aria-label="Buscando lugares"></span>{/if}
                 </div>
             </div>
-            <div class="categorias-menu" role="group" aria-label="Filtrar por categoría">
+            <div id="categorias-mapa" class="categorias-menu" role="group" aria-label="Filtrar por categoría">
                 <button type="button" aria-pressed={!categoriasSeleccionadas.length} onclick={() => categoriasSeleccionadas = []}>Todas</button>
-                {#each categorias as nombre (nombre)}
-                    {@const icono = iconoCategoria(nombre)}
+                {#each categoriasVisibles as nombre (nombre)}
+                    {@const icono = iconoCategoria(puntos.find(punto => punto.categoria.nombre === nombre)?.categoria || nombre)}
                     <button type="button" aria-pressed={categoriasSeleccionadas.includes(nombre)} onclick={() => categoriasSeleccionadas = categoriasSeleccionadas.includes(nombre) ? categoriasSeleccionadas.filter((item) => item !== nombre) : [...categoriasSeleccionadas, nombre]}>
-                        {#if icono}<img src={'/iconos-mapa/' + icono.archivo + '.svg'} style:background={icono.color} alt="" />{/if}{nombre}
+                        {#if icono}<img decoding="async" loading="lazy" fetchpriority="auto" src={icono.url} style:background={icono.color} alt="" />{/if}{nombre}
                     </button>
                 {/each}
+                {#if categorias.length > 5}
+                    <button class="ampliar-categorias" type="button" aria-expanded={categoriasAmpliadas} aria-controls="categorias-mapa" onclick={() => categoriasAmpliadas = !categoriasAmpliadas}>
+                        {categoriasAmpliadas ? 'Ver menos' : `Ver más (${categorias.length - 5})`}{!categoriasAmpliadas && seleccionadasOcultas ? ` · ${seleccionadasOcultas} seleccionadas` : ''}
+                    </button>
+                {/if}
+            </div>
+            <div class="selector-localidad">
+                <label for="localidad-mapa">Ir a una localidad</label>
+                <select id="localidad-mapa" bind:value={localidadId} disabled={!localidadesDisponibles.length}>
+                    <option value="">Elegí una localidad</option>
+                    {#each localidadesDisponibles as localidad (localidad.id)}
+                        <option value={String(localidad.id)}>{localidad.nombre}</option>
+                    {/each}
+                </select>
             </div>
             {#if data.error}<p role="status">{data.error}</p>{/if}
             {#if data.errorEventos}<p role="status">No pudimos cargar los eventos.</p>{/if}
@@ -241,15 +275,12 @@
                     <h2>Para descubrir</h2>
                     <ul class="tarjetas">
                         {#each data.recomendaciones as { lugar, imagen } (lugar.id)}
-                            {@const icono = iconoCategoria(lugar.categoria.nombre)}
                             <li><button type="button" onclick={() => seleccionar([lugar])}>
-                                {#if imagen}
-                                    <img class="portada" src={imagen} alt="" loading="lazy" />
-                                {:else if icono}
-                                    <span class="portada alternativa" style:background={icono.color}>
-                                        <img src={`/iconos-mapa/${icono.archivo}.svg`} alt="" />
-                                    </span>
-                                {/if}
+                                <span class="portada" aria-hidden="true">
+                                    {#if imagen}
+                                        <img decoding="async" fetchpriority="auto" src={imagen} alt="" loading="lazy" onerror={(event) => event.currentTarget.setAttribute('hidden', '')} />
+                                    {/if}
+                                </span>
                                 <span class="texto-tarjeta">
                                     <strong>{lugar.nombre}</strong>
                                     <span class="meta">{lugar.localidad} · {lugar.categoria.nombre}</span>
@@ -321,8 +352,6 @@
     .tarjetas li { overflow: hidden; border: 1px solid #d7e1d8; border-radius: .8rem; }
     .tarjetas button { display: block; padding: 0; }
     .portada { display: block; width: 100%; aspect-ratio: 2.1; object-fit: cover; }
-    .alternativa { display: grid; place-items: center; }
-    .alternativa img { width: 36px; height: 36px; }
     .texto-tarjeta { display: block; padding: .65rem .75rem; }
     @media (max-width: 767px) {
         .categorias-menu { justify-content:center; }
@@ -347,17 +376,24 @@
     .buscador > svg { width:18px; height:18px; flex-shrink:0; color:#5f7467; }
     .buscador input { margin:0; padding:10px 0; border:0; background:transparent; min-height:42px; height:42px; font-size:12px; min-width:0; outline:none; }
     .buscador:focus-within { outline:2px solid #42846b; outline-offset:2px; }
-    .categorias-menu { display:flex; flex-wrap:wrap; gap:8px; margin:20px 0 26px; }
-    .categorias-menu button { display:inline-flex; align-items:center; gap:6px; border:1px solid #e1e8e2; border-radius:22px; padding:9px 12px; font-size:11px; min-height:38px; color:#536359; background:white; }
-    .categorias-menu button img { width:22px; height:22px; padding:3px; border-radius:50%; }
+    .categorias-menu { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:20px 0 26px; }
+    .categorias-menu button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-width:0; border:1px solid #e1e8e2; border-radius:22px; padding:9px 10px; font-size:11px; min-height:42px; color:#536359; background:white; }
+    .categorias-menu button img { width:22px; height:22px; padding:3px; border-radius:50%; flex-shrink:0; }
+    .categorias-menu .ampliar-categorias { border-style:dashed; background:transparent; }
     .categorias-menu button[aria-pressed=true] { color:#1c5b43; background:#e4f0e9; border-color:#bad6c5; font-weight:600; }
     .categorias-menu button:hover { background:#eef4ef; }
+    .selector-localidad { margin:-10px 0 24px; }
+    .selector-localidad label { display:block; margin-bottom:7px; font-size:12px; color:#536359; font-weight:500; }
+    .selector-localidad select { box-sizing:border-box; width:100%; min-height:44px; padding:10px 12px; border:1px solid #e1e8e2; border-radius:14px; background:white; color:#26392f; font:inherit; font-size:13px; }
+    .selector-localidad select:focus-visible { outline:2px solid #42846b; outline-offset:2px; }
     .recomendaciones h2,.encabezado-resultados h2 { font-size:18px; font-weight:550; letter-spacing:-.3px; }
     .recomendaciones h2 { margin:0 0 14px; }
     .tarjetas { gap:12px; }
     .tarjetas li { background:white; border-color:#e7ece8; border-radius:18px; box-shadow:0 2px 8px #203d2c08; }
     .tarjetas button { display:flex; align-items:stretch; min-height:104px; }
-    .tarjetas .portada { width:104px; height:auto; min-height:104px; aspect-ratio:1; flex-shrink:0; object-fit:cover; }
+    .tarjetas .portada { position:relative; display:block; width:104px; min-height:104px; flex-shrink:0; background:#e5e7eb; }
+    .tarjetas .portada img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .tarjetas .portada :global(img[hidden]) { display:none; }
     .tarjetas .texto-tarjeta { flex:1; align-self:center; padding:12px 14px; min-width:0; }
     .texto-tarjeta strong { display:block; font-size:14px; font-weight:550; line-height:1.4; color:#26392f; }
     .texto-tarjeta .meta { margin-top:6px; font-size:11px; color:#748076; line-height:1.5; }

@@ -1,5 +1,5 @@
 import type { Map } from 'mapbox-gl';
-import type { LocalidadPublica } from '$lib/types/localidad';
+import type { LocalidadPublica } from '#lib/types/localidad.ts';
 
 export function crearNavegacionLocalidades() {
     let mapa: Pick<Map, 'flyTo' | 'fitBounds'> | undefined;

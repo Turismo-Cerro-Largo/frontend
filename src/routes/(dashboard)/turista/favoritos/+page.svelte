@@ -1,8 +1,8 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
-  import { enviar } from '$lib/turista/api';
-  import LugarCard from '$lib/components/turista/LugarCard.svelte';
-  import Icono from '$lib/components/turista/Icono.svelte';
+  import { enviar } from '#lib/turista/api.ts';
+  import LugarCard from '#lib/components/turista/LugarCard.svelte';
+  import Icono from '#lib/components/turista/Icono.svelte';
   let { data } = $props();
   let ocupado = $state<number | null>(null);
   let mensaje = $state('');

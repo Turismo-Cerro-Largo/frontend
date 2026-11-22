@@ -1,8 +1,8 @@
 <script lang="ts">
     import RadiosSeo from './RadiosSeo.svelte';
     import { onMount } from 'svelte';
-    import { obtenerReproductor } from '$lib/radios/reproductor';
-    import Navbar from '$lib/components/shared/Navbar.svelte';
+    import { obtenerReproductor } from '#lib/radios/reproductor.ts';
+    import Navbar from '#lib/components/shared/Navbar.svelte';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();

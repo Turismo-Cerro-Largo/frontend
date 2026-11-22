@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
 
-    import type { ResumenAdmin } from '$lib/types/admin';
+    import type { ResumenAdmin } from '#lib/types/admin.ts';
 
     let resumen = $state<ResumenAdmin | null>(null);
     let cargando = $state(true);

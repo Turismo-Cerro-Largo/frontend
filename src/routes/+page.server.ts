@@ -1,10 +1,10 @@
-import { backendUrl } from '$lib/server/backend';
-import { diaUruguay } from '$lib/utils/agenda';
-import type { EventoPublico } from '$lib/types/agenda';
-import type { LocalidadPublica } from '$lib/types/localidad';
-import type { HorarioOmnibus } from '$lib/types/transporte';
+import { backendUrl } from '#lib/server/backend.ts';
+import { diaUruguay } from '#lib/utils/agenda.ts';
+import type { EventoPublico } from '#lib/types/agenda.ts';
+import type { LocalidadPublica } from '#lib/types/localidad.ts';
+import type { HorarioOmnibus } from '#lib/types/transporte.ts';
 import type { PageServerLoad } from './$types';
-import { env } from '$env/dynamic/private';
+import * as env from '$app/env/private';
 
 export const load: PageServerLoad = async ({ fetch }) => {
       // Permitir mostrar el inicio sin un backend online

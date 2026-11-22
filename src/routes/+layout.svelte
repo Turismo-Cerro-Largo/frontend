@@ -1,10 +1,10 @@
 <script lang="ts">
     import './layout.css';
-    import RadioFlotante from '$lib/components/shared/RadioFlotante.svelte';
+    import RadioFlotante from '#lib/components/shared/RadioFlotante.svelte';
     import { page } from '$app/state';
     import { onNavigate } from '$app/navigation';
-    import { actualizarAnalitica, pausarAnalitica } from '$lib/analitica';
-    import { registrarVisita } from '$lib/visitas';
+    import { actualizarAnalitica, pausarAnalitica } from '#lib/analitica.ts';
+    import { registrarVisita } from '#lib/visitas.ts';
 
     let { children } = $props();
     $effect(() => { registrarVisita(page.url.pathname, page.data.cuenta?.rol); });

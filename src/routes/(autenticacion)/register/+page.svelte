@@ -1,8 +1,8 @@
 <script lang="ts">
         import { slide } from 'svelte/transition';
-    import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
-    import Turnstile from '$lib/components/shared/Turnstile.svelte';
-    import { registrarEvento } from '$lib/analitica';
+    import SvgGoogle from '#lib/components/svg/SvgGoogle.svelte';
+    import Turnstile from '#lib/components/shared/Turnstile.svelte';
+    import { registrarEvento } from '#lib/analitica.ts';
     let metodo = $state<'turista' | 'organizador'>('turista');
     let cargando = $state(false);
     let mostrarPassword = $state(false);
@@ -120,10 +120,11 @@ window.location.assign('/verificar-email');
 
 <svelte:head>
     <title>Registrarse · CerroLargo360</title>
+    <meta name="robots" content="noindex, follow" />
 </svelte:head>
 
-<section class="flex items-center justify-center w-full min-h-dvh px-4 py-8">
-    <div class="w-full max-w-sm">
+<section class="auth-shell flex items-center justify-center w-full min-h-dvh px-4 py-8">
+    <div class="auth-card w-full max-w-md">
         <div class="flex flex-col items-center mb-6">
             <h2 class="text-lg font-semibold text-green-600 tracking-wide">CerroLargo360</h2>
             <h1 class="text-2xl font-bold text-slate-800 mt-1">Registrarse</h1>
@@ -167,7 +168,7 @@ window.location.assign('/verificar-email');
                 {mensajeError || 'No se pudo completar el registro. Revisá los datos ingresados.'}
             </div>
         {/if}
-        <form onsubmit={enviar} enctype="multipart/form-data" class="flex flex-col gap-4" aria-busy={cargando}>
+        <form method="post" onsubmit={enviar} enctype="multipart/form-data" class="flex flex-col gap-4" aria-busy={cargando}>
             <!-- CAMPOS TURISTA -->
             {#if metodo === 'turista'}
                 <div transition:slide={{ duration: 200 }} class="flex flex-col gap-4">
@@ -231,6 +232,7 @@ window.location.assign('/verificar-email');
                     id="email"
                     name="email"
                     type="email"
+                    autocapitalize="none" autocorrect="off" spellcheck="false"
                     required
                     autocomplete="email"
                     minlength="7"

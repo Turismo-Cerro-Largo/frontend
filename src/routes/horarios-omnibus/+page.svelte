@@ -1,9 +1,9 @@
 <script lang="ts">
-import { diasSinFecha } from '$lib/transporte/dias';
-import { URUBUS_URL } from '$lib/transporte/urubus';
-import Navbar from '$lib/components/shared/Navbar.svelte';
-import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
-import '$lib/components/turista/turista.css';
+import { diasSinFecha } from '#lib/transporte/dias.ts';
+import { URUBUS_URL } from '#lib/transporte/urubus.ts';
+import Navbar from '#lib/components/shared/Navbar.svelte';
+import HomeFooter from '#lib/components/inicio/HomeFooter.svelte';
+import '#lib/components/turista/turista.css';
 let {data}=$props();
 function paginar(p:number){return `?${new URLSearchParams({origen:data.origen,destino:data.destino,pagina:String(p)})}`;}
 </script>

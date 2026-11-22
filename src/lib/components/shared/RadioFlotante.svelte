@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import { establecerReproductor, type Emisora } from '$lib/radios/reproductor';
+    import { establecerReproductor, type Emisora } from '#lib/radios/reproductor.ts';
 
     let { children }: { children: Snippet } = $props();
     let audio: HTMLAudioElement;

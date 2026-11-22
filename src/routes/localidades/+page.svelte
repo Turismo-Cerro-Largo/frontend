@@ -1,18 +1,19 @@
 <script lang="ts">
-    import Navbar from '$lib/components/shared/Navbar.svelte';
-    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
+    import SeoPagina from '#lib/components/shared/SeoPagina.svelte';
+    import Navbar from '#lib/components/shared/Navbar.svelte';
+    import HomeFooter from '#lib/components/inicio/HomeFooter.svelte';
     import type { PageData } from './$types';
-    import '$lib/components/turista/turista.css';
+    import '#lib/components/turista/turista.css';
     let { data }: { data: PageData } = $props();
 </script>
-<svelte:head><title>Localidades · Cerro Largo 360</title></svelte:head>
+<SeoPagina titulo="Localidades de Cerro Largo" descripcion="Conocé las localidades de Cerro Largo: Melo, Río Branco, Laguna Merín y más destinos. Descubrí sus lugares y elegí tu próxima parada en Uruguay." />
 <div class="t-public"><Navbar solid /><main style="max-width:1100px;margin:auto;padding:130px 24px 64px">
 <a class="t-link" href="/">← Inicio</a><h1 class="t-title">Recorré Cerro Largo</h1><p class="t-intro">Elegí una localidad para conocer sus lugares publicados.</p>
 {#if data.localidades.length}
     <div class="t-grid">
         {#each data.localidades as localidad (localidad.id)}
             <a class="t-panel localidad-card" href={'/localidades/' + localidad.slug}>
-                {#if localidad.icono}<img src={localidad.icono} alt="" class="localidad-icono" />{:else}<span class="localidad-icono localidad-placeholder" aria-hidden="true">⌖</span>{/if}
+                {#if localidad.icono}<img decoding="async" loading="lazy" fetchpriority="auto" src={localidad.icono} alt="" class="localidad-icono" />{:else}<span class="localidad-icono localidad-placeholder" aria-hidden="true">⌖</span>{/if}
                 <strong>{localidad.nombre}</strong><span aria-hidden="true">→</span>
             </a>
         {/each}

@@ -1,6 +1,6 @@
-import { consultar } from '$lib/server/turista';
+import { consultar } from '#lib/server/turista.ts';
 import type { PageServerLoad } from './$types';
-import type { HorarioOmnibus as Horario } from '$lib/types/transporte';
+import type { HorarioOmnibus as Horario } from '#lib/types/transporte.ts';
 export const load:PageServerLoad = async ({request,url}) => {
     const origen=(url.searchParams.get('origen')||'').slice(0,120);
     const destino=(url.searchParams.get('destino')||'').slice(0,120);

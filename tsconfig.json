@@ -1,7 +1,8 @@
 {
-	"extends": "./.svelte-kit/tsconfig.json",
+	"extends": "$app/tsconfig",
+    "include": ["src", "*.ts", ".svelte-kit/**/*.d.ts"],
+    "exclude": ["node_modules", "src/service-worker"],
 	"compilerOptions": {
-		"rewriteRelativeImportExtensions": true,
 		"allowJs": true,
 		"checkJs": true,
 		"esModuleInterop": true,

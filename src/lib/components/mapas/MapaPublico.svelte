@@ -1,14 +1,14 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { env } from '$env/dynamic/public';
+import * as env from '$app/env/public';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import type { LugarMapa } from '$lib/types/mapa';
-import type { LocalidadPublica } from '$lib/types/localidad';
+import type { LugarMapa } from '#lib/types/mapa.ts';
+import type { LocalidadPublica } from '#lib/types/localidad.ts';
 import { iconoCategoria } from './iconos';
-let {lugares, localidades, vista3d=false, oscuro, zoomMaximo=12, pantallaCompleta=false, seleccionado, seleccionar}:{
+let {lugares, localidades, localidadSeleccionada, vista3d=false, oscuro, zoomMaximo=12, pantallaCompleta=false, seleccionado, seleccionar}:{
     lugares:LugarMapa[];localidades:LocalidadPublica[];vista3d?:boolean;zoomMaximo?:number;
-    oscuro?:boolean;pantallaCompleta?:boolean;seleccionado?:LugarMapa;seleccionar?:(grupo:LugarMapa[])=>void;
+    oscuro?:boolean;pantallaCompleta?:boolean;seleccionado?:LugarMapa;seleccionar?:(grupo:LugarMapa[])=>void;localidadSeleccionada?:LocalidadPublica;
 }=$props();
 let contenedor:HTMLDivElement;
 let mapa=$state<mapboxgl.Map|null>(null);
@@ -55,13 +55,15 @@ $effect(()=>{
             const p=document.createElement('p');p.textContent=`${l.categoria.nombre} · ${l.localidad}`;contenido.append(p);
         }
         const boton=document.createElement('button');boton.type='button';boton.textContent=grupo.length>1?String(grupo.length):'●';boton.setAttribute('aria-label',grupo.map(l=>l.nombre).join(', '));boton.style.cssText='background:#28654d;color:white;border:3px solid white;border-radius:50%;width:36px;height:36px;box-shadow:0 2px 8px #0005;cursor:pointer;';
-        const tipo = grupo.find((lugar) => lugar.evento)?.categoria.nombre ?? grupo[0].categoria.nombre;
-        const icono = pantallaCompleta ? iconoCategoria(tipo) : undefined;
+        const tipo = grupo.find((lugar) => lugar.evento)?.categoria ?? grupo[0].categoria;
+        const icono = iconoCategoria(tipo);
         if (icono) {
             boton.style.backgroundColor = icono.color;
             if (grupo.length === 1) {
                 const imagen = document.createElement('img');
-                imagen.src = `/iconos-mapa/${icono.archivo}.svg`;
+                imagen.decoding = 'async';
+                imagen.fetchPriority = 'auto';
+                imagen.src = icono.url;
                 imagen.alt = '';
                 imagen.style.cssText = 'width:20px;height:20px;margin:auto;';
                 boton.replaceChildren(imagen);
@@ -89,6 +91,17 @@ $effect(()=>{
 });
 $effect(()=>{
     const m=mapa;
+    const localidad=localidadSeleccionada;
+    if(!m || !listo || !localidad) return;
+    const lat=localidad.latitud, lon=localidad.longitud;
+    if(lat===null || lon===null || !Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat)>90 || Math.abs(lon)>180) return;
+    const limites=localidad.limites;
+    if(limites && limites.every(([lng,lat])=>Number.isFinite(lng) && Number.isFinite(lat) && Math.abs(lng)<=180 && Math.abs(lat)<=90)) {
+        m.fitBounds(limites,{padding:60,maxZoom:13,duration:800});
+    } else m.easeTo({center:[lon,lat],zoom:13,duration:800});
+});
+$effect(()=>{
+    const m=mapa;
     if(!m || !listo) return;
     const marcadores:mapboxgl.Marker[]=[];
     for(const localidad of localidades) {
@@ -100,6 +113,8 @@ $effect(()=>{
         boton.style.cssText='width:46px;height:46px;border:3px solid white;border-radius:50%;background:#b78936;color:white;box-shadow:0 3px 12px #0005;cursor:pointer;overflow:hidden;display:grid;place-items:center;font-size:24px;';
         if(localidad.icono) {
             const imagen=document.createElement('img');
+            imagen.decoding='async';
+            imagen.fetchPriority='auto';
             imagen.src=localidad.icono;
             imagen.alt='';
             imagen.style.cssText='width:100%;height:100%;object-fit:cover;';
@@ -123,5 +138,6 @@ $effect(()=>{
     }
     return ()=>marcadores.forEach(marker=>marker.remove());
 });</script>
+<svelte:head><link rel="preconnect" href="https://api.mapbox.com" crossorigin="anonymous" /></svelte:head>
 <div class="mapa" class:pantallaCompleta><div bind:this={contenedor} class="lienzo" aria-label="Mapa interactivo de lugares publicados"></div>{#if fallo}<p class="fallo" role="status">{fallo}</p>{/if}</div>
 <style>.mapa{position:relative;min-height:500px;height:65vh;border-radius:16px;overflow:hidden;background:#e6ede5}.lienzo{width:100%;height:100%}.fallo{position:absolute;bottom:16px;left:16px;right:16px;padding:14px;border-radius:8px;background:white;color:#8a4120;box-shadow:0 2px 10px #0002;font-size:13px}@media(max-width:600px){.mapa{min-height:380px;height:55vh}}.mapa.pantallaCompleta{height:100%;min-height:0;border-radius:0}.pantallaCompleta :global(.mapboxgl-ctrl-top-left){top:64px}</style>

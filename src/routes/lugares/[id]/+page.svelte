@@ -1,16 +1,16 @@
 <script lang="ts">
-    import MapaPublico from '$lib/components/mapas/MapaPublico.svelte';
-    import Galeria from "$lib/components/turista/Galeria.svelte";
-    import EliminarValoracion from '$lib/components/turista/EliminarValoracion.svelte';
-    import Estrellas from '$lib/components/turista/Estrellas.svelte';
-    import Navbar from '$lib/components/shared/Navbar.svelte';
-    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
+    import MapaPublico from '#lib/components/mapas/MapaPublico.svelte';
+    import Galeria from "#lib/components/turista/Galeria.svelte";
+    import EliminarValoracion from '#lib/components/turista/EliminarValoracion.svelte';
+    import Estrellas from '#lib/components/turista/Estrellas.svelte';
+    import Navbar from '#lib/components/shared/Navbar.svelte';
+    import HomeFooter from '#lib/components/inicio/HomeFooter.svelte';
     import { invalidateAll } from '$app/navigation';
-    import { enviar } from '$lib/turista/api';
-    import { estados } from '$lib/turista/valoraciones';
-    import Icono from '$lib/components/turista/Icono.svelte';
-    import { registrarEvento } from '$lib/analitica';
-    import '$lib/components/turista/turista.css';
+    import { enviar } from '#lib/turista/api.ts';
+    import { estados } from '#lib/turista/valoraciones.ts';
+    import Icono from '#lib/components/turista/Icono.svelte';
+    import { registrarEvento } from '#lib/analitica.ts';
+    import '#lib/components/turista/turista.css';
     let { data } = $props();
     let ocupado = $state(false);
     let mensaje = $state('');
@@ -61,7 +61,7 @@
                 valoraciones publicadas.{/if}
         </p>
         {#if mensaje}<p class="t-message" class:error={esError} role={esError ? 'alert' : 'status'}>{mensaje}</p>{/if}
-        <Galeria recursos={data.lugar.recursos || []} nombre={data.lugar.nombre} />
+        <Galeria recursos={data.lugar.recursos || []} nombre={data.lugar.nombre} prioritaria />
         <div class="t-two">
             <section class="t-panel">
                 <h2>Conocé este lugar</h2>

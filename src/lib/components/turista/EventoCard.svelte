@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { rangoEvento } from '$lib/utils/agenda';
-    import type { EventoPublico } from '$lib/types/agenda';
-    let { evento }: { evento: EventoPublico } = $props();
+    import { rangoEvento } from '#lib/utils/agenda.ts';
+    import type { EventoPublico } from '#lib/types/agenda.ts';
+    let { evento, prioritaria = false }: { evento: EventoPublico; prioritaria?: boolean } = $props();
     const imagen = $derived(evento.recursos.find(r => r.tipo === 'IMAGEN'));
 </script>
 <a class="evento" href={`/eventos/${evento.id}`}>
-    {#if imagen}<img src={`/api/recursos/${imagen.id}`} alt={`Afiche de ${evento.titulo}`} loading="lazy" />{/if}
+    {#if imagen}<img decoding="async" src={`/api/recursos/${imagen.id}`} alt={`Afiche de ${evento.titulo}`} loading={prioritaria ? 'eager' : 'lazy'} fetchpriority={prioritaria ? 'high' : 'auto'} />{/if}
     <div><p class="fecha">{rangoEvento(evento)}</p><h3>{evento.titulo}</h3><p>{evento.lugar_evento || 'Lugar a confirmar'}</p><span>Ver detalles y ubicación →</span></div>
 </a>
 <style>

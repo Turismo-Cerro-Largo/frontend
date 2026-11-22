@@ -52,7 +52,7 @@
                     {#each evento.recursos
                         .filter((r) => r.tipo === 'IMAGEN' && imagen(r.uri))
                         .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)) as recurso, i (recurso.id ?? `${recurso.uri}-${i}`)}
-                        <img src={imagen(recurso.uri)} alt={`Fotografía de ${evento.titulo}`} class="h-60 w-full rounded-xl object-cover" loading="lazy" />
+                        <img decoding="async" fetchpriority="auto" src={imagen(recurso.uri)} alt={`Fotografía de ${evento.titulo}`} class="h-60 w-full rounded-xl object-cover" loading="lazy" />
                     {/each}
                 </div>
             {/if}

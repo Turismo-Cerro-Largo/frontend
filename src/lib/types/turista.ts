@@ -12,7 +12,7 @@ export type Perfil = {
     creado_en: string;
 };
 export type Lugar = {
-    recursos?: import('$lib/types/agenda').Medio[];
+    recursos?: import('#lib/types/agenda.ts').Medio[];
     id: number;
     nombre: string;
     descripcion: string;
@@ -23,7 +23,7 @@ export type Lugar = {
     sitio_web: string | null;
     latitud: string;
     longitud: string;
-    categoria: { id: number; nombre: string };
+    categoria: import('./mapa').CategoriaMarcador & { id: number };
 };
 export type EstadoValoracion = 'PENDIENTE_REVISION' | 'PUBLICADO' | 'OCULTADO';
 export type Valoracion = { id: number; texto: string | null; calificacion: number; estado: EstadoValoracion };

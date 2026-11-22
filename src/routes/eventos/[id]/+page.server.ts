@@ -1,6 +1,6 @@
-import { consultar } from '$lib/server/turista';
+import { consultar } from '#lib/server/turista.ts';
 import { error } from '@sveltejs/kit';
-import type { EventoPublico } from '$lib/types/agenda';
+import type { EventoPublico } from '#lib/types/agenda.ts';
 import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ params, request }) => {
     // Enlaces estables de los afiches; los IDs cambian entre bases de datos.

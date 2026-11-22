@@ -1,4 +1,4 @@
-import { agendaNoDisponible, escaparXml, eventosSeo } from '$lib/server/seo';
+import { agendaNoDisponible, escaparXml, eventosSeo } from '#lib/server/seo.ts';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url, fetch }) => {

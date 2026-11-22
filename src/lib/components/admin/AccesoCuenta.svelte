@@ -31,7 +31,7 @@
                 throw new Error(datos?.message ?? 'No se pudo cambiar el acceso.');
             }
             if (nuevo === 'ELIMINADO') {
-                await goto(endpoint.includes('/organizadores/') ? resolve('/administrador/organizadores') : resolve('/administrador/usuarios'), { invalidateAll: true });
+                await goto(endpoint.includes('/organizadores/') ? resolve('/(dashboard)/administrador/organizadores') : resolve('/(dashboard)/administrador/usuarios'), { invalidateAll: true });
             } else actualizar(nuevo);
         } catch (e) {
             error = e instanceof Error ? e.message : 'No se pudo cambiar el acceso.';

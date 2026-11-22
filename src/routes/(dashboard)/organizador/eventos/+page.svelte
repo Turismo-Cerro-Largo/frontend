@@ -1,11 +1,11 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { page } from '$app/state';
-    import Paginador from '$lib/components/shared/Paginador.svelte';
+    import Paginador from '#lib/components/shared/Paginador.svelte';
     import type { PageData } from './$types';
 
     let { data }: { data: PageData } = $props();
-    import type { EstadoEvento as Estado } from '$lib/types/evento';
+    import type { EstadoEvento as Estado } from '#lib/types/evento.ts';
     const etiquetas: Record<Estado, string> = {
         BORRADOR: 'Borrador',
         PENDIENTE_REVISION: 'Pendiente',
@@ -52,14 +52,14 @@
     function aplicarFiltros(event: SubmitEvent) {
         event.preventDefault();
         const form = new FormData(event.currentTarget as HTMLFormElement);
-        const url = new URL(page.url);
+        const url = new URL(page.url.href);
         for (const nombre of ['estado', 'query']) {
             const valor = String(form.get(nombre) ?? '').trim();
             if (valor) url.searchParams.set(nombre, valor);
             else url.searchParams.delete(nombre);
         }
         url.searchParams.set('offset', '0');
-        void goto(`${url.pathname}${url.search}`, { keepFocus: true, noScroll: true });
+        void goto(`${url.pathname}${url.search}`, { reset: false });
     }
 </script>
 

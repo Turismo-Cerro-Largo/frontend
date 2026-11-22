@@ -1,5 +1,5 @@
-import { dev } from '$app/environment';
-import { env } from '$env/dynamic/private';
+import { dev } from '$app/env';
+import * as env from '$app/env/private';
 
 export function backendUrl() {
     const value=env.API_URL?.trim() || (dev ? 'http://127.0.0.1:4000' : '');

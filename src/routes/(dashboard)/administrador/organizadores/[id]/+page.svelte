@@ -1,5 +1,5 @@
 <script lang="ts">
-    import AccesoCuenta from "$lib/components/admin/AccesoCuenta.svelte";
+    import AccesoCuenta from "#lib/components/admin/AccesoCuenta.svelte";
     import { page } from '$app/state';
     import { onMount } from 'svelte';
     type Estado = 'PENDIENTE_REVISION' | 'APROBADO' | 'RECHAZADO';
@@ -133,7 +133,7 @@
                 {#each [{ tipo: 'CEDULA_FRENTE', nombre: 'Cédula (frente)' }, { tipo: 'CEDULA_DORSO', nombre: 'Cédula (dorso)' }] as documento}<div>
                         <h3 class="mb-2 text-sm font-semibold">{documento.nombre}</h3>
                         {#if fotos[documento.tipo]}<a href={fotos[documento.tipo]} target="_blank" rel="noreferrer" aria-label={`Ampliar ${documento.nombre}`}
-                                ><img
+                                ><img decoding="async" loading="lazy" fetchpriority="auto"
                                     src={fotos[documento.tipo]}
                                     alt={documento.nombre}
                                     class="h-64 w-full rounded-xl border border-[#ded8cf] bg-[#f7f8f5] object-contain transition-transform duration-200 hover:scale-[1.01]"

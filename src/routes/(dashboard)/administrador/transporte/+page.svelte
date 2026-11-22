@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { dialogo } from '#lib/actions/dialogo.ts';
     import { onMount } from 'svelte';
     import { fade, fly } from 'svelte/transition';
     type Empresa = { id: number; nombre: string; telefono: string | null; sitio_web: string | null; _count?: { horarios: number } };
@@ -329,30 +330,28 @@
         </div>
     </div>
 </div>
-{#if modal}<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" transition:fade={{ duration: 130 }} role="presentation">
-        <div
-            class="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+{#if modal}
+        <dialog use:dialogo onclose={() => (modal = null)} oncancel={(event) => { if (guardando) event.preventDefault(); }}
+            class="m-auto max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
             in:fly={{ y: 12, duration: 170 }}
-            role="dialog"
-            aria-modal="true"
             aria-label={modal === 'empresa' ? 'Formulario de empresa' : 'Formulario de horario'}
         >
             <div class="mb-5 flex justify-between">
                 <h2 class="text-xl font-bold">{editId ? 'Editar' : 'Crear'} {modal === 'empresa' ? 'empresa' : 'horario'}</h2>
                 <button
                     aria-label="Cerrar"
+                    disabled={guardando}
                     onclick={() => {
                         modal = null;
                         error = '';
                     }}>✕</button
                 >
             </div>
-            {#if error}<p role="alert" class="mb-3 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>{/if}{#if modal === 'empresa'}<form
-                    onsubmit={guardarEmpresa}
+            {#if error}<p role="alert" class="mb-3 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>{/if}{#if modal === 'empresa'}<form method="post" onsubmit={guardarEmpresa}
                     class="space-y-4"
                 >
                     <label class="block text-sm font-medium"
-                        >Nombre *<input class="mt-1 w-full rounded-lg border p-3" bind:value={empresaForm.nombre} required maxlength="150" /></label
+                        >Nombre *<input data-foco-inicial class="mt-1 w-full rounded-lg border p-3" bind:value={empresaForm.nombre} required maxlength="150" /></label
                     ><label class="block text-sm font-medium">Teléfono<input class="mt-1 w-full rounded-lg border p-3" bind:value={empresaForm.telefono} maxlength="50" /></label
                     ><label class="block text-sm font-medium"
                         >Sitio web<input type="url" class="mt-1 w-full rounded-lg border p-3" placeholder="https://..." bind:value={empresaForm.sitio_web} /></label
@@ -363,9 +362,9 @@
                             class="rounded-lg bg-[#285f4d] px-4 py-2 text-white disabled:opacity-50">{guardando ? 'Guardando...' : 'Guardar empresa'}</button
                         >
                     </div>
-                </form>{:else}<form onsubmit={guardarHorario} class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                </form>{:else}<form method="post" onsubmit={guardarHorario} class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <label class="text-sm font-medium sm:col-span-2"
-                        >Empresa *<select required class="mt-1 w-full rounded-lg border p-3" bind:value={horarioForm.id_empresa}
+                        >Empresa *<select data-foco-inicial required class="mt-1 w-full rounded-lg border p-3" bind:value={horarioForm.id_empresa}
                             >{#each empresas as e}<option value={e.id}>{e.nombre}</option>{/each}</select
                         ></label
                     ><label class="text-sm font-medium">Origen *<input required maxlength="150" class="mt-1 w-full rounded-lg border p-3" bind:value={horarioForm.origen} /></label
@@ -399,16 +398,15 @@
                         >
                     </div>
                 </form>{/if}
-        </div>
-    </div>{/if}
-{#if borrando}<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" transition:fade={{ duration: 150 }} role="presentation">
-        <div role="alertdialog" aria-modal="true" aria-label="Confirmar eliminación" class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" in:fly={{ y: 10, duration: 180 }}>
+        </dialog>{/if}
+{#if borrando}
+        <dialog use:dialogo onclose={() => (borrando = null)} oncancel={(event) => { if (guardando) event.preventDefault(); }} aria-label="Confirmar eliminación" class="m-auto max-h-[92dvh] overflow-y-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" in:fly={{ y: 10, duration: 180 }}>
             <h2 class="text-xl font-bold">¿Eliminar {borrando.tipo}?</h2>
             <p class="mt-3 text-slate-600">Se eliminará <strong>{borrando.nombre}</strong>. Esta acción no se puede deshacer.</p>
             {#if error}<p class="mt-3 text-sm text-red-700" role="alert">{error}</p>{/if}
             <div class="mt-6 flex justify-end gap-2">
                 <button
-                    class="rounded-lg border px-4 py-2"
+                    data-foco-inicial class="rounded-lg border px-4 py-2"
                     disabled={guardando}
                     onclick={() => {
                         borrando = null;
@@ -418,5 +416,4 @@
                     >{guardando ? 'Eliminando...' : 'Eliminar'}</button
                 >
             </div>
-        </div>
-    </div>{/if}
+        </dialog>{/if}

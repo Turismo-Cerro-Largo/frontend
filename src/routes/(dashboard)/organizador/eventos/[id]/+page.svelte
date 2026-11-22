@@ -1,16 +1,16 @@
 <script lang="ts">
     import { onMount, tick } from 'svelte';
     import { goto } from '$app/navigation';
-    import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
-    import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
-    import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
-    import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
-    import { crearNavegacionLocalidades } from '$lib/localidades/navegacion-mapa';
+    import { obtenerLocalidadesPublicas } from '#lib/localidades/api.ts';
+    import EstadoDireccionMapa from '#lib/components/EstadoDireccionMapa.svelte';
+    import { PUBLIC_MAPBOX_TOKEN } from '$app/env/public';
+    import { crearBusquedaDireccion } from '#lib/localidades/direccion-mapa.ts';
+    import { crearNavegacionLocalidades } from '#lib/localidades/navegacion-mapa.ts';
     import 'mapbox-gl/dist/mapbox-gl.css';
 
     import { page } from '$app/state';
 
-    import type { Evento } from '$lib/types/evento';
+    import type { Evento } from '#lib/types/evento.ts';
 
     let id = $derived(page.params.id ?? ''); // SvelteKit permite undefined en rutas dinámicas
     let categorias = $state<{ id: number; nombre: string }[]>([]);
