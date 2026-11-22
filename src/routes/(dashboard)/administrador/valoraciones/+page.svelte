@@ -1,7 +1,7 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
-  import { estados } from '$lib/turista/valoraciones';
-  import '$lib/components/turista/turista.css';
+  import { estados } from '#lib/turista/valoraciones.ts';
+  import '#lib/components/turista/turista.css';
   let { data } = $props();
   let ocupado = $state<number | null>(null);
   let mensaje = $state('');

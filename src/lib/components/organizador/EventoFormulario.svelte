@@ -2,11 +2,11 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
   import { goto } from '$app/navigation';
-  import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
-  import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
-  import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
-  import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
-    import { crearNavegacionLocalidades } from '$lib/localidades/navegacion-mapa';
+  import { obtenerLocalidadesPublicas } from '#lib/localidades/api.ts';
+  import EstadoDireccionMapa from '#lib/components/EstadoDireccionMapa.svelte';
+  import { PUBLIC_MAPBOX_TOKEN } from '$app/env/public';
+  import { crearBusquedaDireccion } from '#lib/localidades/direccion-mapa.ts';
+    import { crearNavegacionLocalidades } from '#lib/localidades/navegacion-mapa.ts';
   import type { Map, Marker } from 'mapbox-gl';
   import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -15,12 +15,12 @@
     fechaInput,
     guardarEvento,
     obtenerCategorias
-  } from '$lib/organizador/eventos';
+  } from '#lib/organizador/eventos.ts';
 
   import type {
     CategoriaEvento,
     Evento
-  } from '$lib/types/evento';
+  } from '#lib/types/evento.ts';
 
   let { evento = null }: { evento?: Evento | null } = $props();
 

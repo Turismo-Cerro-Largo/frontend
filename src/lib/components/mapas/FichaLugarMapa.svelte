@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { enviar } from '$lib/turista/api';
-    import Galeria from '$lib/components/turista/Galeria.svelte';
-    import type { DetalleLugar } from '$lib/types/turista';
+    import { enviar } from '#lib/turista/api.ts';
+    import Galeria from '#lib/components/turista/Galeria.svelte';
+    import type { DetalleLugar } from '#lib/types/turista.ts';
 
     let { detalle, turista = false, cerrar }: {
         detalle: DetalleLugar;

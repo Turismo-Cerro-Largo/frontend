@@ -1,7 +1,7 @@
-import { dev } from '$app/environment';
-import { env } from '$env/dynamic/public';
+import { dev } from '$app/env';
+import * as env from '$app/env/public';
 import type { PostHog } from 'posthog-js';
-import { idVisitante } from '$lib/visitas';
+import { idVisitante } from '#lib/visitas.ts';
 
 let cliente: PostHog | undefined;
 let pendiente: Promise<PostHog | undefined> | undefined;

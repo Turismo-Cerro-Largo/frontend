@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
-  import EventoFormulario from '$lib/components/organizador/EventoFormulario.svelte';
-  import { obtenerEvento } from '$lib/organizador/eventos';
-  import type { Evento } from '$lib/types/evento';
+  import EventoFormulario from '#lib/components/organizador/EventoFormulario.svelte';
+  import { obtenerEvento } from '#lib/organizador/eventos.ts';
+  import type { Evento } from '#lib/types/evento.ts';
 
   let evento = $state<Evento | null>(null);
   let error = $state('');

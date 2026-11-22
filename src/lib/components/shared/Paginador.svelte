@@ -23,7 +23,7 @@
     let totalPaginas = $derived(Math.max(1, Math.ceil(total / limit)));
 
     function actualizar(nuevoOffset: number, nuevoLimit: number) {
-        const url = new URL(page.url);
+        const url = new URL(page.url.href);
 
         url.searchParams.set('offset', String(nuevoOffset));
         url.searchParams.set('limit', String(nuevoLimit));
@@ -33,8 +33,7 @@
         }
 
         goto(`${url.pathname}${url.search}`, {
-            keepFocus: true,
-            noScroll: true
+            reset: false
         });
     }
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import AccesoCuenta from "$lib/components/admin/AccesoCuenta.svelte";
+    import AccesoCuenta from "#lib/components/admin/AccesoCuenta.svelte";
     import { onMount } from 'svelte';
     import { page } from '$app/state';
     type Usuario = {

@@ -12,7 +12,7 @@ export type Perfil = {
     creado_en: string;
 };
 export type Lugar = {
-    recursos?: import('$lib/types/agenda').Medio[];
+    recursos?: import('#lib/types/agenda.ts').Medio[];
     id: number;
     nombre: string;
     descripcion: string;

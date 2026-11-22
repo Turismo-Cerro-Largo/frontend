@@ -1,13 +1,13 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { obtenerLocalidadesPublicas } from '$lib/localidades/api';
-    import EstadoDireccionMapa from '$lib/components/EstadoDireccionMapa.svelte';
-    import { crearBusquedaDireccion } from '$lib/localidades/direccion-mapa';
-    import { crearNavegacionLocalidades } from '$lib/localidades/navegacion-mapa';
-    import { subirRecursosDelFormulario } from '$lib/admin/subir-recursos';
+    import { obtenerLocalidadesPublicas } from '#lib/localidades/api.ts';
+    import EstadoDireccionMapa from '#lib/components/EstadoDireccionMapa.svelte';
+    import { crearBusquedaDireccion } from '#lib/localidades/direccion-mapa.ts';
+    import { crearNavegacionLocalidades } from '#lib/localidades/navegacion-mapa.ts';
+    import { subirRecursosDelFormulario } from '#lib/admin/subir-recursos.ts';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import { goto } from '$app/navigation';
-    import { env } from '$env/dynamic/public';
+    import * as env from '$app/env/public';
     const PUBLIC_MAPBOX_TOKEN = env.PUBLIC_MAPBOX_TOKEN || import.meta.env.VITE_MAPBOX_TOKEN || '';
     type Estado = 'PUBLICADO' | 'OCULTADO';
     type Categoria = { id: number; nombre: string };

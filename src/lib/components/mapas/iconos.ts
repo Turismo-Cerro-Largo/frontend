@@ -7,7 +7,7 @@ const iconos: Record<string, { archivo: string; color: string }> = {
     naturaleza: { archivo: 'naturaleza', color: '#16a34a' }
 };
 
-export function iconoCategoria(valor: string | import('$lib/types/mapa').CategoriaMarcador) {
+export function iconoCategoria(valor: string | import('#lib/types/mapa.ts').CategoriaMarcador) {
     if (typeof valor !== 'string' && valor.icono_url && /^\/api\/categorias\/\d+\/[a-z0-9-]+\.svg\?v=[a-f0-9]{16}$/.test(valor.icono_url)) {
         return { url: valor.icono_url, color: /^#[0-9a-f]{6}$/i.test(valor.color || '') ? valor.color! : '#2563eb' };
     }

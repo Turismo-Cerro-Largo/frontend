@@ -1,6 +1,6 @@
 <script lang="ts">
     import { invalidateAll } from '$app/navigation';
-    import { enviar } from '$lib/turista/api';
+    import { enviar } from '#lib/turista/api.ts';
     let { id }: { id: number } = $props();
     let confirmar = $state(false);
     let ocupado = $state(false);

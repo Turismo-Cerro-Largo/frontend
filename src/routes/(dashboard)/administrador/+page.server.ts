@@ -1,7 +1,7 @@
 // src/routes/(dashboard)/administrador/+page.server.ts
 import { error, redirect } from '@sveltejs/kit';
-import { backendUrl } from '$lib/server/backend';
-import type { ResumenAdmin } from '$lib/types/admin';
+import { backendUrl } from '#lib/server/backend.ts';
+import type { ResumenAdmin } from '#lib/types/admin.ts';
 export const load = async ({request,locals}) => {
     if(!locals.cuenta) redirect(303,'/login');
     if(locals.cuenta.rol!=='ADMINISTRADOR') error(403,'Se requieren permisos de administrador.');

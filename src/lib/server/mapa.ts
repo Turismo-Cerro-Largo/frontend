@@ -1,6 +1,6 @@
-import { consultar } from '$lib/server/turista';
-import type { LugarMapa } from '$lib/types/mapa';
-import type { LocalidadPublica } from '$lib/types/localidad';
+import { consultar } from '#lib/server/turista.ts';
+import type { LugarMapa } from '#lib/types/mapa.ts';
+import type { LocalidadPublica } from '#lib/types/localidad.ts';
 
 export async function cargarMapa({ request, url }: { request: Request; url: URL }) {
     const buscar = (url.searchParams.get('buscar') || '').slice(0, 100);

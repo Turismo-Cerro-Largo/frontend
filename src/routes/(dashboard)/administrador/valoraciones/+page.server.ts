@@ -1,5 +1,5 @@
-import { consultar } from '$lib/server/turista';
-import type { Valoracion } from '$lib/types/turista';
+import { consultar } from '#lib/server/turista.ts';
+import type { Valoracion } from '#lib/types/turista.ts';
 import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ request, url, parent, setHeaders }) => {
   await parent(); setHeaders({ 'cache-control': 'private, no-store' });

@@ -55,7 +55,7 @@
                 const datos = await respuesta.json().catch(() => null);
                 throw new Error(respuesta.status === 409 ? 'Ya existe una categoría con ese nombre.' : datos?.message || 'No se pudo guardar la categoría.');
             }
-            await goto(resolve('/administrador/categorias'), { replaceState: !!inicial, invalidateAll: true });
+            await goto(resolve('/(dashboard)/administrador/categorias'), { replaceState: !!inicial, invalidateAll: true });
         } catch (e) { error = e instanceof Error ? e.message : 'No se pudo guardar la categoría.'; }
         finally { enviando = false; }
     }
@@ -76,6 +76,6 @@
             {#if errorSvg}<p role="alert" class="text-sm text-red-700">{errorSvg} <button type="button" class="underline" onclick={() => reintento++}>Reintentar</button></p>{/if}
             {#if error}<p role="alert" class="rounded-xl bg-red-50 p-4 text-sm text-red-800">{error}</p>{/if}
         </fieldset>
-        <div class="flex justify-end gap-3 border-t border-[#eeeae4] bg-[#faf9f6] px-6 py-4"><a href={resolve('/administrador/categorias')} class="rounded-xl border border-[#ded8cf] bg-white px-5 py-3 text-sm">Cancelar</a><button type="submit" disabled={enviando || cargando || !visible} class="rounded-xl bg-[#D89994] px-5 py-3 text-sm font-semibold text-[#442b29] disabled:cursor-not-allowed disabled:opacity-50">{enviando ? 'Guardando…' : inicial ? 'Guardar cambios' : 'Crear categoría'}</button></div>
+        <div class="flex justify-end gap-3 border-t border-[#eeeae4] bg-[#faf9f6] px-6 py-4"><a href={resolve('/(dashboard)/administrador/categorias')} class="rounded-xl border border-[#ded8cf] bg-white px-5 py-3 text-sm">Cancelar</a><button type="submit" disabled={enviando || cargando || !visible} class="rounded-xl bg-[#D89994] px-5 py-3 text-sm font-semibold text-[#442b29] disabled:cursor-not-allowed disabled:opacity-50">{enviando ? 'Guardando…' : inicial ? 'Guardar cambios' : 'Crear categoría'}</button></div>
     </form>
 </div>

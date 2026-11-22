@@ -1,7 +1,7 @@
 <script>
-import Navbar from '$lib/components/shared/Navbar.svelte';
-import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
-import '$lib/components/turista/turista.css';
+import Navbar from '#lib/components/shared/Navbar.svelte';
+import HomeFooter from '#lib/components/inicio/HomeFooter.svelte';
+import '#lib/components/turista/turista.css';
 </script>
 <svelte:head><title>Carnaval de Melo · Información del afiche</title></svelte:head>
 <div class="t-public"><Navbar solid /><main style="max-width:900px;margin:auto;padding:130px 24px 64px">

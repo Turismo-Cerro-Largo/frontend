@@ -1,4 +1,4 @@
-import type { EventoPublico } from '$lib/types/agenda';
+import type { EventoPublico } from '#lib/types/agenda.ts';
 
 export const diaUruguay = (fecha: string | Date) =>
     new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Montevideo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(fecha));

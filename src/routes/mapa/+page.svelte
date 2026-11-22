@@ -1,13 +1,13 @@
 <script lang="ts">
     import { onDestroy, onMount, tick } from 'svelte';
-    import MapaPublico from '$lib/components/mapas/MapaPublico.svelte';
-    import FichaLugarMapa from '$lib/components/mapas/FichaLugarMapa.svelte';
-    import Galeria from '$lib/components/turista/Galeria.svelte';
-    import { iconoCategoria } from '$lib/components/mapas/iconos';
-    import { rangoEvento } from '$lib/utils/agenda';
+    import MapaPublico from '#lib/components/mapas/MapaPublico.svelte';
+    import FichaLugarMapa from '#lib/components/mapas/FichaLugarMapa.svelte';
+    import Galeria from '#lib/components/turista/Galeria.svelte';
+    import { iconoCategoria } from '#lib/components/mapas/iconos.ts';
+    import { rangoEvento } from '#lib/utils/agenda.ts';
     import type { PageProps } from './$types';
-    import type { LugarMapa } from '$lib/types/mapa';
-    import type { DetalleLugar } from '$lib/types/turista';
+    import type { LugarMapa } from '#lib/types/mapa.ts';
+    import type { DetalleLugar } from '#lib/types/turista.ts';
 
     let { data }: PageProps = $props();
     let buscar = $state('');

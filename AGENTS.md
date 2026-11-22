@@ -1,5 +1,7 @@
 # Cerro Largo 360 · Frontend
 
+El frontend usa SvelteKit 3 y requiere Node 22.17 o superior. Los imports internos usan `#lib/` con extensión. Las variables permitidas se declaran en `src/env.ts` y se importan desde `$app/env/private` o `$app/env/public`. La configuración de Vercel y los dominios de producción se conservan.
+
 ## Sesiones y carga en cloud-2
 
 Esta rama conserva el adaptador de Vercel y el proxy de `/api` al Worker. `hooks.server.ts` consulta la cuenta solo para páginas, datos y acciones. `consulta-sesion.ts` agrupa solicitudes simultáneas y reutiliza respuestas válidas hasta 30 segundos en páginas públicas, con claves hasheadas y un máximo de 500 entradas. Los dashboards, autenticación y acciones comprueban la cuenta sin reutilizar la caché; los permisos siempre se validan en el backend. Las respuestas de páginas con cookie no se almacenan en caché HTTP.

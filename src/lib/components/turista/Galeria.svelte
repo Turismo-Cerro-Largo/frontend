@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Medio } from '$lib/types/agenda';
+    import type { Medio } from '#lib/types/agenda.ts';
     let { recursos, nombre, prioritaria = false }: { recursos: Medio[]; nombre: string; prioritaria?: boolean } = $props();
     const primeraImagen = $derived(recursos.find(recurso => recurso.tipo === 'IMAGEN')?.id);
 </script>

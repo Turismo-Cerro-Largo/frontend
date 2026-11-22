@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page } from '$app/state';
-    import { dev } from '$app/environment';
+    import { dev } from '$app/env';
 
     const nombre = 'Cerro Largo 360';
     const titulo = 'Turismo en Cerro Largo: qué hacer y eventos | Cerro Largo 360';

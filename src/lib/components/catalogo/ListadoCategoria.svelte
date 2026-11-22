@@ -1,7 +1,7 @@
 <script lang="ts">
-    import Navbar from '$lib/components/shared/Navbar.svelte';
-    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
-    import type { TarjetaCategoria } from '$lib/types/categoria';
+    import Navbar from '#lib/components/shared/Navbar.svelte';
+    import HomeFooter from '#lib/components/inicio/HomeFooter.svelte';
+    import type { TarjetaCategoria } from '#lib/types/categoria.ts';
 
     let {
         titulo,

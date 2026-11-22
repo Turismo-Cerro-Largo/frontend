@@ -1,4 +1,4 @@
-import type { LocalidadPublica } from '$lib/types/localidad';
+import type { LocalidadPublica } from '#lib/types/localidad.ts';
 
 export async function obtenerLocalidadesPublicas(): Promise<LocalidadPublica[]> {
     const respuesta = await fetch('/api/localidades');

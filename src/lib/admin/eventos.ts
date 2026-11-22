@@ -2,10 +2,10 @@
  * Cache corto para precargar eventos desde enlaces con hover/focus.
  * No reemplaza la API ni persiste datos en el navegador.
  */
-import type { EstadoEvento } from '$lib/types/evento';
-import type { EventoResumen, EventoDetalle, RespuestaCalendario } from '$lib/types/admin-eventos';
-export type { EstadoEvento } from '$lib/types/evento';
-export type { EventoResumen, EventoDetalle, RespuestaCalendario } from '$lib/types/admin-eventos';
+import type { EstadoEvento } from '#lib/types/evento.ts';
+import type { EventoResumen, EventoDetalle, RespuestaCalendario } from '#lib/types/admin-eventos.ts';
+export type { EstadoEvento } from '#lib/types/evento.ts';
+export type { EventoResumen, EventoDetalle, RespuestaCalendario } from '#lib/types/admin-eventos.ts';
 
 export const etiquetasEstado: Record<EstadoEvento, string> = {
     BORRADOR: 'Borrador',

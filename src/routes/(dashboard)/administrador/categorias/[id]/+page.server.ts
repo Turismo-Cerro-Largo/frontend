@@ -1,6 +1,6 @@
 // src/routes/(dashboard)/administrador/categorias/[id]/+page.server.ts
 
-import { backendUrl } from '$lib/server/backend';
+import { backendUrl } from '#lib/server/backend.ts';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 

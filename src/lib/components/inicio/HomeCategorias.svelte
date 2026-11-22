@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sectionTight, container } from '$lib/styles/tokens';
+    import { sectionTight, container } from '#lib/styles/tokens.ts';
 </script>
 
 <section id="categorias" class={sectionTight}>

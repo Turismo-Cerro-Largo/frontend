@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { container, section, cardDark, chip, label, dateWrapper, dateIcon, btnPrimary } from '$lib/styles/tokens';
+    import { container, section, cardDark, chip, label, dateWrapper, dateIcon, btnPrimary } from '#lib/styles/tokens.ts';
 
     let desde = $state('');
     let hasta = $state('');

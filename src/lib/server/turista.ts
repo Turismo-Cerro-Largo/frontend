@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { backendUrl } from '$lib/server/backend';
+import { backendUrl } from '#lib/server/backend.ts';
 export async function consultar<T>(ruta: string, request: Request): Promise<T> {
     const respuesta = await fetch(`${backendUrl()}/api/${ruta}`, {
         headers: { cookie: request.headers.get('cookie') || '' },

@@ -1,10 +1,10 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import { env } from '$env/dynamic/public';
+import * as env from '$app/env/public';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import type { LugarMapa } from '$lib/types/mapa';
-import type { LocalidadPublica } from '$lib/types/localidad';
+import type { LugarMapa } from '#lib/types/mapa.ts';
+import type { LocalidadPublica } from '#lib/types/localidad.ts';
 import { iconoCategoria } from './iconos';
 let {lugares, localidades, localidadSeleccionada, vista3d=false, oscuro, zoomMaximo=12, pantallaCompleta=false, seleccionado, seleccionar}:{
     lugares:LugarMapa[];localidades:LocalidadPublica[];vista3d?:boolean;zoomMaximo?:number;

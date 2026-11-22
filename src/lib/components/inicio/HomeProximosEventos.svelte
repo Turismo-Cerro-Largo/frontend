@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { container, section, h2 } from '$lib/styles/tokens';
-    import { rangoEvento } from '$lib/utils/agenda';
-    import type { EventoPublico } from '$lib/types/agenda';
+    import { container, section, h2 } from '#lib/styles/tokens.ts';
+    import { rangoEvento } from '#lib/utils/agenda.ts';
+    import type { EventoPublico } from '#lib/types/agenda.ts';
 
     let { eventos, error }: { eventos: EventoPublico[]; error: boolean } = $props();
 </script>

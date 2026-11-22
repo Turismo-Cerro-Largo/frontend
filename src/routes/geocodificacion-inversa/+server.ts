@@ -1,5 +1,4 @@
-import { env } from '$env/dynamic/private';
-import { dev } from '$app/environment';
+import * as env from '$app/env/private';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
@@ -26,8 +25,6 @@ export const GET: RequestHandler = async ({ locals, url }) => {
   if (rol !== 'ADMINISTRADOR' && rol !== 'ORGANIZADOR') {
     return json({ error: 'Sin acceso' }, { status: 403 });
   }
-  const proveedor = env.GEOCODING_REVERSE_URL || (dev ? 'https://nominatim.openstreetmap.org/reverse' : '');
-  if (!proveedor) return json({ error: 'Servicio de geocodificación no configurado' }, { status: 503 });
 
   const lat = url.searchParams.get('lat')?.trim();
   const lon = url.searchParams.get('lon')?.trim();
@@ -47,7 +44,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
   consultando = true;
   proximaConsulta = Date.now() + 1100;
   try {
-    const destino = new URL(proveedor);
+    const destino = new URL(env.GEOCODING_REVERSE_URL || 'https://nominatim.openstreetmap.org/reverse');
     destino.searchParams.set('lat', latitud);
     destino.searchParams.set('lon', longitud);
     destino.searchParams.set('format', 'jsonv2');

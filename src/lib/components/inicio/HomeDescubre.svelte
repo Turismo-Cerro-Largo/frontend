@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
-    import type { LocalidadPublica } from '$lib/types/localidad';
-    import { body, card, container, h2, h3, label, sectionAfterHero } from '$lib/styles/tokens';
+    import type { LocalidadPublica } from '#lib/types/localidad.ts';
+    import { body, card, container, h2, h3, label, sectionAfterHero } from '#lib/styles/tokens.ts';
 
     type Localidad = {
         id: string;

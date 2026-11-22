@@ -1,6 +1,6 @@
-import { backendUrl } from '$lib/server/backend';
-import { escaparXml, eventosSeo } from '$lib/server/seo';
-import { diaUruguay } from '$lib/utils/agenda';
+import { backendUrl } from '#lib/server/backend.ts';
+import { escaparXml, eventosSeo } from '#lib/server/seo.ts';
+import { diaUruguay } from '#lib/utils/agenda.ts';
 import type { RequestHandler } from './$types';
 
 const paginasPublicas = [

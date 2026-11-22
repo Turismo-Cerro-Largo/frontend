@@ -1,6 +1,6 @@
 <script lang="ts">
     import Icono from './Icono.svelte';
-    import type { Lugar } from '$lib/types/turista';
+    import type { Lugar } from '#lib/types/turista.ts';
     let { lugar, prioritaria = false }: { lugar: Lugar; prioritaria?: boolean } = $props();
 </script>
 

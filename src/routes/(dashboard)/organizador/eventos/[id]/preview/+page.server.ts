@@ -1,8 +1,8 @@
 import { error } from '@sveltejs/kit';
-import { backendUrl } from '$lib/server/backend';
+import { backendUrl } from '#lib/server/backend.ts';
 import type { PageServerLoad } from './$types';
 
-import type { Evento } from '$lib/types/evento';
+import type { Evento } from '#lib/types/evento.ts';
 
 export const load: PageServerLoad = async ({ params, locals, request, fetch }) => {
     const cuenta = locals.cuenta;

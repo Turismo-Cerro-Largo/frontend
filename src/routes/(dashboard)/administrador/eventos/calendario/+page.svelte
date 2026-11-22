@@ -11,7 +11,7 @@
         etiquetasEstado,
         type EventoResumen,
         type EstadoEvento,
-    } from '$lib/admin/eventos';
+    } from '#lib/admin/eventos.ts';
 
     let mes = $state(mesActualUruguay());
     let eventos = $state<EventoResumen[]>([]);
@@ -104,9 +104,8 @@
         // Actualiza el enlace compartible sin perder los filtros locales.
         await goto(`/administrador/eventos/calendario?mes=${mes}`, {
             replaceState: true,
-            noScroll: true,
-            keepFocus: true,
-        });
+            reset: false,
+            });
         void cargar();
     }
 

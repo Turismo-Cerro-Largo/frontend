@@ -1,4 +1,4 @@
-import type { RecursoSubido } from '$lib/types/archivo';
+import type { RecursoSubido } from '#lib/types/archivo.ts';
 
 
 const LIMITE_LOTE = 80 * 1024 * 1024;

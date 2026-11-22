@@ -1,5 +1,5 @@
 <script lang="ts">
-    import AccesoCuenta from "$lib/components/admin/AccesoCuenta.svelte";
+    import AccesoCuenta from "#lib/components/admin/AccesoCuenta.svelte";
     import { page } from '$app/state';
     import { onMount } from 'svelte';
     type Estado = 'PENDIENTE_REVISION' | 'APROBADO' | 'RECHAZADO';

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Turnstile from '$lib/components/shared/Turnstile.svelte';
+    import Turnstile from '#lib/components/shared/Turnstile.svelte';
 
     let tokenTurnstile = $state('');
     let turnstile = $state.raw<ReturnType<typeof Turnstile>>();
@@ -38,12 +38,13 @@
         <p class="text-sm text-slate-600 mb-6">Ingresá el correo de tu cuenta. Te enviaremos un enlace para elegir una nueva contraseña.</p>
         {#if mensaje}<p role="status" class="p-4 mb-5 rounded-lg border border-green-200 bg-green-50 text-green-800">{mensaje}</p>{/if}
         {#if error}<p role="alert" class="p-4 mb-5 rounded-lg border border-red-200 bg-red-50 text-red-800">{error}</p>{/if}
-        <form onsubmit={enviar} class="flex flex-col gap-3" aria-busy={cargando}>
+        <form method="post" onsubmit={enviar} class="flex flex-col gap-3" aria-busy={cargando}>
             <label for="email" class="text-sm font-medium">Correo electrónico</label>
             <input
                 id="email"
                 name="email"
                 type="email"
+                    autocapitalize="none" autocorrect="off" spellcheck="false"
                 required
                 maxlength="254"
                 autocomplete="email"

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { container, section, h2, cardInteractive } from '$lib/styles/tokens';
+    import { container, section, h2, cardInteractive } from '#lib/styles/tokens.ts';
 
     const datos = [
         {

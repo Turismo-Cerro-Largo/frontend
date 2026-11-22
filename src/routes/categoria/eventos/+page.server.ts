@@ -1,5 +1,5 @@
-import { backendUrl } from '$lib/server/backend';
-import type { TarjetaCategoria } from '$lib/types/categoria';
+import { backendUrl } from '#lib/server/backend.ts';
+import type { TarjetaCategoria } from '#lib/types/categoria.ts';
 import type { PageServerLoad } from './$types';
 
 type EventoAPI = {

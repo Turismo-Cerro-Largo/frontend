@@ -17,11 +17,28 @@ export default defineConfig(({ mode }) => ({
 	plugins: [
 		tailwindcss(),
 		sveltekit({
+            csp: {
+                mode: 'auto',
+                directives: {
+                    'base-uri': ['none'],
+                    'object-src': ['none'],
+                    'frame-ancestors': ['none'],
+                    'form-action': ['self'],
+                    'script-src': mode === 'production'
+                        ? ['self', 'strict-dynamic', 'https://challenges.cloudflare.com', 'https://static.cloudflareinsights.com', 'https://us-assets.i.posthog.com']
+                        : ['self', 'unsafe-inline', 'https://challenges.cloudflare.com', 'https://static.cloudflareinsights.com', 'https://us-assets.i.posthog.com'],
+                    'worker-src': ['self', 'blob:'],
+                    'frame-src': ['self', 'https://challenges.cloudflare.com', 'https://www.youtube.com', 'https://www.youtube-nocookie.com'],
+                },
+            },
 			compilerOptions: {
 				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
 				runes: ({ filename }) => filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
 
+			// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
+			// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
+			// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 			adapter: adapter()
 		})
 	],

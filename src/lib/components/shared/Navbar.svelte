@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { isMobile } from '$lib/hooks/isMobile.svelte';
+    import { page } from '$app/state';
+    import { isMobile } from '#lib/hooks/isMobile.svelte.ts';
     import { fly, fade } from 'svelte/transition';
     import MenuCuenta from './MenuCuenta.svelte';
 
@@ -76,7 +77,7 @@
         </a>
 
         {#if mobil.current}
-            <MenuCuenta claro={solid || scrolled || menuAbierto} />
+            {#if page.data.cuenta}<MenuCuenta claro={solid || scrolled || menuAbierto} />{/if}
             <button
                 type="button"
                 class="
@@ -255,6 +256,13 @@
                     </a>
                 {/each}
             </div>
+            {#if !page.data.cuenta}
+                <a
+                    href="/login"
+                    class="flex min-h-12 items-center justify-center gap-2 rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white hover:bg-brand-strong"
+                    onclick={() => (menuAbierto = false)}
+                >Ingresar <span aria-hidden="true">→</span></a>
+            {/if}
         </div>
     </div>
 {/if}

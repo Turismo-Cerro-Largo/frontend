@@ -1,8 +1,8 @@
 import { redirect } from "@sveltejs/kit";
-import { backendUrl } from '$lib/server/backend';
-import { crearConsultaSesion, requiereCuenta, type ResultadoSesion } from '$lib/server/consulta-sesion';
-import type { Cuenta } from '$lib/types/cuenta';
-import type { Handle } from "@sveltejs/kit";
+import { backendUrl } from '#lib/server/backend.ts';
+import { crearConsultaSesion, requiereCuenta, type ResultadoSesion } from '#lib/server/consulta-sesion.ts';
+import type { Cuenta } from '#lib/types/cuenta.ts';
+import type { Handle } from "@sveltejs/kit/hooks";
 
 const consultarSesion = crearConsultaSesion(async token => {
     const respuesta = await fetch(`${backendUrl()}/api/auth/check`, {
@@ -36,6 +36,17 @@ export const handle: Handle = async ({ event, resolve }) => {
     }
 
     const response = await resolve(event);
+    response.headers.set('x-content-type-options', 'nosniff');
+    response.headers.set('x-frame-options', 'DENY');
+    response.headers.set('referrer-policy', 'strict-origin-when-cross-origin');
+    response.headers.set('cross-origin-opener-policy', 'same-origin-allow-popups');
+    response.headers.set('permissions-policy', 'camera=(), microphone=(), payment=(), usb=(), geolocation=(self)');
+    if (event.url.protocol === 'https:') response.headers.set('strict-transport-security', 'max-age=300');
+    if (event.route.id?.startsWith('/(dashboard)/') || event.route.id?.startsWith('/(autenticacion)/') ||
+        ['/recuperar-contrasena', '/restablecer-contrasena', '/cuenta-bloqueada'].includes(event.url.pathname)) {
+        response.headers.set('x-robots-tag', 'noindex, nofollow');
+        response.headers.set('cache-control', 'private, no-store');
+    }
     if (consultar) response.headers.set('cache-control', 'private, no-store');
     return response;
 }

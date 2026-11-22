@@ -52,7 +52,7 @@
         {:else if listo && /^[a-f0-9]{64}$/.test(token)}
             <p id="ayuda" class="text-sm text-slate-600 mb-6">Usá entre 8 y 32 caracteres, incluyendo una mayúscula y una minúscula. Tus sesiones anteriores se cerrarán.</p>
             {#if error}<p role="alert" class="p-4 mb-5 rounded-lg border border-red-200 bg-red-50 text-red-800">{error}</p>{/if}
-            <form onsubmit={enviar} class="flex flex-col gap-3" aria-busy={cargando}>
+            <form method="post" onsubmit={enviar} class="flex flex-col gap-3" aria-busy={cargando}>
                 <label for="password" class="text-sm font-medium">Nueva contraseña</label>
                 <input
                     id="password"

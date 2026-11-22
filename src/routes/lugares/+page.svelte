@@ -1,13 +1,14 @@
 <script lang="ts">
-    import Navbar from '$lib/components/shared/Navbar.svelte';
-    import HomeFooter from '$lib/components/inicio/HomeFooter.svelte';
-    import '$lib/components/turista/turista.css';
-    import LugarCard from '$lib/components/turista/LugarCard.svelte';
-    import Icono from '$lib/components/turista/Icono.svelte';
+    import SeoPagina from '#lib/components/shared/SeoPagina.svelte';
+    import Navbar from '#lib/components/shared/Navbar.svelte';
+    import HomeFooter from '#lib/components/inicio/HomeFooter.svelte';
+    import '#lib/components/turista/turista.css';
+    import LugarCard from '#lib/components/turista/LugarCard.svelte';
+    import Icono from '#lib/components/turista/Icono.svelte';
     let { data } = $props();
 </script>
 
-<svelte:head><title>Explorar lugares · Cerro Largo 360</title></svelte:head>
+<SeoPagina titulo={data.localidad ? `Lugares para visitar en ${data.localidad}` : 'Lugares para visitar en Cerro Largo'} descripcion="Explorá lugares turísticos de Cerro Largo: naturaleza, cultura, gastronomía y alojamiento. Encontrá direcciones, fotos y reseñas para planificar tu visita." parametros={['localidad', 'pagina']} />
 <div class="t-public">
     <Navbar solid />
     <main style="max-width:1200px;margin:auto;padding:130px 24px 64px">

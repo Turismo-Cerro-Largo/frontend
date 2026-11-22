@@ -1,5 +1,5 @@
 <script lang="ts">
-    import PaginaInformativa from '$lib/components/shared/PaginaInformativa.svelte';
+    import PaginaInformativa from '#lib/components/shared/PaginaInformativa.svelte';
 </script>
 
 <PaginaInformativa titulo="Términos de uso" descripcion="Condiciones de uso de la guía y de publicación de contenido en Cerro Largo 360.">

@@ -1,7 +1,7 @@
 
 <script lang="ts">
-    import SvgGoogle from '$lib/components/svg/SvgGoogle.svelte';
-    import Turnstile from '$lib/components/shared/Turnstile.svelte';
+    import SvgGoogle from '#lib/components/svg/SvgGoogle.svelte';
+    import Turnstile from '#lib/components/shared/Turnstile.svelte';
     import { slide } from 'svelte/transition';
 
     // Variables
@@ -115,10 +115,11 @@
 
 <svelte:head>
     <title>Ingresar · CerroLargo360</title>
+    <meta name="robots" content="noindex, follow" />
 </svelte:head>
 
-<section class="flex items-center justify-center w-full min-h-dvh px-4">
-    <div class="w-full max-w-sm">
+<section class="auth-shell flex items-center justify-center w-full min-h-dvh px-4">
+    <div class="auth-card w-full max-w-md">
         <div class="flex flex-col items-center mb-6">
             <h2 class="text-lg font-semibold text-green-600 tracking-wide">CerroLargo360</h2>
             <h1 class="text-2xl font-bold text-slate-800 mt-1">Ingresar</h1>
@@ -155,7 +156,7 @@
 {/if}
 
         <!-- https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-busy -->
-        <form onsubmit={enviar} class="flex flex-col gap-4" aria-busy={cargando}>
+        <form method="post" onsubmit={enviar} class="flex flex-col gap-4" aria-busy={cargando}>
             <div class="flex flex-col gap-1">
                 <label for="email" class="text-sm font-medium text-slate-700"> Correo electrónico </label>
                 <input
@@ -163,6 +164,7 @@
                     id="email"
                     name="email"
                     type="email"
+                    autocapitalize="none" autocorrect="off" spellcheck="false"
                     required
                     autocomplete="email"
                     minlength="7"

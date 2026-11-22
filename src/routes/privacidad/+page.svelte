@@ -1,5 +1,5 @@
 <script lang="ts">
-    import PaginaInformativa from '$lib/components/shared/PaginaInformativa.svelte';
+    import PaginaInformativa from '#lib/components/shared/PaginaInformativa.svelte';
 </script>
 
 <PaginaInformativa titulo="Privacidad" descripcion="Cómo usa Cerro Largo 360 los datos de cuenta y navegación.">
