@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onDestroy } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import type { LocalidadPublica } from '#lib/types/localidad.ts';
     import { body, card, container, h2, h3, label, sectionAfterHero } from '#lib/styles/tokens.ts';
 
@@ -102,7 +102,7 @@
             })
     );
     let selectedIndex = $state(0);
-    let mapObject = $state<HTMLObjectElement | undefined>(undefined);
+    let mapObject = $state<HTMLIFrameElement | undefined>(undefined);
     let cleanupMapListeners: Array<() => void> = [];
 
     let selected = $derived(localidades[selectedIndex] ?? localidades[0]);
@@ -235,6 +235,7 @@
         updateMapSelection();
     }
 
+    onMount(handleMapLoad);
     onDestroy(clearMapListeners);
 </script>
 
@@ -250,16 +251,15 @@
             <div
                 class="order-1 flex min-h-72 items-center justify-center overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-50 p-2 sm:min-h-96 sm:p-4 lg:order-2 lg:min-h-126 lg:p-5"
             >
-                <object
+                <iframe
                     bind:this={mapObject}
-                    data="/cerro-largo-360-mapa-localidades-v2.svg"
-                    type="image/svg+xml"
-                    aria-label="Mapa interactivo de localidades de Cerro Largo"
+                    src="/cerro-largo-360-mapa-localidades-v2.svg"
+                    title="Mapa interactivo de localidades de Cerro Largo"
+                    sandbox="allow-same-origin"
+                    loading="lazy"
                     onload={handleMapLoad}
-                    class="block h-full max-h-125 w-full"
-                >
-                    Mapa interactivo de Cerro Largo
-                </object>
+                    class="block h-full min-h-72 max-h-125 w-full border-0 sm:min-h-96 lg:min-h-125"
+                ></iframe>
             </div>
 
             <div class="order-2 lg:order-1">
