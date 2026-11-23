@@ -1,5 +1,7 @@
 <script lang="ts">
     import { onDestroy, onMount } from 'svelte';
+    import mapaSvg from '../../../../static/cerro-largo-360-mapa-localidades-v2.svg?raw';
+    const mapa = mapaSvg.replace(/<\?xml[^>]*\?>/, '');
     import type { LocalidadPublica } from '#lib/types/localidad.ts';
     import { body, card, container, h2, h3, label, sectionAfterHero } from '#lib/styles/tokens.ts';
 
@@ -102,7 +104,7 @@
             })
     );
     let selectedIndex = $state(0);
-    let mapObject = $state<HTMLIFrameElement | undefined>(undefined);
+    let mapObject = $state<HTMLDivElement | undefined>(undefined);
     let cleanupMapListeners: Array<() => void> = [];
 
     let selected = $derived(localidades[selectedIndex] ?? localidades[0]);
@@ -113,7 +115,7 @@
     }
 
     function getSvgDocument() {
-        return mapObject?.contentDocument ?? null;
+        return mapObject ?? null;
     }
 
     function updateMapSelection(index = selectedIndex) {
@@ -132,7 +134,7 @@
                 const x = Number(punto.getAttribute('cx'));
                 const y = Number(punto.getAttribute('cy'));
                 if (Number.isFinite(x) && Number.isFinite(y)) {
-                    const imagen = svgDocument.createElementNS('http://www.w3.org/2000/svg', 'image');
+                    const imagen = svgDocument.ownerDocument.createElementNS('http://www.w3.org/2000/svg', 'image');
                     imagen.setAttribute('class', 'localidad-icono');
                     imagen.setAttribute('href', ficha.icono);
                     imagen.setAttribute('x', String(x - 160));
@@ -212,7 +214,6 @@
 
             const handleClick = () => {
                 selectLocalidad(index);
-                (svgDocument.activeElement as HTMLElement | null)?.blur?.();
             };
 
             const handleKeydown = (event: KeyboardEvent) => {
@@ -220,7 +221,6 @@
 
                 event.preventDefault();
                 selectLocalidad(index);
-                (svgDocument.activeElement as HTMLElement | null)?.blur?.();
             };
 
             group.addEventListener('click', handleClick);
@@ -251,15 +251,7 @@
             <div
                 class="order-1 flex min-h-72 items-center justify-center overflow-hidden rounded-2xl border border-zinc-200/80 bg-zinc-50 p-2 sm:min-h-96 sm:p-4 lg:order-2 lg:min-h-126 lg:p-5"
             >
-                <iframe
-                    bind:this={mapObject}
-                    src="/cerro-largo-360-mapa-localidades-v2.svg"
-                    title="Mapa interactivo de localidades de Cerro Largo"
-                    sandbox="allow-same-origin"
-                    loading="lazy"
-                    onload={handleMapLoad}
-                    class="block h-full min-h-72 max-h-125 w-full border-0 sm:min-h-96 lg:min-h-125"
-                ></iframe>
+                <div bind:this={mapObject} class="mapa-svg block h-full min-h-72 max-h-125 w-full sm:min-h-96 lg:min-h-125">{@html mapa}</div>
             </div>
 
             <div class="order-2 lg:order-1">
@@ -347,3 +339,7 @@
         {:else}<p>No hay localidades visibles por ahora.</p>{/if}
     </div>
 </section>
+
+<style>
+    .mapa-svg :global(svg) { display: block; width: 100%; height: 100%; min-height: inherit; max-height: 500px; }
+</style>

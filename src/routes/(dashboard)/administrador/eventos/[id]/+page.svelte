@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { imagenFallida } from '#lib/actions/imagen-fallida.ts';
     import { dialogo } from '#lib/actions/dialogo.ts';
     import { onMount, onDestroy, tick } from 'svelte';
     import * as env from '$app/env/public';
@@ -181,7 +182,7 @@
                 </article>
                 <article class="rounded-2xl border bg-white p-5">
                     <h2 class="text-lg font-semibold">Fotografías y recursos</h2>
-                    {#if evento.recursos.length === 0}<p class="mt-3 text-slate-500">No se cargaron imágenes.</p>{:else}<div class="mt-4 grid gap-3 sm:grid-cols-2">
+                    {#if evento.recursos.length === 0}<p class="mt-3 text-slate-500">No se cargaron imágenes.</p>{:else}<div use:imagenFallida class="mt-4 grid gap-3 sm:grid-cols-2">
                             {#each evento.recursos as recurso, i (i)}<a
                                     href={urlArchivo(recurso.uri)}
                                     target="_blank"
@@ -192,9 +193,6 @@
                                         alt={`Recurso ${i + 1} del evento`}
                                         class="h-52 w-full object-cover"
                                         loading="lazy"
-                                        onerror={(e) => {
-                                            (e.currentTarget as HTMLImageElement).style.display = 'none';
-                                        }}
                                     /><span class="block p-2 text-xs text-slate-500">Abrir recurso {i + 1}</span></a
                                 >{/each}
                         </div>{/if}

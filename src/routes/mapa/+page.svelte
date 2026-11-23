@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { imagenFallida } from '#lib/actions/imagen-fallida.ts';
     import { onDestroy, onMount, tick } from 'svelte';
     import MapaPublico from '#lib/components/mapas/MapaPublico.svelte';
     import FichaLugarMapa from '#lib/components/mapas/FichaLugarMapa.svelte';
@@ -276,9 +277,9 @@
                     <ul class="tarjetas">
                         {#each data.recomendaciones as { lugar, imagen } (lugar.id)}
                             <li><button type="button" onclick={() => seleccionar([lugar])}>
-                                <span class="portada" aria-hidden="true">
+                                <span use:imagenFallida class="portada" aria-hidden="true">
                                     {#if imagen}
-                                        <img decoding="async" fetchpriority="auto" src={imagen} alt="" loading="lazy" onerror={(event) => event.currentTarget.setAttribute('hidden', '')} />
+                                        <img decoding="async" fetchpriority="auto" src={imagen} alt="" loading="lazy" />
                                     {/if}
                                 </span>
                                 <span class="texto-tarjeta">
