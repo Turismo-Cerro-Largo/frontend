@@ -14,7 +14,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
-      - run: node --test tests/consulta-sesion.test.mjs
+      - run: node --test tests/*.test.mjs
       - run: pnpm build
         env:
           API_URL: https://cerro-largo-api-cloud-2.baa4ts.workers.dev
