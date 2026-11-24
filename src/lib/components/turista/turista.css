@@ -390,14 +390,18 @@
         grid-template-columns: 1fr;
     }
     .t-panel {
-        padding: 22px;
+        padding: 16px;
     }
     .t-photo-area {
         align-items: flex-start;
         flex-wrap: wrap;
     }
     .t-public {
-        padding: 24px 18px;
+        padding: 24px 12px;
+    }
+    .t-public > main {
+        padding-inline: 0 !important;
+        min-width: 0;
     }
     .t-public header {
         gap: 18px;
