@@ -12,6 +12,7 @@
         { href: '/radios-locales', label: 'Radios locales' },
         { href: '/mapa', label: 'Mapa interactivo' },
         { href: '/sobre-nosotros', label: 'Sobre nosotros' },
+        { href: '/contacto', label: 'Contacto' },
         
     ];
 
@@ -23,13 +24,8 @@
         },
         {
             label: 'Facebook',
-            href: 'https://www.facebook.com/Cerro.Largo.360',
+            href: 'https://www.facebook.com/Cerro.Largo.360/',
             path: 'M18 2H15C13.6739 2 12.4021 2.52678 11.4645 3.46447C10.5268 4.40215 10 5.67392 10 7V10H7V14H10V22H14V14H17L18 10H14V7C14 6.73478 14.1054 6.48043 14.2929 6.29289C14.4804 6.10536 14.7348 6 15 6H18V2Z',
-        },
-        {
-            label: 'YouTube',
-            href: 'https://youtube.com',
-            path: 'M22 12C22 8.1 22 6.15 20.775 4.925C19.55 3.7 17.6 3.7 13.7 3.7H10.3C6.4 3.7 4.45 3.7 3.225 4.925C2 6.15 2 8.1 2 12C2 15.9 2 17.85 3.225 19.075C4.45 20.3 6.4 20.3 10.3 20.3H13.7C17.6 20.3 19.55 20.3 20.775 19.075C22 17.85 22 15.9 22 12Z M10 9.5L14.5 12L10 14.5V9.5Z',
         },
     ];
 
@@ -53,7 +49,7 @@
                 </p>
 
                 <div class="mt-1 flex items-center gap-2">
-                    {#each redes as red}
+                    {#each redes as red (red.label)}
                         <a href={red.href} target="_blank" rel="noopener noreferrer" class={iconBtn}>
                             <span class="sr-only">{red.label}</span>
                             <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -67,7 +63,7 @@
             <div class="flex flex-col gap-4">
                 <span class={eyebrow}>Explorá</span>
                 <div class="flex flex-col gap-3">
-                    {#each explora as link}
+                    {#each explora as link (link.href)}
                         <a href={link.href} class={linkClass}>{link.label}</a>
                     {/each}
                 </div>
@@ -76,7 +72,7 @@
             <div class="flex flex-col gap-4">
                 <span class={eyebrow}>Recursos</span>
                 <div class="flex flex-col gap-3">
-                    {#each recursos as link}
+                    {#each recursos as link (link.href)}
                         <a href={link.href} class={linkClass}>{link.label}</a>
                     {/each}
                 </div>
@@ -122,6 +118,12 @@
                         </svg>
                         proyectoturismomelo@gmail.com
                     </a>
+                    {#each redes as red (red.label)}
+                        <a href={red.href} target="_blank" rel="noopener noreferrer" class="flex items-center gap-2.5 transition-colors duration-300 hover:text-zinc-950">
+                            <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class={contactIcon}><path d={red.path} /></svg>
+                            {red.label}
+                        </a>
+                    {/each}
                 </div>
             </div>
         </div>
