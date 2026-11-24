@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { PageData } from './$types';
+    import ImagenAmpliable from '#lib/components/turista/ImagenAmpliable.svelte';
 
     let { data }: { data: PageData } = $props();
     let evento = $derived(data.evento);
@@ -52,7 +53,7 @@
                     {#each evento.recursos
                         .filter((r) => r.tipo === 'IMAGEN' && imagen(r.uri))
                         .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)) as recurso, i (recurso.id ?? `${recurso.uri}-${i}`)}
-                        <img decoding="async" fetchpriority="auto" src={imagen(recurso.uri)} alt={`Fotografía de ${evento.titulo}`} class="h-60 w-full rounded-xl object-cover" loading="lazy" />
+                        <ImagenAmpliable src={imagen(recurso.uri)} alt={`Fotografía de ${evento.titulo}`} />
                     {/each}
                 </div>
             {/if}

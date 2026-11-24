@@ -61,7 +61,7 @@
                 valoraciones publicadas.{/if}
         </p>
         {#if mensaje}<p class="t-message" class:error={esError} role={esError ? 'alert' : 'status'}>{mensaje}</p>{/if}
-        <Galeria recursos={data.lugar.recursos || []} nombre={data.lugar.nombre} prioritaria />
+        <Galeria recursos={data.lugar.recursos || []} nombre={data.lugar.nombre} prioritaria ampliar />
         <div class="t-two">
             <section class="t-panel">
                 <h2>Conocé este lugar</h2>
