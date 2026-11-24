@@ -28,6 +28,7 @@ export function zoomImagen(visor: HTMLElement, opciones: { leer: () => number; c
         }
         if (dedos.size !== 2) return;
         const nuevaDistancia = separar();
+        if (nuevaDistancia === 0) return;
         const previo = opciones.leer();
         const siguiente = Math.max(1, Math.min(3, previo * nuevaDistancia / (distancia || nuevaDistancia)));
         distancia = nuevaDistancia;
