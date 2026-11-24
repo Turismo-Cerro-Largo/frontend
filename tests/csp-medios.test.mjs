@@ -5,6 +5,7 @@ import { compile } from 'svelte/compiler';
 
 for (const archivo of [
     'src/lib/components/inicio/HomeDescubre.svelte',
+    'src/lib/components/turista/ImagenAmpliable.svelte',
     'src/routes/mapa/+page.svelte',
     'src/routes/(dashboard)/administrador/eventos/[id]/+page.svelte',
 ]) {

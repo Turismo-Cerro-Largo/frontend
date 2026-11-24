@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Medio } from '#lib/types/agenda.ts';
-    let { recursos, nombre, prioritaria = false }: { recursos: Medio[]; nombre: string; prioritaria?: boolean } = $props();
+    import ImagenAmpliable from './ImagenAmpliable.svelte';
+    let { recursos, nombre, prioritaria = false, ampliar = true }: { recursos: Medio[]; nombre: string; prioritaria?: boolean; ampliar?: boolean } = $props();
     const primeraImagen = $derived(recursos.find(recurso => recurso.tipo === 'IMAGEN')?.id);
 </script>
 {#if recursos.length}
@@ -8,7 +9,11 @@
     {#each recursos as recurso (recurso.id)}
         <figure>
             {#if recurso.tipo === 'IMAGEN'}
+                {#if ampliar}
+                    <ImagenAmpliable src={`/api/recursos/${recurso.id}`} alt={recurso.descripcion || nombre} loading={prioritaria && recurso.id === primeraImagen ? 'eager' : 'lazy'} fetchpriority={prioritaria && recurso.id === primeraImagen ? 'high' : 'auto'} />
+                {:else}
                 <a href={`/api/recursos/${recurso.id}`} target="_blank" rel="noopener noreferrer" aria-label={`Ampliar imagen de ${nombre}`}><img decoding="async" src={`/api/recursos/${recurso.id}`} alt={recurso.descripcion || nombre} loading={prioritaria && recurso.id === primeraImagen ? 'eager' : 'lazy'} fetchpriority={prioritaria && recurso.id === primeraImagen ? 'high' : 'auto'} /></a>
+                {/if}
             {:else}
                 <video controls muted playsinline preload="none" poster={recursos.find(r => r.tipo === "IMAGEN") ? `/api/recursos/${recursos.find(r => r.tipo === "IMAGEN")?.id}` : undefined} aria-label={recurso.descripcion || `Video de ${nombre}`} src={`/api/recursos/${recurso.id}`}>
                     Tu navegador no permite reproducir este video.
