@@ -7,9 +7,11 @@
     import { registrarVisita } from '#lib/visitas.ts';
 
     let { children } = $props();
-    $effect(() => { registrarVisita(page.url.pathname, page.data.cuenta?.rol); });
     onNavigate(() => { pausarAnalitica(); });
-    $effect(() => { void actualizarAnalitica(page.data.cuenta?.rol, page.url.pathname).catch(() => undefined); });
+    $effect(() => {
+        registrarVisita(page.url.pathname, page.data.cuenta);
+        void actualizarAnalitica(page.data.cuenta?.rol, page.url.pathname).catch(() => undefined);
+    });
 </script>
 
 <svelte:head>

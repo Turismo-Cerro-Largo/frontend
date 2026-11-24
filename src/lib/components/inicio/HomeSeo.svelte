@@ -30,7 +30,7 @@
                 url: canonical,
                 description: 'Guía digital para descubrir lugares, localidades y eventos de Cerro Largo, Uruguay.',
                 logo: { '@type': 'ImageObject', url: logo },
-                sameAs: ['https://www.instagram.com/cerrolargo360/']
+                sameAs: ['https://www.instagram.com/cerrolargo360/', 'https://www.facebook.com/Cerro.Largo.360/']
             },
             {
                 '@type': 'WebSite',

@@ -1,15 +1,18 @@
 import { dev } from '$app/env';
 import * as env from '$app/env/public';
 import type { PostHog } from 'posthog-js';
-import { idVisitante } from '#lib/visitas.ts';
+import { idVisitante, identidadAnalitica, actualizarIdVisitante } from '#lib/visitas.ts';
 
 let cliente: PostHog | undefined;
 let pendiente: Promise<PostHog | undefined> | undefined;
 let version = 0;
+let identidadCliente = '';
+let bloqueada = false;
 
 async function cargar() {
-    if (dev || env.PUBLIC_POSTHOG_ENABLED === 'false') return;
+    if (dev || env.PUBLIC_POSTHOG_ENABLED === 'false' || bloqueada) return;
     pendiente ??= import('posthog-js').then(({ default: posthog }) => {
+        if (bloqueada || identidadAnalitica().excluido) return;
         posthog.init(env.PUBLIC_POSTHOG_KEY || 'phc_uRFh8r84qYyn8u5zwLkdzEdTr4LTanXDaUoE8o23u6kK', {
             api_host: 'https://us.i.posthog.com',
             autocapture: false,
@@ -20,7 +23,7 @@ async function cargar() {
             capture_heatmaps: false,
             capture_dead_clicks: false,
             disable_session_recording: true,
-            person_profiles: 'never',
+            person_profiles: 'identified_only',
             persistence: 'memory',
             bootstrap: { distinctID: idVisitante(), isIdentifiedID: false },
             advanced_disable_feature_flags: true,
@@ -34,7 +37,7 @@ async function cargar() {
                 recordBody: false
             },
             before_send(event) {
-                if (!event) return null;
+                if (!event || bloqueada || identidadAnalitica().excluido) return null;
                 for (const clave of ['$current_url', '$referrer', '$initial_current_url', '$initial_referrer']) {
                     const valor = event.properties[clave];
                     if (typeof valor !== 'string') continue;
@@ -49,9 +52,12 @@ async function cargar() {
             }
         });
         cliente = posthog;
+        identidadCliente = idVisitante();
         return posthog;
     }).catch(() => undefined);
-    return pendiente;
+    const cargado = await pendiente;
+    if (!cargado) pendiente = undefined;
+    return cargado;
 }
 
 export function pausarAnalitica() {
@@ -63,12 +69,27 @@ export function pausarAnalitica() {
 export async function actualizarAnalitica(rol: string | undefined, ruta: string) {
     pausarAnalitica();
     const actual = version;
+    const identidad = identidadAnalitica();
+    bloqueada = identidad.excluido;
+    if (bloqueada) {
+        cliente?.reset(true);
+        identidadCliente = '';
+        return;
+    }
     const organizador = rol === 'ORGANIZADOR' && /^\/organizador(?:\/|$)/.test(ruta);
     const resena = rol === 'TURISTA' && /^\/lugares\/[^/]+$/.test(ruta);
     const registro = ruta === '/register';
-    if (!organizador && !resena && !registro) return;
+    if (!identidad.identificada && !cliente && !organizador && !resena && !registro) return;
     const ph = await cargar();
     if (!ph || actual !== version) return;
+    if (identidadCliente !== identidad.id) {
+        if (identidadCliente.startsWith('cuenta:') || !identidadCliente) ph.reset(true);
+        if (identidad.identificada) ph.identify(identidad.id);
+        else actualizarIdVisitante(ph.get_distinct_id());
+        identidadCliente = ph.get_distinct_id();
+    }
+    ph.register({ rol: identidad.rol, sesion_analitica: identidad.sesionId });
+    if (!organizador && !resena && !registro) return;
     ph.set_config({
         autocapture: registro ? false : {
             dom_event_allowlist: ['click', 'change', 'submit'],
@@ -87,5 +108,7 @@ export async function actualizarAnalitica(rol: string | undefined, ruta: string)
 }
 
 export function registrarEvento(nombre: 'registro_enviado' | 'registro_resultado' | 'resena_resultado', propiedades: { tipo?: string; estado?: number; exito?: boolean }) {
-    void cargar().then(ph => ph?.capture(nombre, propiedades)).catch(() => undefined);
+    if (bloqueada || identidadAnalitica().excluido) return;
+    const actual = version;
+    void cargar().then(ph => { if (actual === version && !bloqueada) ph?.capture(nombre, propiedades); }).catch(() => undefined);
 }
