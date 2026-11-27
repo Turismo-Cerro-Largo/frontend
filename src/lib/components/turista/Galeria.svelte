@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Medio } from '#lib/types/agenda.ts';
     import ImagenAmpliable from './ImagenAmpliable.svelte';
+    import { rotacionCarrusel } from '#lib/actions/rotacion-carrusel.ts';
     let { recursos, nombre, prioritaria = false, ampliar = true, formato = 'galeria' }: {
         recursos: Medio[]; nombre: string; prioritaria?: boolean; ampliar?: boolean; formato?: 'galeria' | 'tarjeta' | 'portada';
     } = $props();
@@ -8,6 +9,7 @@
     let posicion = $state(0);
     let anunciado = $state(0);
     let pendiente = $state<number | null>(null);
+    let pausada = $state(false);
     const actual = $derived(Math.min(pendiente ?? posicion, Math.max(0, recursos.length - 1)));
     const primeraImagen = $derived(recursos.find(recurso => recurso.tipo === 'IMAGEN')?.id);
     function ir(indice: number) {
@@ -41,7 +43,8 @@
 </script>
 
 {#if recursos.length}
-    <section aria-label={`Fotos y videos de ${nombre}`} aria-roledescription="carrusel" class="galeria" class:tarjeta={formato === 'tarjeta'} class:portada={formato === 'portada'}>
+    <section use:rotacionCarrusel={{ avanzar: () => ir(actual + 1), pausada: () => pausada, total: recursos.length, reducirMovimiento: () => pausada = true }} aria-label={`Fotos y videos de ${nombre}`} aria-roledescription="carrusel" class="galeria" class:tarjeta={formato === 'tarjeta'} class:portada={formato === 'portada'}>
+        <div class="media" class:video={recursos[actual]?.tipo === 'VIDEO'}>
         <div class="pista" bind:this={pista} use:seguimiento role="group" aria-label="Imágenes y videos disponibles">
             {#each recursos as recurso, indice (recurso.id)}
                 <figure role="group" aria-roledescription="diapositiva" aria-label={`${indice + 1} de ${recursos.length}`}>
@@ -54,7 +57,6 @@
                     {:else}
                         <video controls muted playsinline preload="none" poster={primeraImagen ? `/api/recursos/${primeraImagen}` : undefined} aria-label={recurso.descripcion || `Video de ${nombre}`} src={`/api/recursos/${recurso.id}`}>Tu navegador no permite reproducir este video.</video>
                     {/if}
-                    {#if recurso.descripcion && formato === 'galeria'}<figcaption>{recurso.descripcion}</figcaption>{/if}
                 </figure>
             {/each}
         </div>
@@ -62,31 +64,43 @@
             <div class="controles">
                 <button type="button" onclick={() => ir(actual - 1)} aria-label={`Recurso anterior de ${nombre}`}><span aria-hidden="true">‹</span></button>
                 <span class="contador">{actual + 1} / {recursos.length}</span>
+                <button class="pausa" type="button" onclick={() => pausada = !pausada} aria-label={pausada ? `Reanudar carrusel de ${nombre}` : `Pausar carrusel de ${nombre}`} aria-pressed={pausada}>
+                    <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">{#if pausada}<path d="m8 5 11 7-11 7Z" />{:else}<path d="M6 5h4v14H6zm8 0h4v14h-4z" />{/if}</svg>
+                </button>
                 <button type="button" onclick={() => ir(actual + 1)} aria-label={`Recurso siguiente de ${nombre}`}><span aria-hidden="true">›</span></button>
             </div>
-            <p class="sr-only" role="status" aria-live="polite">Recurso {anunciado + 1} de {recursos.length}</p>
+            <p class="sr-only" role="status" aria-live={pausada ? 'polite' : 'off'}>Recurso {anunciado + 1} de {recursos.length}</p>
             <div class="indicadores" role="group" aria-label="Elegir recurso">
                 {#each recursos as recurso, indice (recurso.id)}
                     <button type="button" aria-label={`Ver recurso ${indice + 1} de ${nombre}`} aria-current={actual === indice ? 'true' : undefined} onclick={() => ir(indice)}><span></span></button>
                 {/each}
             </div>
         {/if}
+        </div>
+        {#if formato === 'galeria' && recursos[actual]?.descripcion}<p class="descripcion">{recursos[actual].descripcion}</p>{/if}
     </section>
 {/if}
 
 <style>
     .galeria { min-width:0;overflow:hidden;border:1px solid #dfe6df;border-radius:16px;background:white;margin:24px 0 32px; }
-    .pista { display:flex;position:relative;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:thin;touch-action:pan-x pan-y pinch-zoom; }
+    .media { position:relative; }
+    .pista { display:flex;position:relative;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y pinch-zoom; }
+    .pista::-webkit-scrollbar { display:none; }
     figure { flex:0 0 100%;min-width:0;margin:0;scroll-snap-align:center; }
     img,video { display:block;width:100%;height:300px;object-fit:contain;background:#edf1eb; }
-    figcaption { padding:12px 16px;font-size:12px;color:#59685f; }
-    .controles { display:flex;justify-content:center;align-items:center;gap:18px;padding:6px 12px 0; }
-    .controles button { display:grid;place-items:center;width:44px;height:44px;border:1px solid #dfe6df;border-radius:50%;background:white;color:#245c4e;font-size:28px;cursor:pointer; }
-    .contador { min-width:54px;text-align:center;font-size:12px;font-variant-numeric:tabular-nums;color:#52675c; }
-    .indicadores { display:flex;flex-wrap:wrap;justify-content:center;padding:0 12px 6px; }
+    .descripcion { margin:0;padding:12px 16px;font-size:12px;color:#59685f; }
+    .controles { position:absolute;left:50%;bottom:25px;transform:translateX(-50%);display:flex;justify-content:center;align-items:center;gap:2px;padding:0 4px;border-radius:30px;background:#14231bd9;color:white;box-shadow:0 2px 10px #0002; }
+    .controles button { display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:50%;background:transparent;color:inherit;font-size:26px;cursor:pointer;touch-action:manipulation; }
+    .controles button:hover { background:#ffffff20; }
+    .contador { min-width:42px;text-align:center;font-size:11px;font-variant-numeric:tabular-nums;color:white; }
+    .indicadores { position:absolute;bottom:2px;left:50%;transform:translateX(-50%);display:flex;max-width:90%;overflow-x:auto;scrollbar-width:none; }
+    .indicadores::-webkit-scrollbar { display:none; }
+    .media.video .controles { bottom:60px; }
+    .media.video .indicadores { bottom:36px; }
     .indicadores button { display:grid;place-items:center;width:24px;height:24px;background:transparent;border:0;cursor:pointer; }
-    .indicadores span { width:7px;height:7px;border-radius:8px;background:#a4b3aa; }
-    .indicadores button[aria-current=true] span { width:18px;background:#245c4e; }
+    .indicadores button { flex-shrink:0; }
+    .indicadores span { width:6px;height:6px;border-radius:8px;background:#ffffffa0;box-shadow:0 1px 4px #0008; }
+    .indicadores button[aria-current=true] span { width:16px;background:white; }
     button:focus-visible,.pista:focus-visible { outline:3px solid #087e8b;outline-offset:-3px; }
     .tarjeta,.portada { margin:0;border:0;border-radius:0; }
     .tarjeta :global(.miniatura img),.tarjeta video { height:190px;max-height:none;object-fit:cover; }
