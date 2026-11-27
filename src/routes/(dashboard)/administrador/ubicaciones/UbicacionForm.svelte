@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { obtenerLocalidadesPublicas } from '#lib/localidades/api.ts';
     import EstadoDireccionMapa from '#lib/components/EstadoDireccionMapa.svelte';
     import { crearBusquedaDireccion } from '#lib/localidades/direccion-mapa.ts';
@@ -41,6 +41,12 @@
             id_categoria: 0,
         });
     type Recurso = { tipo: 'IMAGEN' | 'VIDEO'; uri: string };
+    let previas = $state<Record<string, string>>({});
+    let activo = true;
+    onDestroy(() => {
+        activo = false;
+        for (const previa of Object.values(previas)) URL.revokeObjectURL(previa);
+    });
     let recursos = $state<Recurso[]>([]),
         cargando = $state(true),
         guardando = $state(false),
@@ -160,7 +166,12 @@
         error = '';
         subiendo = true;
         try {
-            await subirRecursosDelFormulario(formulario, inputArchivo, seleccion, (cargados) => {
+            await subirRecursosDelFormulario(formulario, inputArchivo, seleccion, (cargados, archivos) => {
+                if (!activo) return;
+                for (const [indice, recurso] of cargados.entries()) {
+                    if (previas[recurso.uri]) URL.revokeObjectURL(previas[recurso.uri]);
+                    previas[recurso.uri] = URL.createObjectURL(archivos[indice]);
+                }
                 recursos = [...recursos, ...cargados];
             });
         } catch (e) {
@@ -181,6 +192,14 @@
         const lista = [...recursos];
         [lista[i], lista[j]] = [lista[j], lista[i]];
         recursos = lista;
+    }
+    function quitarRecurso(indice: number) {
+        const uri = recursos[indice].uri;
+        if (previas[uri]) {
+            URL.revokeObjectURL(previas[uri]);
+            delete previas[uri];
+        }
+        recursos = recursos.filter((_, i) => i !== indice);
     }
     async function guardar() {
         if (guardando) return;
@@ -330,8 +349,8 @@
             </div>
             {#each recursos as recurso, i}<div class="flex items-center gap-3 rounded-lg bg-slate-50 p-2">
                     <div class="h-16 w-24 shrink-0 overflow-hidden rounded bg-slate-200">
-                        {#if recurso.tipo === 'IMAGEN'}<img decoding="async" loading="lazy" fetchpriority="auto" alt={`Imagen ${i + 1}`} src={recurso.uri} class="h-full w-full object-cover" />{:else}<video
-                                src={recurso.uri}
+                        {#if recurso.tipo === 'IMAGEN'}<img decoding="async" loading="lazy" fetchpriority="auto" alt={`Imagen ${i + 1}`} src={previas[recurso.uri] || recurso.uri} class="h-full w-full object-cover" />{:else}<video
+                                src={previas[recurso.uri] || recurso.uri}
                                 class="h-full w-full object-cover"
                                 controls
                                 preload="none"><track kind="captions" /></video
@@ -354,7 +373,7 @@
                             disabled={i === recursos.length - 1}
                             onclick={() => moverRecurso(i, 1)}
                             class="rounded border px-2 py-1 disabled:opacity-30">↓</button
-                        ><button type="button" class="rounded border px-2 py-1 text-rose-700" onclick={() => (recursos = recursos.filter((_, j) => i !== j))}>Quitar</button>
+                        ><button type="button" class="rounded border px-2 py-1 text-rose-700" onclick={() => quitarRecurso(i)}>Quitar</button>
                     </div>
                 </div>{/each}
             <p class="text-xs text-slate-500">{recursos.length} de 20 recursos</p>
