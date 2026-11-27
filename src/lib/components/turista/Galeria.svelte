@@ -84,9 +84,11 @@
 <style>
     .galeria { min-width:0;overflow:hidden;border:1px solid #dfe6df;border-radius:16px;background:white;margin:24px 0 32px; }
     .media { position:relative; }
-    .pista { display:flex;position:relative;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y pinch-zoom; }
+    .pista { display:flex;position:relative;height:300px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y pinch-zoom; }
     .pista::-webkit-scrollbar { display:none; }
-    figure { flex:0 0 100%;min-width:0;margin:0;scroll-snap-align:center; }
+    figure { flex:0 0 100%;min-width:0;height:100%;margin:0;scroll-snap-align:center; }
+    .pista :global(.miniatura) { height:100%; }
+    .pista :global(.miniatura img) { height:100%;max-height:none; }
     img,video { display:block;width:100%;height:300px;object-fit:contain;background:#edf1eb; }
     .descripcion { margin:0;padding:12px 16px;font-size:12px;color:#59685f; }
     .controles { position:absolute;left:50%;bottom:25px;transform:translateX(-50%);display:flex;justify-content:center;align-items:center;gap:2px;padding:0 4px;border-radius:30px;background:#14231bd9;color:white;box-shadow:0 2px 10px #0002; }
@@ -103,7 +105,10 @@
     .indicadores button[aria-current=true] span { width:16px;background:white; }
     button:focus-visible,.pista:focus-visible { outline:3px solid #087e8b;outline-offset:-3px; }
     .tarjeta,.portada { margin:0;border:0;border-radius:0; }
+    .tarjeta .pista { height:190px; }
+    .portada .pista { height:clamp(280px,40dvh,420px); }
     .tarjeta :global(.miniatura img),.tarjeta video { height:190px;max-height:none;object-fit:cover; }
     .portada :global(.miniatura img),.portada video { height:clamp(280px,40dvh,420px);max-height:none;object-fit:cover; }
     @media(prefers-reduced-motion:no-preference) { .pista { scroll-behavior:smooth; } }
+    @media(max-width:639px) { .galeria:not(.tarjeta):not(.portada) .pista { height:clamp(240px,70vw,400px); } }
 </style>
