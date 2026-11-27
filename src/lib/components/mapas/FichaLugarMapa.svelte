@@ -20,7 +20,6 @@
     let opinionExpandida = $state<number[]>([]);
     const distribucion = $derived([5, 4, 3, 2, 1].map((estrellas) => ({ estrellas, cantidad: detalle.comentarios.filter((c) => c.calificacion === estrellas).length })));
     const lugar = $derived(detalle.lugar);
-    const portada = $derived(lugar.recursos?.find((r) => r.tipo === 'IMAGEN'));
     const opiniones = $derived([...detalle.comentarios]
         .filter((c) => `${c.usuario.nombres} ${c.texto ?? ''}`.toLocaleLowerCase('es').includes(buscar.toLocaleLowerCase('es')))
         .sort((a, b) => orden === 'mejores' ? b.calificacion - a.calificacion :
@@ -85,11 +84,8 @@
         <button class="cerrar" onclick={cerrar} aria-label="Volver a explorar lugares">{@render icono('cerrar')}</button>
     </div>
     <div class="hero">
-        {#if portada}
-            <button class="abrir-foto" onclick={() => pestana = 'fotos'} aria-label={`Ver fotos de ${lugar.nombre}`}>
-                <img decoding="async" src={`/api/recursos/${portada.id}`} alt={portada.descripcion || lugar.nombre} loading="eager" fetchpriority="high" />
-                <span class="ver-fotos">Ver fotos</span>
-            </button>
+        {#if lugar.recursos?.length}
+            <Galeria recursos={lugar.recursos} nombre={lugar.nombre} prioritaria formato="portada" />
         {:else}<div class="sin-foto">Cerro Largo 360</div>{/if}
     </div>
     <header>
@@ -201,9 +197,7 @@
 <style>
     .ficha-mapa { color:#202124; background:#fff; font-family:inherit; border-radius:24px; overflow:clip; }
     .hero { position:relative; background:#e9efed; border-radius:24px 24px 0 0; overflow:hidden; }
-    .hero img,.sin-foto { width:100%; height:clamp(300px,42dvh,420px); object-fit:cover; display:block; }
-    .abrir-foto { display:block; width:100%; position:relative; text-align:left; }
-    .ver-fotos { position:absolute; right:18px; bottom:18px; background:#fff; color:#303d37; border-radius:20px; padding:7px 15px; font-size:12px; font-weight:600; box-shadow:0 2px 10px #0002; }
+    .sin-foto { width:100%; height:clamp(300px,42dvh,420px); display:block; }
     .sin-foto { display:grid; place-items:center; color:#285c46; }
     .cierre-flotante { position:sticky; top:16px; height:0; display:flex; justify-content:flex-end; padding-right:16px; z-index:3; pointer-events:none; }
     .cerrar { width:44px; height:44px; display:grid; place-items:center; flex-shrink:0; background:#fffe; border-radius:50%; box-shadow:0 2px 12px #0002; pointer-events:auto; }
