@@ -62,12 +62,11 @@
         </div>
         {#if recursos.length > 1}
             <div class="controles">
-                <button type="button" onclick={() => ir(actual - 1)} aria-label={`Recurso anterior de ${nombre}`}><span aria-hidden="true">‹</span></button>
-                <span class="contador">{actual + 1} / {recursos.length}</span>
+                <button class="anterior" type="button" onclick={() => ir(actual - 1)} aria-label={`Recurso anterior de ${nombre}`}><span aria-hidden="true">‹</span></button>
                 <button class="pausa" type="button" onclick={() => pausada = !pausada} aria-label={pausada ? `Reanudar carrusel de ${nombre}` : `Pausar carrusel de ${nombre}`} aria-pressed={pausada}>
                     <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">{#if pausada}<path d="m8 5 11 7-11 7Z" />{:else}<path d="M6 5h4v14H6zm8 0h4v14h-4z" />{/if}</svg>
                 </button>
-                <button type="button" onclick={() => ir(actual + 1)} aria-label={`Recurso siguiente de ${nombre}`}><span aria-hidden="true">›</span></button>
+                <button class="siguiente" type="button" onclick={() => ir(actual + 1)} aria-label={`Recurso siguiente de ${nombre}`}><span aria-hidden="true">›</span></button>
             </div>
             <p class="sr-only" role="status" aria-live={pausada ? 'polite' : 'off'}>Recurso {anunciado + 1} de {recursos.length}</p>
             <div class="indicadores" role="group" aria-label="Elegir recurso">
@@ -93,13 +92,15 @@
     .pista img,.pista video { height:100%; }
     img,video { display:block;width:100%;height:300px;object-fit:contain;background:#edf1eb; }
     .descripcion { margin:0;padding:12px 16px;font-size:12px;color:#59685f; }
-    .controles { position:absolute;left:50%;bottom:25px;transform:translateX(-50%);display:flex;justify-content:center;align-items:center;gap:2px;padding:0 4px;border-radius:30px;background:#14231bd9;color:white;box-shadow:0 2px 10px #0002; }
-    .controles button { display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:50%;background:transparent;color:inherit;font-size:26px;cursor:pointer;touch-action:manipulation; }
-    .controles button:hover { background:#ffffff20; }
-    .contador { min-width:42px;text-align:center;font-size:11px;font-variant-numeric:tabular-nums;color:white; }
+    .controles { position:absolute;inset:0;pointer-events:none; }
+    .controles button { position:absolute;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:50%;background:#14231b60;color:white;font-size:26px;cursor:pointer;touch-action:manipulation;pointer-events:auto; }
+    .controles button:hover { background:#14231ba8; }
+    .anterior { left:8px; }
+    .siguiente { right:8px; }
+    .controles .pausa { top:8px;left:50%;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%); }
+    .controles .pausa:focus-visible { width:40px;height:40px;clip-path:none;transform:translateX(-50%); }
     .indicadores { position:absolute;bottom:2px;left:50%;transform:translateX(-50%);display:flex;max-width:90%;overflow-x:auto;scrollbar-width:none; }
     .indicadores::-webkit-scrollbar { display:none; }
-    .media.video .controles { bottom:60px; }
     .media.video .indicadores { bottom:36px; }
     .indicadores button { display:grid;place-items:center;width:24px;height:24px;background:transparent;border:0;cursor:pointer; }
     .indicadores button { flex-shrink:0; }
