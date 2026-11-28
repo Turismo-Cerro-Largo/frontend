@@ -12,7 +12,7 @@ export function requiereCuenta({ ruta, pathname, aceptaHtml, datos, accion }: {
     accion: boolean;
 }) {
     return ruta !== null && pathname !== '/api' && !pathname.startsWith('/api/') &&
-        (aceptaHtml || datos || accion || ruta.startsWith('/(dashboard)/') || ruta.startsWith('/(autenticacion)/'));
+        (pathname === '/geocodificacion-inversa' || aceptaHtml || datos || accion || ruta.startsWith('/(dashboard)/') || ruta.startsWith('/(autenticacion)/'));
 }
 
 export function crearConsultaSesion(consultar: (token: string) => Promise<ResultadoSesion>, ahora = Date.now) {
@@ -41,4 +41,9 @@ export function crearConsultaSesion(consultar: (token: string) => Promise<Result
         pendientes.set(clave, consulta);
         return copiar(await consulta);
     };
+}
+
+export function requiereCuentaFresca(ruta: string | null, pathname: string, metodo: string) {
+ return metodo !== 'GET' || ruta?.startsWith('/(dashboard)/') || ruta?.startsWith('/(autenticacion)/') ||
+  pathname === '/cuenta-bloqueada' || pathname === '/geocodificacion-inversa';
 }

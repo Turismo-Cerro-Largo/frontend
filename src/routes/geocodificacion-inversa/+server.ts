@@ -21,7 +21,8 @@ let proximaConsulta = 0;
 let consultando = false;
 
 export const GET: RequestHandler = async ({ locals, url }) => {
-  const rol = locals.cuenta?.rol;
+  if (!locals.cuenta) return json({ error: 'Sesión requerida' }, { status: 401 });
+  const rol = locals.cuenta.rol;
   if (rol !== 'ADMINISTRADOR' && rol !== 'ORGANIZADOR') {
     return json({ error: 'Sin acceso' }, { status: 403 });
   }

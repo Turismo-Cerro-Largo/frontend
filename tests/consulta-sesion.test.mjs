@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { crearConsultaSesion, requiereCuenta } from '../src/lib/server/consulta-sesion.ts';
+import { crearConsultaSesion, requiereCuenta, requiereCuentaFresca } from '../src/lib/server/consulta-sesion.ts';
 
 const valida = (nombre = 'Ana') => ({ cuenta: { id: 1, nombre, rol: 'TURISTA' }, status: 200, bloqueada: false });
 
@@ -49,4 +49,12 @@ test('solo consulta para documentos, datos y acciones de páginas', () => {
     assert.equal(requiereCuenta({ ...caso, ruta: '/sitemap.xml', pathname: '/sitemap.xml', aceptaHtml: false }), false);
     assert.equal(requiereCuenta({ ...caso, ruta: '/(dashboard)/turista', aceptaHtml: false }), true);
     assert.equal(requiereCuenta({ ...caso, aceptaHtml: false, accion: true }), true);
+});
+
+test('geocodificación consulta la cuenta con sesión fresca aunque fetch no acepte HTML', () => {
+ const caso={ruta:'/geocodificacion-inversa',pathname:'/geocodificacion-inversa',aceptaHtml:false,datos:false,accion:false};
+ assert.equal(requiereCuenta(caso),true);
+ assert.equal(requiereCuentaFresca(caso.ruta,caso.pathname,'GET'),true);
+ assert.equal(requiereCuentaFresca('/lugares','/lugares','GET'),false);
+ assert.equal(requiereCuenta({...caso,ruta:'/api/[...path]',pathname:'/api/recursos/1'}),false);
 });
