@@ -45,7 +45,7 @@ async function agregarEventos(fetcher: typeof fetch, rutas: Set<string>) {
     for (let pagina = 1; pagina <= Math.ceil(maxUrls / limit) && rutas.size < maxUrls; pagina++) {
         const eventos = await eventosSeo(fetcher, limit, pagina, hoy);
         for (const evento of eventos) {
-            if (!evento.fin || Date.parse(evento.fin) >= ahora.getTime()) rutas.add(`/eventos/${evento.id}`);
+            if (!evento.fin || Date.parse(evento.fin) >= ahora.getTime()) rutas.add(`/eventos/${evento.slug || evento.id}`);
         }
         if (eventos.length < limit) break;
     }

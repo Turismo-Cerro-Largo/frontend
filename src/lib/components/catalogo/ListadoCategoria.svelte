@@ -89,7 +89,7 @@
                                 {item.descripcion}
                             </p>
 
-                            {#if item.fecha}<a class="mt-4 inline-block font-semibold text-[#477967] underline" href={`/eventos/${item.id}`}>Ver evento y ubicación</a>{/if}
+                            {#if item.fecha}<a class="mt-4 inline-block font-semibold text-[#477967] underline" href={`/eventos/${item.slug || item.id}`}>Ver evento y ubicación</a>{/if}
                             {#if !item.fecha}
                                 <a class="mt-4 inline-block font-semibold text-[#477967] underline" href={`/lugares/${item.id}`}>Ver lugar, favoritos y valoraciones</a>
                             {/if}

@@ -24,7 +24,7 @@
             >
                 {#each eventos as evento (evento.id)}
                     {@const imagen = evento.recursos.find((recurso) => recurso.tipo === 'IMAGEN')}
-                    <a href={'/eventos/' + evento.id} aria-label={'Ver ' + evento.titulo} class="event-card group relative block w-[85%] flex-none snap-start overflow-hidden rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#477967] lg:w-auto lg:snap-none">
+                    <a href={'/eventos/' + (evento.slug || evento.id)} aria-label={'Ver ' + evento.titulo} class="event-card group relative block w-[85%] flex-none snap-start overflow-hidden rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#477967] lg:w-auto lg:snap-none">
                         {#if imagen}
                             <img decoding="async" fetchpriority="auto" src={imagen.uri ?? '/api/recursos/' + imagen.id} loading="lazy" alt={'Afiche de ' + evento.titulo} class="aspect-4/5 w-full object-cover transition-transform duration-500 group-hover:scale-[1.04] group-focus-visible:scale-[1.04]" />
                             <span class="poster-caption pointer-events-none absolute inset-x-0 bottom-0 flex min-h-[38%] flex-col justify-end bg-gradient-to-t from-[#10291f]/95 via-[#10291f]/65 to-transparent px-5 pb-6 pt-12 text-white">
