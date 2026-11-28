@@ -25,6 +25,7 @@
   let { evento = null }: { evento?: Evento | null } = $props();
 
   const inicial = untrack(() => evento);
+  const publicado = $derived(evento?.estado === 'PUBLICADO');
   const inicioAnterior = fechaInput(inicial?.inicio ?? null);
   const finAnterior = fechaInput(inicial?.fin ?? null);
   const partesLugar = (inicial?.lugar_evento ?? '').split(' | ');
@@ -277,7 +278,7 @@
 
   async function guardar(event: SubmitEvent) {
     event.preventDefault();
-    const accion = (event.submitter as HTMLButtonElement)?.value as 'borrador' | 'revision';
+    const accion = publicado ? 'revision' : (event.submitter as HTMLButtonElement)?.value as 'borrador' | 'revision';
     if (guardando || !validar(accion)) return;
 
     guardando = true;
@@ -285,6 +286,7 @@
 
     try {
       const datos = new FormData(event.currentTarget as HTMLFormElement, event.submitter as HTMLButtonElement);
+      datos.set('accion', accion);
       const guardado = await guardarEvento(evento, datos);
 
       await goto(`/organizador/eventos/${guardado.id}`);
@@ -507,7 +509,7 @@
             class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3"
           >
             <option value="">Seleccionar localidad</option>
-            {#each localidades as opcion}
+            {#each localidades as opcion (opcion)}
               <option value={opcion}>{opcion}</option>
             {/each}
           </select>
@@ -692,7 +694,7 @@
     <div
       class="rounded-xl border border-[#ead79c] bg-[#fff8e5] p-5 text-sm text-[#67582d]"
     >
-      Los eventos enviados quedan pendientes de revisión del administrador.
+      {publicado ? 'Al guardar, el evento dejará de estar publicado y volverá a revisión del administrador.' : 'Los eventos enviados quedan pendientes de revisión del administrador.'}
     </div>
 
     <!-- BOTONES -->
@@ -706,20 +708,20 @@
         Cancelar
       </a>
 
-      <button
+      {#if !publicado}<button
         type="submit" name="accion" value="borrador" formnovalidate
         disabled={guardando || cargandoCategorias || categorias.length === 0 || !!errorCategorias}
         class="rounded-xl border border-[#9eaea2] bg-[#d7e5db] px-6 py-3 text-sm font-semibold text-[#35483c] disabled:opacity-50"
       >
         {guardando ? 'Guardando...' : 'Guardar borrador'}
-      </button>
+      </button>{/if}
 
       <button
         type="submit" name="accion" value="revision"
         disabled={guardando || cargandoCategorias || categorias.length === 0 || !!errorCategorias}
         class="rounded-xl bg-[#D89994] px-6 py-3 text-sm font-semibold text-[#442b29] disabled:opacity-50"
       >
-        {guardando ? 'Guardando...' : 'Enviar a revisión'}
+        {guardando ? 'Guardando...' : publicado ? 'Guardar y enviar a revisión' : 'Enviar a revisión'}
       </button>
     </div>
   </form>

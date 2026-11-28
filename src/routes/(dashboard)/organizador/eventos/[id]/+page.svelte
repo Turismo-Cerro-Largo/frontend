@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount, tick } from 'svelte';
+    import { contactoEvento } from '#lib/organizador/eventos.ts';
     import { goto } from '$app/navigation';
     import { obtenerLocalidadesPublicas } from '#lib/localidades/api.ts';
     import EstadoDireccionMapa from '#lib/components/EstadoDireccionMapa.svelte';
@@ -81,16 +82,17 @@
                 navegacionLocalidades.establecerLocalidades(localidadesData);
                 localidades = localidadesData.map((item) => item.nombre);
                 evento = datos.evento as Evento;
-                if (!['BORRADOR', 'RECHAZADO'].includes(evento.estado)) return;
+                if (!['BORRADOR', 'RECHAZADO', 'PUBLICADO'].includes(evento.estado)) return;
                 titulo = evento.titulo;
                 descripcion = evento.descripcion;
                 categoriaId = String(evento.id_categoria);
                 [fechaInicio, horaInicio] = separarFecha(evento.inicio);
                 [fechaFin, horaFin] = separarFecha(evento.fin);
-                const partesLugar = (evento.lugar_evento ?? '').split(', ');
+                const partesLugar = (evento.lugar_evento ?? '').split(evento.lugar_evento?.includes(' | ') ? ' | ' : ', ');
+                if (evento.lugar_evento?.includes(' | ')) partesLugar.reverse();
                 localidad = localidades.includes(partesLugar[0]) ? partesLugar.shift()! : '';
                 direccion = localidad ? partesLugar.join(', ') : (evento.lugar_evento ?? '');
-                [telefono = '', correo = '', redes = ''] = (evento.contacto ?? '').split(' | ');
+                ({ telefono, correo, redes } = contactoEvento(evento.contacto));
                 latitud = evento.latitud == null ? '' : String(evento.latitud);
                 longitud = evento.longitud == null ? '' : String(evento.longitud);
                 esGratuito = String(evento.es_gratuito);
@@ -139,6 +141,7 @@
         if (enviando) return;
         error = '';
         const datos = new FormData(event.currentTarget as HTMLFormElement, event.submitter as HTMLElement);
+        if (evento?.estado === 'PUBLICADO') datos.set('accion', 'revision');
         enviando = true;
         try {
             const respuesta = await fetch(`/api/eventos/${encodeURIComponent(id)}`, {
@@ -170,9 +173,9 @@
             >Abrir vista previa ↗</a
         >
         <p class="mb-1 text-sm font-medium text-[#708076]">Panel del organizador</p>
-        <h1 class="text-3xl font-bold text-[#26382e]">{evento && ['BORRADOR', 'RECHAZADO'].includes(evento.estado) ? 'Editar evento' : 'Ver evento'}</h1>
+        <h1 class="text-3xl font-bold text-[#26382e]">{evento && ['BORRADOR', 'RECHAZADO', 'PUBLICADO'].includes(evento.estado) ? 'Editar evento' : 'Ver evento'}</h1>
         <p class="mt-2 text-[#68746c]">
-            {evento && ['BORRADOR', 'RECHAZADO'].includes(evento.estado) ? 'Actualizá los datos y guardá como borrador o enviá a revisión.' : 'Consultá la información del evento.'}
+            {evento && ['BORRADOR', 'RECHAZADO', 'PUBLICADO'].includes(evento.estado) ? evento.estado === 'PUBLICADO' ? 'Al guardar tus cambios, el evento volverá a revisión.' : 'Actualizá los datos y guardá como borrador o enviá a revisión.' : 'Consultá la información del evento.'}
         </p>
     </header>
 
@@ -180,7 +183,7 @@
         <p class="text-[#68746c]">Cargando evento...</p>
     {:else if !evento}
         <p role="alert" class="text-red-700">{error || 'No se encontró el evento.'}</p>
-    {:else if !['BORRADOR', 'RECHAZADO'].includes(evento.estado)}
+    {:else if !['BORRADOR', 'RECHAZADO', 'PUBLICADO'].includes(evento.estado)}
         <div class="max-w-5xl space-y-5">
             <div class="rounded-2xl border border-[#ded8cf] bg-white p-6 shadow-sm">
                 <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -319,7 +322,7 @@
                         <label for="localidad" class="mb-2 block text-sm font-semibold">Localidad</label>
                         <select id="localidad" name="localidad" bind:value={localidad} onchange={(evento) => { busquedaDireccion.editarLocalidad(); navegacionLocalidades.seleccionar(evento.currentTarget.value); }} class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3">
                             <option value="">Seleccionar localidad</option>
-                            {#each localidades as opcion}
+                            {#each localidades as opcion (opcion)}
                                 <option value={opcion}>{opcion}</option>
                             {/each}
                         </select>
@@ -406,23 +409,23 @@
             </div>
 
             {#if error}<div role="alert" class="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}</div>{/if}
-            <div class="rounded-xl border border-[#ead79c] bg-[#fff8e5] p-5 text-sm text-[#67582d]">Los eventos enviados quedan pendientes de revisión del administrador.</div>
+            <div class="rounded-xl border border-[#ead79c] bg-[#fff8e5] p-5 text-sm text-[#67582d]">{evento.estado === 'PUBLICADO' ? 'Al guardar, el evento dejará de estar publicado y volverá a revisión del administrador.' : 'Los eventos enviados quedan pendientes de revisión del administrador.'}</div>
             <div class="flex flex-col-reverse gap-3 border-t border-[#ded8cf] pt-6 sm:flex-row sm:justify-end">
                 <a href="/organizador/eventos" class="rounded-xl border border-[#c8c4bd] bg-white px-6 py-3 text-center text-sm font-semibold">Cancelar</a>
-                <button
+                {#if evento.estado !== 'PUBLICADO'}<button
                     type="submit"
                     name="accion"
                     value="borrador"
                     disabled={enviando || categorias.length === 0}
                     class="rounded-xl border border-[#9eaea2] bg-[#d7e5db] px-6 py-3 text-sm font-semibold text-[#35483c] disabled:opacity-50"
                     >{enviando ? 'Guardando...' : 'Guardar borrador'}</button
-                >
+                >{/if}
                 <button
                     type="submit"
                     name="accion"
                     value="revision"
                     disabled={enviando || categorias.length === 0}
-                    class="rounded-xl bg-[#D89994] px-6 py-3 text-sm font-semibold text-[#442b29] disabled:opacity-50">{enviando ? 'Guardando...' : 'Enviar a revisión'}</button
+                    class="rounded-xl bg-[#D89994] px-6 py-3 text-sm font-semibold text-[#442b29] disabled:opacity-50">{enviando ? 'Guardando...' : evento.estado === 'PUBLICADO' ? 'Guardar y enviar a revisión' : 'Enviar a revisión'}</button
                 >
             </div>
         </form>
