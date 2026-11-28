@@ -1,7 +1,6 @@
-
 <script lang="ts">
-    import ListadoCategoria from '$lib/components/Categorias/ListadoCategoria.svelte';
-    import type { DatosCategoria } from '$lib/types/categoria';
+    import ListadoCategoria from '#lib/components/catalogo/ListadoCategoria.svelte';
+    import type { DatosCategoria } from '#lib/types/categoria.ts';
 
     let { data }: { data: DatosCategoria } = $props();
 </script>

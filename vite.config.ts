@@ -1,13 +1,36 @@
 // vite.config.ts
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
-import adapter from '@sveltejs/adapter-node';
+import { defineConfig, loadEnv } from 'vite';
+import adapter from '@sveltejs/adapter-auto';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+    server: {
+        proxy: {
+            '/api': {
+                target: loadEnv(mode, '.', 'API_URL').API_URL?.trim() || 'http://127.0.0.1:4000',
+                changeOrigin: true,
+                proxyTimeout: 30000,
+            },
+        },
+    },
 	plugins: [
 		tailwindcss(),
 		sveltekit({
+            csp: {
+                mode: 'auto',
+                directives: {
+                    'base-uri': ['none'],
+                    'object-src': ['none'],
+                    'frame-ancestors': ['none'],
+                    'form-action': ['self'],
+                    'script-src': mode === 'production'
+                        ? ['self', 'strict-dynamic', 'https://challenges.cloudflare.com', 'https://static.cloudflareinsights.com', 'https://us-assets.i.posthog.com']
+                        : ['self', 'unsafe-inline', 'https://challenges.cloudflare.com', 'https://static.cloudflareinsights.com', 'https://us-assets.i.posthog.com'],
+                    'worker-src': ['self', 'blob:'],
+                    'frame-src': ['self', 'https://challenges.cloudflare.com', 'https://www.youtube.com', 'https://www.youtube-nocookie.com'],
+                },
+            },
 			compilerOptions: {
 				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
 				runes: ({ filename }) => filename.split(/[/\\]/).includes('node_modules') ? undefined : true
@@ -20,13 +43,4 @@ export default defineConfig({
 		})
 	],
 
-	// proxy
-	server: {
-		proxy: {
-			'/api': {
-				target: 'http://localhost:4000',
-				changeOrigin: true
-			}
-		}
-	},
-});
+}));

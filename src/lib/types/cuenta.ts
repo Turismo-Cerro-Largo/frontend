@@ -1,7 +1,8 @@
 // src/lib/types/cuenta.ts
 export type Cuenta = {
     id: number;
-    rol: "TURISTA" | "ADMINISTRADOR" | "ORGANIZADOR";
+    rol: 'TURISTA' | 'ADMINISTRADOR' | 'ORGANIZADOR';
     nombre: string;
-    estado?: "PENDIENTE_REVISION" | "APROBADO" | "RECHAZADO";
+    foto?: string | null;
+    estado?: 'PENDIENTE_REVISION' | 'APROBADO' | 'RECHAZADO';
 };

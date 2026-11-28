@@ -1,2 +1,6 @@
 allowBuilds:
+  core-js: true
   esbuild: true
+
+overrides:
+  postcss-selector-parser: 7.1.6

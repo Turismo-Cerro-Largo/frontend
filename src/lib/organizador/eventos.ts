@@ -3,7 +3,7 @@ import type {
   CategoriaEvento,
   EstadoEvento,
   Evento
-} from '$lib/types/evento';
+} from '#lib/types/evento.ts';
 
 const API = '/api/organizador/eventos';
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { dialogo } from '#lib/actions/dialogo.ts';
     import { onMount } from 'svelte';
     type Estado = 'PUBLICADO' | 'OCULTADO';
     type Categoria = { id: number; nombre: string };
@@ -200,17 +201,16 @@
             </div>
         </footer>
     </div>
-    {#if confirmar}<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="presentation">
-            <div role="dialog" aria-modal="true" aria-labelledby="confirm-title" class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+    {#if confirmar}
+            <dialog use:dialogo onclose={() => (confirmar = null)} oncancel={(event) => { if (procesando !== null) event.preventDefault(); }} aria-labelledby="confirm-title" class="m-auto max-h-[92dvh] overflow-y-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
                 <h2 id="confirm-title" class="text-xl font-semibold">Eliminar ubicación</h2>
                 <p class="mt-3 text-slate-600">¿Querés eliminar <strong>{confirmar.nombre}</strong>? Esta acción no se puede deshacer.</p>
                 <div class="mt-6 flex justify-end gap-3">
-                    <button class="rounded-lg border px-4 py-2" onclick={() => (confirmar = null)}>Cancelar</button><button
+                    <button data-foco-inicial class="rounded-lg border px-4 py-2" onclick={() => (confirmar = null)}>Cancelar</button><button
                         class="rounded-lg bg-rose-700 px-4 py-2 text-white disabled:opacity-50"
                         disabled={procesando !== null}
                         onclick={eliminar}>Eliminar</button
                     >
                 </div>
-            </div>
-        </div>{/if}
+            </dialog>{/if}
 </section>

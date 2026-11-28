@@ -1,8 +1,12 @@
 
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { goto } from '$app/navigation';
-  import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
+  import { obtenerLocalidadesPublicas } from '#lib/localidades/api.ts';
+  import EstadoDireccionMapa from '#lib/components/EstadoDireccionMapa.svelte';
+  import { PUBLIC_MAPBOX_TOKEN } from '$app/env/public';
+  import { crearBusquedaDireccion } from '#lib/localidades/direccion-mapa.ts';
+    import { crearNavegacionLocalidades } from '#lib/localidades/navegacion-mapa.ts';
   import type { Map, Marker } from 'mapbox-gl';
   import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -11,26 +15,28 @@
     fechaInput,
     guardarEvento,
     obtenerCategorias
-  } from '$lib/organizador/eventos';
+  } from '#lib/organizador/eventos.ts';
 
   import type {
     CategoriaEvento,
     Evento
-  } from '$lib/types/evento';
+  } from '#lib/types/evento.ts';
 
   let { evento = null }: { evento?: Evento | null } = $props();
 
-  const inicioAnterior = fechaInput(evento?.inicio ?? null);
-  const finAnterior = fechaInput(evento?.fin ?? null);
-  const partesLugar = (evento?.lugar_evento ?? '').split(' | ');
-  const contacto = contactoEvento(evento?.contacto ?? null);
+  const inicial = untrack(() => evento);
+  const publicado = $derived(evento?.estado === 'PUBLICADO');
+  const inicioAnterior = fechaInput(inicial?.inicio ?? null);
+  const finAnterior = fechaInput(inicial?.fin ?? null);
+  const partesLugar = (inicial?.lugar_evento ?? '').split(' | ');
+  const contacto = contactoEvento(inicial?.contacto ?? null);
 
-  let nombre = $state(evento?.titulo ?? '');
-  let descripcion = $state(evento?.descripcion ?? '');
+  let nombre = $state(inicial?.titulo ?? '');
+  let descripcion = $state(inicial?.descripcion ?? '');
 
   // CATEGORÍAS DE MYSQL
   let categorias = $state<CategoriaEvento[]>([]);
-  let categoriaId = $state(String(evento?.id_categoria ?? ''));
+  let categoriaId = $state(String(inicial?.id_categoria ?? ''));
   let cargandoCategorias = $state(true);
   let errorCategorias = $state('');
 
@@ -47,14 +53,14 @@
   let direccion = $state(
     partesLugar.length > 1
       ? partesLugar.slice(0, -1).join(' | ')
-      : (evento?.lugar_evento ?? '')
+      : (inicial?.lugar_evento ?? '')
   );
 
   let latitud = $state<number | null>(
-    evento?.latitud == null ? null : Number(evento.latitud)
+    inicial?.latitud == null ? null : Number(inicial.latitud)
   );
   let longitud = $state<number | null>(
-    evento?.longitud == null ? null : Number(evento.longitud)
+    inicial?.longitud == null ? null : Number(inicial.longitud)
   );
 
   let mapContainer: HTMLDivElement;
@@ -64,10 +70,10 @@
 
   // ENTRADA
   let tipoEntrada = $state(
-    evento?.es_gratuito === false ? 'pago' : 'gratuito'
+    inicial?.es_gratuito === false ? inicial.precio == null ? 'confirmar' : 'pago' : 'gratuito'
   );
   let precio = $state(
-    evento?.precio == null ? '' : String(evento.precio)
+    inicial?.precio == null ? '' : String(inicial.precio)
   );
 
   // CONTACTO
@@ -79,17 +85,15 @@
   let guardando = $state(false);
   let mensaje = $state('');
 
-  const localidades = [
-    'Melo',
-    'Río Branco',
-    'Laguna Merín',
-    'Fraile Muerto',
-    'Isidoro Noblía',
-    'Aceguá',
-    'Tupambaé',
-    'Arévalo',
-    'Plácido Rosas'
-  ];
+  let localidades = $state<string[]>([]);
+  let estadoDireccion = $state('');
+  const navegacionLocalidades = crearNavegacionLocalidades();
+    const busquedaDireccion = crearBusquedaDireccion({
+    localidades: () => localidades,
+    localidad: (valor) => { localidad = valor; },
+    direccion: (valor) => { direccion = valor; },
+    estado: (valor) => { estadoDireccion = valor; }
+  });
 
   // OBTENER CATEGORÍAS DE LA BASE DE DATOS
   async function cargarCategorias() {
@@ -122,6 +126,10 @@
   onMount(() => {
     let destruido = false;
 
+    obtenerLocalidadesPublicas()
+      .then((datos) => { if (!destruido) { navegacionLocalidades.establecerLocalidades(datos); localidades = datos.map((item) => item.nombre); } })
+      .catch((error) => { if (!destruido) mensaje = error instanceof Error ? error.message : 'No se pudieron cargar las localidades.'; });
+
     // CARGAR CATEGORÍAS AL ABRIR EL FORMULARIO
     void cargarCategorias();
 
@@ -147,6 +155,7 @@
           zoom: latitud === null ? 9 : 13
         });
 
+        navegacionLocalidades.establecerMapa(mapa);
         mapa.addControl(
           new mapboxgl.NavigationControl(),
           'top-right'
@@ -175,6 +184,7 @@
           } else {
             marcador.setLngLat([longitud!, latitud!]);
           }
+          void busquedaDireccion.buscar(lngLat.lng, lngLat.lat);
         });
       } catch (error) {
         mensajeMapa =
@@ -186,6 +196,7 @@
 
     return () => {
       destruido = true;
+      busquedaDireccion.cancelar();
       marcador?.remove();
       mapa?.remove();
     };
@@ -265,45 +276,17 @@
     return new Date(`${dia}T${hora}:00-03:00`).toISOString();
   }
 
-  async function guardar(accion: 'borrador' | 'revision') {
+  async function guardar(event: SubmitEvent) {
+    event.preventDefault();
+    const accion = publicado ? 'revision' : (event.submitter as HTMLButtonElement)?.value as 'borrador' | 'revision';
     if (guardando || !validar(accion)) return;
 
     guardando = true;
     mensaje = '';
 
     try {
-      const datos = new FormData();
-
-      const campos: Record<string, string> = {
-        titulo: nombre.trim(),
-        descripcion: descripcion.trim(),
-        id_categoria: categoriaId,
-        inicio: fechaISO(fecha, horaInicio),
-        fin:
-          fechaFin && horaFin
-            ? fechaISO(fechaFin, horaFin)
-            : '',
-        localidad,
-        direccion: direccion.trim(),
-        latitud: latitud === null ? '' : String(latitud),
-        longitud: longitud === null ? '' : String(longitud),
-        es_gratuito:
-          tipoEntrada === 'gratuito' ? 'true' : 'false',
-        precio: tipoEntrada === 'gratuito' ? '' : precio,
-        telefono: telefono.trim(),
-        correo: correo.trim(),
-        redes: redes.trim(),
-        accion
-      };
-
-      for (const [clave, valor] of Object.entries(campos)) {
-        datos.append(clave, valor);
-      }
-
-      for (const archivo of archivos) {
-        datos.append('recursos', archivo);
-      }
-
+      const datos = new FormData(event.currentTarget as HTMLFormElement, event.submitter as HTMLButtonElement);
+      datos.set('accion', accion);
       const guardado = await guardarEvento(evento, datos);
 
       await goto(`/organizador/eventos/${guardado.id}`);
@@ -348,8 +331,17 @@
 
   <form
     class="max-w-5xl space-y-6"
-    onsubmit={(event) => event.preventDefault()}
+    method="post"
+    enctype="multipart/form-data"
+    onsubmit={guardar}
   >
+    <input type="hidden" name="inicio" value={fecha && horaInicio ? fechaISO(fecha, horaInicio) : ''} />
+    <input type="hidden" name="fin" value={fechaFin && horaFin ? fechaISO(fechaFin, horaFin) : ''} />
+    <input type="hidden" name="latitud" value={latitud === null ? '' : String(latitud)} />
+    <input type="hidden" name="longitud" value={longitud === null ? '' : String(longitud)} />
+    <input type="hidden" name="es_gratuito" value={tipoEntrada === 'gratuito' ? 'true' : 'false'} />
+    <input type="hidden" name="precio" value={tipoEntrada === 'pago' ? precio : ''} />
+    <input type="hidden" name="precio_a_confirmar" value={tipoEntrada === 'confirmar' ? 'true' : 'false'} />
     <!-- INFORMACIÓN -->
     <div class="rounded-2xl border border-[#ded8cf] bg-white p-6 shadow-sm">
       <h2 class="mb-5 text-xl font-bold text-[#26382e]">
@@ -359,11 +351,11 @@
       <div class="space-y-5">
         <div>
           <label for="nombre" class="mb-2 block text-sm font-semibold">
-            Nombre del evento *
+            Nombre del evento <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
           </label>
 
           <input
-            id="nombre"
+            id="nombre" name="titulo"
             bind:value={nombre}
             maxlength="180"
             placeholder="Ej: Feria de artesanos de Melo"
@@ -374,11 +366,11 @@
         <!-- CATEGORÍA DINÁMICA -->
         <div>
           <label for="categoria" class="mb-2 block text-sm font-semibold">
-            Categoría del evento *
+            Categoría del evento <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
           </label>
 
           <select
-            id="categoria"
+            id="categoria" name="id_categoria"
             bind:value={categoriaId}
             disabled={cargandoCategorias || categorias.length === 0}
             required
@@ -420,11 +412,11 @@
 
         <div>
           <label for="descripcion" class="mb-2 block text-sm font-semibold">
-            Descripción *
+            Descripción <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
           </label>
 
           <textarea
-            id="descripcion"
+            id="descripcion" name="descripcion"
             bind:value={descripcion}
             maxlength="5000"
             rows="5"
@@ -448,7 +440,7 @@
       <div class="grid gap-5 md:grid-cols-2">
         <div>
           <label for="fecha" class="mb-2 block text-sm font-semibold">
-            Fecha de inicio *
+            Fecha de inicio <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
           </label>
           <input
             id="fecha"
@@ -460,7 +452,7 @@
 
         <div>
           <label for="horaInicio" class="mb-2 block text-sm font-semibold">
-            Hora de inicio *
+            Hora de inicio <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
           </label>
           <input
             id="horaInicio"
@@ -512,12 +504,13 @@
             Localidad
           </label>
           <select
-            id="localidad"
+            id="localidad" name="localidad"
             bind:value={localidad}
+            onchange={(evento) => { busquedaDireccion.editarLocalidad(); navegacionLocalidades.seleccionar(evento.currentTarget.value); }}
             class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3"
           >
             <option value="">Seleccionar localidad</option>
-            {#each localidades as opcion}
+            {#each localidades as opcion (opcion)}
               <option value={opcion}>{opcion}</option>
             {/each}
           </select>
@@ -528,8 +521,9 @@
             Dirección / lugar
           </label>
           <input
-            id="direccion"
+            id="direccion" name="direccion"
             bind:value={direccion}
+            oninput={busquedaDireccion.editarDireccion}
             maxlength="150"
             placeholder="Ej: Plaza Constitución, Melo"
             class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3"
@@ -548,6 +542,7 @@
         ></div>
       </div>
 
+      <EstadoDireccionMapa estado={estadoDireccion} />
       {#if mensajeMapa}
         <p class="mt-2 text-sm text-red-700">{mensajeMapa}</p>
       {/if}
@@ -570,7 +565,7 @@
       </p>
 
       <input
-        type="file"
+        type="file" name="recursos"
         accept="image/jpeg,image/png,image/webp"
         multiple
         onchange={manejarImagenes}
@@ -586,7 +581,7 @@
       {#if evento?.recursos.length}
         <div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
           {#each evento.recursos as recurso (recurso.id)}
-            <img
+            <img decoding="async" loading="lazy" fetchpriority="auto"
               src={recurso.uri}
               alt="Imagen guardada del evento"
               class="h-28 w-full rounded-xl object-cover"
@@ -605,7 +600,7 @@
       <div class="flex gap-6">
         <label class="flex items-center gap-2">
           <input
-            type="radio"
+            type="radio" name="tipo_entrada"
             value="gratuito"
             bind:group={tipoEntrada}
           />
@@ -614,12 +609,13 @@
 
         <label class="flex items-center gap-2">
           <input
-            type="radio"
+            type="radio" name="tipo_entrada"
             value="pago"
             bind:group={tipoEntrada}
           />
           Paga
         </label>
+        <label class="flex items-center gap-2"><input type="radio" name="tipo_entrada" value="confirmar" bind:group={tipoEntrada} /> A confirmar</label>
       </div>
 
       {#if tipoEntrada === 'pago'}
@@ -630,7 +626,8 @@
           <input
             id="precio"
             type="number"
-            min="0"
+            required
+            min="0.01"
             step="0.01"
             value={precio}
             oninput={(e) => precio = e.currentTarget.value}
@@ -652,7 +649,7 @@
             Teléfono
           </label>
           <input
-            id="telefono"
+            id="telefono" name="telefono"
             type="tel"
             bind:value={telefono}
             maxlength="30"
@@ -665,7 +662,7 @@
             Correo electrónico
           </label>
           <input
-            id="correo"
+            id="correo" name="correo"
             type="email"
             bind:value={correo}
             class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3"
@@ -677,7 +674,7 @@
             Redes sociales
           </label>
           <input
-            id="redes"
+            id="redes" name="redes"
             bind:value={redes}
             maxlength="80"
             placeholder="Ej: @feriacerrolargo"
@@ -700,7 +697,7 @@
     <div
       class="rounded-xl border border-[#ead79c] bg-[#fff8e5] p-5 text-sm text-[#67582d]"
     >
-      Los eventos enviados quedan pendientes de revisión del administrador.
+      {publicado ? 'Al guardar, el evento dejará de estar publicado y volverá a revisión del administrador.' : 'Los eventos enviados quedan pendientes de revisión del administrador.'}
     </div>
 
     <!-- BOTONES -->
@@ -714,22 +711,20 @@
         Cancelar
       </a>
 
-      <button
-        type="button"
+      {#if !publicado}<button
+        type="submit" name="accion" value="borrador" formnovalidate
         disabled={guardando || cargandoCategorias || categorias.length === 0 || !!errorCategorias}
-        onclick={() => guardar('borrador')}
         class="rounded-xl border border-[#9eaea2] bg-[#d7e5db] px-6 py-3 text-sm font-semibold text-[#35483c] disabled:opacity-50"
       >
         {guardando ? 'Guardando...' : 'Guardar borrador'}
-      </button>
+      </button>{/if}
 
       <button
-        type="button"
+        type="submit" name="accion" value="revision"
         disabled={guardando || cargandoCategorias || categorias.length === 0 || !!errorCategorias}
-        onclick={() => guardar('revision')}
         class="rounded-xl bg-[#D89994] px-6 py-3 text-sm font-semibold text-[#442b29] disabled:opacity-50"
       >
-        {guardando ? 'Guardando...' : 'Enviar a revisión'}
+        {guardando ? 'Guardando...' : publicado ? 'Guardar y enviar a revisión' : 'Enviar a revisión'}
       </button>
     </div>
   </form>

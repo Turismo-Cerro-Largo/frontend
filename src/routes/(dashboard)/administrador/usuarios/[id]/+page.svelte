@@ -1,8 +1,10 @@
 <script lang="ts">
+    import AccesoCuenta from "#lib/components/admin/AccesoCuenta.svelte";
     import { onMount } from 'svelte';
     import { page } from '$app/state';
     type Usuario = {
         id: number;
+        estado_acceso: 'ACTIVO' | 'BLOQUEADO' | 'ELIMINADO';
         nombres: string;
         apellidos: string;
         email: string;
@@ -91,13 +93,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="rounded-2xl border border-[#e0e6df] bg-white p-5 text-sm text-slate-600">
-                    <p class="font-semibold text-[#26382e]">Consulta administrativa</p>
-                    <p class="mt-2">
-                        Esta vista es de solo lectura. El modelo actual no tiene estado de cuenta para bloquear o activar usuarios. Tampoco se habilita el cambio de rol sin reglas
-                        de seguridad adicionales.
-                    </p>
-                </div>
+                {#if usuario.rol === "TURISTA"}<AccesoCuenta endpoint={`/api/admin/usuarios/${usuario.id}`} estado={usuario.estado_acceso} actualizar={(estado_acceso) => { if (usuario) usuario = { ...usuario, estado_acceso }; }} />{/if}
             </div>
         </div>
     {/if}

@@ -1,8 +1,13 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { obtenerLocalidadesPublicas } from '#lib/localidades/api.ts';
+    import EstadoDireccionMapa from '#lib/components/EstadoDireccionMapa.svelte';
+    import { crearBusquedaDireccion } from '#lib/localidades/direccion-mapa.ts';
+    import { crearNavegacionLocalidades } from '#lib/localidades/navegacion-mapa.ts';
+    import { subirRecursosDelFormulario } from '#lib/admin/subir-recursos.ts';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import { goto } from '$app/navigation';
-    import { env } from '$env/dynamic/public';
+    import * as env from '$app/env/public';
     const PUBLIC_MAPBOX_TOKEN = env.PUBLIC_MAPBOX_TOKEN || import.meta.env.VITE_MAPBOX_TOKEN || '';
     type Estado = 'PUBLICADO' | 'OCULTADO';
     type Categoria = { id: number; nombre: string };
@@ -43,6 +48,7 @@
         mensaje = $state('');
     let subiendo = $state(false),
         inputArchivo: HTMLInputElement;
+    let formulario: HTMLFormElement;
     let contenedor: HTMLDivElement;
     let mapa: any = null,
         marcador: any = null;
@@ -54,28 +60,48 @@
         mapa.scrollZoom.enable();
         mapa.doubleClickZoom.enable();
         mapa.touchZoomRotate.enable();
+        navegacionLocalidades.establecerMapa(mapa);
         mapa.addControl(new mb.NavigationControl(), 'top-right');
         marcador = new mb.Marker({ draggable: true, color: '#477967' }).setLngLat([form.longitud, form.latitud]).addTo(mapa);
         marcador.on('dragend', () => {
             const p = marcador.getLngLat();
             form.latitud = Number(p.lat.toFixed(6));
             form.longitud = Number(p.lng.toFixed(6));
+            void busquedaDireccion.buscar(form.longitud, form.latitud);
         });
         mapa.on('click', (e: any) => {
             form.latitud = Number(e.lngLat.lat.toFixed(6));
             form.longitud = Number(e.lngLat.lng.toFixed(6));
             marcador.setLngLat([form.longitud, form.latitud]);
+            void busquedaDireccion.buscar(form.longitud, form.latitud);
         });
         mapa.on('load', () => mapa.resize());
     }
     function moverMapa() {
         if (mapa && marcador && Number.isFinite(form.latitud) && Number.isFinite(form.longitud)) {
             marcador.setLngLat([form.longitud, form.latitud]);
+            busquedaDireccion.cancelar();
+            estadoDireccion = '';
             mapa.flyTo({ center: [form.longitud, form.latitud], zoom: Math.max(mapa.getZoom(), 11) });
         }
     }
+    let localidadesDisponibles = $state<string[]>([]);
+    let estadoDireccion = $state('');
+    const navegacionLocalidades = crearNavegacionLocalidades();
+    const busquedaDireccion = crearBusquedaDireccion({
+        localidades: () => localidadesDisponibles,
+        localidad: (valor) => { form.localidad = valor; },
+        direccion: (valor) => { form.direccion = valor; },
+        estado: (valor) => { estadoDireccion = valor; }
+    });
+    let errorLocalidades = $state('');
+    let cargandoLocalidades = $state(true);
     onMount(() => {
         let activo = true;
+        obtenerLocalidadesPublicas()
+            .then((datos) => { if (activo) { navegacionLocalidades.establecerLocalidades(datos); localidadesDisponibles = datos.map((item) => item.nombre); } })
+            .catch(() => { if (activo) errorLocalidades = 'No se pudieron cargar las localidades.'; })
+            .finally(() => { if (activo) cargandoLocalidades = false; });
         async function cargar() {
             try {
                 const cr = await fetch('/api/categorias', { credentials: 'include' });
@@ -95,6 +121,7 @@
         void cargar();
         return () => {
             activo = false;
+            busquedaDireccion.cancelar();
             mapa?.remove();
             for (const vista of vistasPrevias) URL.revokeObjectURL(vista.url);
         };
@@ -111,19 +138,16 @@
         error = '';
         subiendo = true;
         try {
-            for (const file of seleccion) {
-                if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) throw new Error(`${file.name}: seleccioná una imagen o video.`);
-                const fd = new FormData();
-                fd.append('recursos', file);
-                const response = await fetch('/api/admin/ubicaciones/recursos/upload', { method: 'POST', credentials: 'include', body: fd });
-                const data = await response.json().catch(() => ({}));
-                if (!response.ok) throw new Error(data.error ?? `Error al subir ${file.name} (${response.status}).`);
-                const tipo: 'IMAGEN' | 'VIDEO' = file.type.startsWith('video/') ? 'VIDEO' : 'IMAGEN';
-                recursos = [...recursos, { tipo: data.tipo as 'IMAGEN' | 'VIDEO', uri: data.uri }];
-                vistasPrevias = [...vistasPrevias, { url: URL.createObjectURL(file), tipo, nombre: file.name }];
-            }
+            await subirRecursosDelFormulario(formulario, inputArchivo, seleccion, (cargados, lote) => {
+                recursos = [...recursos, ...cargados];
+                vistasPrevias = [...vistasPrevias, ...lote.map((file) => ({
+                    url: URL.createObjectURL(file),
+                    tipo: file.type.startsWith('video/') ? 'VIDEO' as const : 'IMAGEN' as const,
+                    nombre: file.name,
+                }))];
+            });
         } catch (e) {
-            error = e instanceof Error ? e.message : 'No se pudo subir el archivo.';
+            error = e instanceof Error ? e.message : 'No se pudieron subir los archivos.';
         } finally {
             subiendo = false;
             if (inputArchivo) inputArchivo.value = '';
@@ -174,7 +198,7 @@
     {#if error}<p role="alert" class="rounded-lg bg-rose-50 p-4 text-rose-800">{error}</p>{/if}{#if mensaje}<p role="status" class="rounded-lg bg-emerald-50 p-4 text-emerald-800">
             {mensaje}
         </p>{/if}
-    <form
+    <form bind:this={formulario} method="post" enctype="multipart/form-data"
         class="flex min-w-0 flex-col gap-6"
         onsubmit={(e) => {
             e.preventDefault();
@@ -186,6 +210,7 @@
             <p class="text-sm text-slate-500">Hacé clic para marcar un lugar, arrastrá el marcador o usá la rueda del mouse para acercar y alejar.</p>
             {#if !PUBLIC_MAPBOX_TOKEN}<p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">Falta PUBLIC_MAPBOX_TOKEN en el .env del frontend.</p>{/if}
             <div bind:this={contenedor} class="h-90 w-full min-w-0 max-w-full overflow-hidden rounded-xl bg-slate-100 md:h-120"></div>
+            <EstadoDireccionMapa estado={estadoDireccion} />
             <div class="grid gap-3 sm:grid-cols-2">
                 <label class="text-sm"
                     >Latitud<input type="number" step="any" min="-90" max="90" bind:value={form.latitud} onchange={moverMapa} class="mt-1 w-full rounded-lg border p-2" /></label
@@ -209,13 +234,27 @@
                 >Descripción *<textarea required rows="5" maxlength="5000" bind:value={form.descripcion} class="mt-1 w-full rounded-lg border p-2"></textarea></label
             >
             <div class="grid gap-3 sm:grid-cols-2">
-                <label class="text-sm">Localidad *<input required bind:value={form.localidad} class="mt-1 w-full rounded-lg border p-2" /></label><label class="text-sm"
+                <label class="block min-w-0 text-sm">Localidad <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span>
+                    <span class="relative mt-1 flex items-center">
+                        <span aria-hidden="true" class="pointer-events-none absolute left-3.5 text-[22px] leading-none text-[#2f6d50]">⌖</span>
+                        <select required bind:value={form.localidad} onchange={(evento) => { busquedaDireccion.editarLocalidad(); navegacionLocalidades.seleccionar(evento.currentTarget.value); }} disabled={cargandoLocalidades || (!localidadesDisponibles.length && !form.localidad)} class="min-h-12 w-full cursor-pointer appearance-none rounded-[11px] border border-[#b7cebd] bg-white py-2.5 pl-10 pr-9 text-sm font-semibold text-[#233c35] disabled:cursor-not-allowed disabled:opacity-60">
+                            <option value="" disabled>{cargandoLocalidades ? 'Cargando localidades…' : 'Seleccionar localidad'}</option>
+                            {#if form.localidad && !localidadesDisponibles.includes(form.localidad)}
+                                <option value={form.localidad}>{form.localidad} (valor actual)</option>
+                            {/if}
+                            {#each localidadesDisponibles as nombre}<option value={nombre}>{nombre}</option>{/each}
+                        </select>
+                        <span aria-hidden="true" class="pointer-events-none absolute right-3.5 text-[22px] leading-none text-[#2f6d50]">⌄</span>
+                    </span>
+                    {#if errorLocalidades}<span class="mt-1 block text-xs text-red-700">{errorLocalidades} <a href="/administrador/localidades" class="underline">Administrar localidades</a></span>{/if}
+                    {#if !cargandoLocalidades && !errorLocalidades && !localidadesDisponibles.length}<span class="mt-1 block text-xs text-amber-800">No hay localidades publicadas. <a href="/administrador/localidades" class="underline">Administrar localidades</a></span>{/if}
+                </label><label class="text-sm"
                     >Categoría *<select required bind:value={form.id_categoria} class="mt-1 w-full rounded-lg border p-2"
                         ><option value={0} disabled>Seleccionar</option>{#each categorias as c}<option value={c.id}>{c.nombre}</option>{/each}</select
                     ></label
                 >
             </div>
-            <label class="block text-sm">Dirección<input bind:value={form.direccion} class="mt-1 w-full rounded-lg border p-2" /></label>
+            <label class="block text-sm">Dirección<input bind:value={form.direccion} oninput={busquedaDireccion.editarDireccion} class="mt-1 w-full rounded-lg border p-2" /></label>
             <div class="grid gap-3 sm:grid-cols-2">
                 <label class="text-sm">Teléfono<input bind:value={form.telefono} class="mt-1 w-full rounded-lg border p-2" /></label><label class="text-sm"
                     >Horario<input bind:value={form.horario} class="mt-1 w-full rounded-lg border p-2" /></label
@@ -234,7 +273,7 @@
             <input
                 bind:this={inputArchivo}
                 id="recurso-ubicacion"
-                type="file"
+                type="file" name="recursos"
                 accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm"
                 multiple
                 class="hidden"
@@ -259,7 +298,7 @@
                     {#each vistasPrevias as vista (vista.url)}
                         <div class="min-w-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
                             {#if vista.tipo === 'IMAGEN'}
-                                <img src={vista.url} alt={vista.nombre} loading="lazy" class="block h-28 w-full object-cover sm:h-32" />
+                                <img decoding="async" fetchpriority="auto" src={vista.url} alt={vista.nombre} loading="lazy" class="block h-28 w-full object-cover sm:h-32" />
                             {:else}
                                 <video src={vista.url} controls muted preload="metadata" class="block h-28 w-full bg-black object-contain sm:h-32" aria-label={vista.nombre}>
                                     <track kind="captions" />

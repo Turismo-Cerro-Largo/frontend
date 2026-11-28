@@ -1,9 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/state';
-  import EventoFormulario from '$lib/components/organizador/EventoFormulario.svelte';
-  import { obtenerEvento } from '$lib/organizador/eventos';
-  import type { Evento } from '$lib/types/evento';
+  import EventoFormulario from '#lib/components/organizador/EventoFormulario.svelte';
+  import { obtenerEvento } from '#lib/organizador/eventos.ts';
+  import type { Evento } from '#lib/types/evento.ts';
 
   let evento = $state<Evento | null>(null);
   let error = $state('');
@@ -15,8 +15,8 @@
         const id = Number(page.params.id);
         if (!Number.isInteger(id) || id <= 0) throw new Error('Identificador inválido.');
         const encontrado = await obtenerEvento(id);
-        if (encontrado.estado !== 'BORRADOR' && encontrado.estado !== 'RECHAZADO') {
-          throw new Error('Solo se pueden editar los borradores y los eventos rechazados.');
+        if (encontrado.estado !== 'BORRADOR' && encontrado.estado !== 'RECHAZADO' && encontrado.estado !== 'PUBLICADO') {
+          throw new Error('Solo se pueden editar borradores, eventos rechazados o publicados.');
         }
         evento = encontrado;
       } catch (e) { error = e instanceof Error ? e.message : 'No fue posible cargar el evento.'; }

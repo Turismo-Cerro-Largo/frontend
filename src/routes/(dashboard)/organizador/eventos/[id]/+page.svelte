@@ -1,29 +1,17 @@
 <script lang="ts">
     import { onMount, tick } from 'svelte';
+    import { contactoEvento } from '#lib/organizador/eventos.ts';
     import { goto } from '$app/navigation';
-    import { PUBLIC_MAPBOX_TOKEN } from '$env/static/public';
+    import { obtenerLocalidadesPublicas } from '#lib/localidades/api.ts';
+    import EstadoDireccionMapa from '#lib/components/EstadoDireccionMapa.svelte';
+    import { PUBLIC_MAPBOX_TOKEN } from '$app/env/public';
+    import { crearBusquedaDireccion } from '#lib/localidades/direccion-mapa.ts';
+    import { crearNavegacionLocalidades } from '#lib/localidades/navegacion-mapa.ts';
     import 'mapbox-gl/dist/mapbox-gl.css';
 
     import { page } from '$app/state';
 
-    type Evento = {
-        id: number;
-        id_organizador: number;
-        titulo: string;
-        descripcion: string;
-        inicio: string;
-        fin: string | null;
-        id_categoria: number;
-        lugar_evento: string | null;
-        latitud: string | number | null;
-        longitud: string | number | null;
-        es_gratuito: boolean;
-        precio: string | number | null;
-        contacto: string | null;
-        estado: string;
-        motivo_rechazo: string | null;
-        recursos: { uri: string; tipo: string; orden: number }[];
-    };
+    import type { Evento } from '#lib/types/evento.ts';
 
     let id = $derived(page.params.id ?? ''); // SvelteKit permite undefined en rutas dinámicas
     let categorias = $state<{ id: number; nombre: string }[]>([]);
@@ -49,7 +37,15 @@
     let fechaFin = $state('');
     let horaFin = $state('');
 
-    const localidades = ['Melo', 'Río Branco', 'Laguna Merín', 'Fraile Muerto', 'Isidoro Noblía', 'Aceguá', 'Tupambaé', 'Arévalo', 'Plácido Rosas'];
+    let localidades = $state<string[]>([]);
+    let estadoDireccion = $state('');
+    const navegacionLocalidades = crearNavegacionLocalidades();
+    const busquedaDireccion = crearBusquedaDireccion({
+      localidades: () => localidades,
+      localidad: (valor) => { localidad = valor; },
+      direccion: (valor) => { direccion = valor; },
+      estado: (valor) => { estadoDireccion = valor; }
+    });
 
     const aISO = (fecha: string, hora: string) => (fecha && hora ? new Date(`${fecha}T${hora}:00-03:00`).toISOString() : '');
     const inicio = $derived(aISO(fechaInicio, horaInicio));
@@ -78,25 +74,28 @@
         (async () => {
             try {
                 if (!id) throw new Error('ID de evento inválido.');
-                const [rc, re] = await Promise.all([fetch('/api/categorias'), fetch(`/api/eventos/${encodeURIComponent(id)}`, { credentials: 'include' })]);
+                const [rc, re, localidadesData] = await Promise.all([fetch('/api/organizador/eventos/categorias'), fetch(`/api/organizador/eventos/${encodeURIComponent(id)}`, { credentials: 'include' }), obtenerLocalidadesPublicas()]);
                 if (!rc.ok || !re.ok) throw new Error(re.status === 404 ? 'El evento no existe.' : 'No se pudo cargar el evento.');
                 const [categoriasData, datos] = await Promise.all([rc.json(), re.json()]);
                 if (!activo) return;
                 categorias = categoriasData.categorias;
-                evento = datos as Evento;
-                if (!['BORRADOR', 'RECHAZADO'].includes(evento.estado)) return;
+                navegacionLocalidades.establecerLocalidades(localidadesData);
+                localidades = localidadesData.map((item) => item.nombre);
+                evento = datos.evento as Evento;
+                if (!['BORRADOR', 'RECHAZADO', 'PUBLICADO'].includes(evento.estado)) return;
                 titulo = evento.titulo;
                 descripcion = evento.descripcion;
                 categoriaId = String(evento.id_categoria);
                 [fechaInicio, horaInicio] = separarFecha(evento.inicio);
                 [fechaFin, horaFin] = separarFecha(evento.fin);
-                const partesLugar = (evento.lugar_evento ?? '').split(', ');
+                const partesLugar = (evento.lugar_evento ?? '').split(evento.lugar_evento?.includes(' | ') ? ' | ' : ', ');
+                if (evento.lugar_evento?.includes(' | ')) partesLugar.reverse();
                 localidad = localidades.includes(partesLugar[0]) ? partesLugar.shift()! : '';
                 direccion = localidad ? partesLugar.join(', ') : (evento.lugar_evento ?? '');
-                [telefono = '', correo = '', redes = ''] = (evento.contacto ?? '').split(' | ');
+                ({ telefono, correo, redes } = contactoEvento(evento.contacto));
                 latitud = evento.latitud == null ? '' : String(evento.latitud);
                 longitud = evento.longitud == null ? '' : String(evento.longitud);
-                esGratuito = String(evento.es_gratuito);
+                esGratuito = evento.es_gratuito ? 'true' : evento.precio == null ? 'confirmar' : 'false';
                 precio = evento.precio == null ? '' : String(evento.precio);
 
                 cargando = false;
@@ -110,6 +109,7 @@
                     center: longitud && latitud ? [Number(longitud), Number(latitud)] : [-54.167, -32.366],
                     zoom: latitud && longitud ? 13 : 9,
                 });
+                navegacionLocalidades.establecerMapa(mapa);
                 mapa.addControl(new mapboxgl.NavigationControl(), 'top-right');
                 if (longitud && latitud) {
                     marcador = new mapboxgl.Marker({ color: '#D89994' }).setLngLat([Number(longitud), Number(latitud)]).addTo(mapa);
@@ -119,6 +119,7 @@
                     longitud = lngLat.lng.toFixed(7);
                     marcador?.remove();
                     if (mapa) marcador = new mapboxgl.Marker({ color: '#D89994' }).setLngLat(lngLat).addTo(mapa);
+                    void busquedaDireccion.buscar(lngLat.lng, lngLat.lat);
                 });
             } catch (e) {
                 if (activo) error = e instanceof Error ? e.message : 'No se pudo cargar el evento';
@@ -129,6 +130,7 @@
 
         return () => {
             activo = false;
+            busquedaDireccion.cancelar();
             marcador?.remove();
             mapa?.remove();
         };
@@ -139,6 +141,7 @@
         if (enviando) return;
         error = '';
         const datos = new FormData(event.currentTarget as HTMLFormElement, event.submitter as HTMLElement);
+        if (evento?.estado === 'PUBLICADO') datos.set('accion', 'revision');
         enviando = true;
         try {
             const respuesta = await fetch(`/api/eventos/${encodeURIComponent(id)}`, {
@@ -170,9 +173,9 @@
             >Abrir vista previa ↗</a
         >
         <p class="mb-1 text-sm font-medium text-[#708076]">Panel del organizador</p>
-        <h1 class="text-3xl font-bold text-[#26382e]">{evento && ['BORRADOR', 'RECHAZADO'].includes(evento.estado) ? 'Editar evento' : 'Ver evento'}</h1>
+        <h1 class="text-3xl font-bold text-[#26382e]">{evento && ['BORRADOR', 'RECHAZADO', 'PUBLICADO'].includes(evento.estado) ? 'Editar evento' : 'Ver evento'}</h1>
         <p class="mt-2 text-[#68746c]">
-            {evento && ['BORRADOR', 'RECHAZADO'].includes(evento.estado) ? 'Actualizá los datos y guardá como borrador o enviá a revisión.' : 'Consultá la información del evento.'}
+            {evento && ['BORRADOR', 'RECHAZADO', 'PUBLICADO'].includes(evento.estado) ? evento.estado === 'PUBLICADO' ? 'Al guardar tus cambios, el evento volverá a revisión.' : 'Actualizá los datos y guardá como borrador o enviá a revisión.' : 'Consultá la información del evento.'}
         </p>
     </header>
 
@@ -180,7 +183,7 @@
         <p class="text-[#68746c]">Cargando evento...</p>
     {:else if !evento}
         <p role="alert" class="text-red-700">{error || 'No se encontró el evento.'}</p>
-    {:else if !['BORRADOR', 'RECHAZADO'].includes(evento.estado)}
+    {:else if !['BORRADOR', 'RECHAZADO', 'PUBLICADO'].includes(evento.estado)}
         <div class="max-w-5xl space-y-5">
             <div class="rounded-2xl border border-[#ded8cf] bg-white p-6 shadow-sm">
                 <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
@@ -232,7 +235,7 @@
                 <h2 class="mb-5 text-xl font-bold text-[#26382e]">Información del evento</h2>
                 <div class="space-y-5">
                     <div>
-                        <label for="titulo" class="mb-2 block text-sm font-semibold">Nombre del evento *</label>
+                        <label for="titulo" class="mb-2 block text-sm font-semibold">Nombre del evento <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span></label>
                         <input
                             id="titulo"
                             name="titulo"
@@ -245,7 +248,7 @@
                         />
                     </div>
                     <div>
-                        <label for="id_categoria" class="mb-2 block text-sm font-semibold">Categoría del evento *</label>
+                        <label for="id_categoria" class="mb-2 block text-sm font-semibold">Categoría del evento <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span></label>
                         <select id="id_categoria" name="id_categoria" bind:value={categoriaId} required class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3">
                             <option value="">Seleccionar categoría</option>
                             {#each categorias as categoria (categoria.id)}
@@ -254,7 +257,7 @@
                         </select>
                     </div>
                     <div>
-                        <label for="descripcion" class="mb-2 block text-sm font-semibold">Descripción *</label>
+                        <label for="descripcion" class="mb-2 block text-sm font-semibold">Descripción <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span></label>
                         <textarea
                             id="descripcion"
                             name="descripcion"
@@ -273,7 +276,7 @@
                 <h2 class="mb-5 text-xl font-bold text-[#26382e]">Fecha y horario</h2>
                 <div class="grid gap-5 md:grid-cols-2">
                     <div>
-                        <label for="fecha" class="mb-2 block text-sm font-semibold">Fecha de inicio *</label><input
+                        <label for="fecha" class="mb-2 block text-sm font-semibold">Fecha de inicio <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span></label><input
                             id="fecha"
                             type="date"
                             bind:value={fechaInicio}
@@ -282,7 +285,7 @@
                         />
                     </div>
                     <div>
-                        <label for="horaInicio" class="mb-2 block text-sm font-semibold">Hora de inicio *</label><input
+                        <label for="horaInicio" class="mb-2 block text-sm font-semibold">Hora de inicio <span class="ml-1 inline-block rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-800">Obligatorio</span></label><input
                             id="horaInicio"
                             type="time"
                             bind:value={horaInicio}
@@ -317,9 +320,9 @@
                 <div class="grid gap-5 md:grid-cols-2">
                     <div>
                         <label for="localidad" class="mb-2 block text-sm font-semibold">Localidad</label>
-                        <select id="localidad" name="localidad" bind:value={localidad} class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3">
+                        <select id="localidad" name="localidad" bind:value={localidad} onchange={(evento) => { busquedaDireccion.editarLocalidad(); navegacionLocalidades.seleccionar(evento.currentTarget.value); }} class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3">
                             <option value="">Seleccionar localidad</option>
-                            {#each localidades as opcion}
+                            {#each localidades as opcion (opcion)}
                                 <option value={opcion}>{opcion}</option>
                             {/each}
                         </select>
@@ -329,6 +332,7 @@
                             id="direccion"
                             name="direccion"
                             bind:value={direccion}
+                            oninput={busquedaDireccion.editarDireccion}
                             maxlength="130"
                             placeholder="Ej: Plaza Constitución, Melo"
                             class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3"
@@ -337,6 +341,7 @@
                 </div>
                 <p class="mb-2 mt-6 text-sm font-semibold">Ubicación en el mapa</p>
                 <div class="overflow-hidden rounded-2xl border border-[#cbd5cd]"><div bind:this={mapaElemento} class="h-105 w-full"></div></div>
+                <EstadoDireccionMapa estado={estadoDireccion} />
                 <input type="hidden" name="latitud" value={latitud} />
                 <input type="hidden" name="longitud" value={longitud} />
 
@@ -358,13 +363,16 @@
 
             <div class="rounded-2xl border border-[#ded8cf] bg-white p-6 shadow-sm">
                 <h2 class="mb-5 text-xl font-bold text-[#26382e]">Entrada</h2>
-                <div class="flex gap-6">
-                    <label class="flex items-center gap-2"><input type="radio" name="es_gratuito" value="true" bind:group={esGratuito} /> Gratuita</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="es_gratuito" value="false" bind:group={esGratuito} /> Paga</label>
+                <input type="hidden" name="es_gratuito" value={esGratuito === 'true' ? 'true' : 'false'} />
+                <input type="hidden" name="precio_a_confirmar" value={esGratuito === 'confirmar' ? 'true' : 'false'} />
+                <div class="flex flex-wrap gap-6">
+                    <label class="flex items-center gap-2"><input type="radio" name="tipo_entrada" value="true" bind:group={esGratuito} /> Gratuita</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="tipo_entrada" value="false" bind:group={esGratuito} /> Paga</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="tipo_entrada" value="confirmar" bind:group={esGratuito} /> A confirmar</label>
                 </div>
                 <div class="mt-5 max-w-xs">
                     <label for="precio" class="mb-2 block text-sm font-semibold">Precio ($UYU). Solo si es paga</label>
-                    <input id="precio" name="precio" bind:value={precio} type="number" min="0" step="0.01" class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3" />
+                    <input id="precio" name="precio" bind:value={precio} type="number" disabled={esGratuito !== 'false'} required={esGratuito === 'false'} min="0.01" step="0.01" class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3" />
                 </div>
             </div>
 
@@ -404,23 +412,23 @@
             </div>
 
             {#if error}<div role="alert" class="rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}</div>{/if}
-            <div class="rounded-xl border border-[#ead79c] bg-[#fff8e5] p-5 text-sm text-[#67582d]">Los eventos enviados quedan pendientes de revisión del administrador.</div>
+            <div class="rounded-xl border border-[#ead79c] bg-[#fff8e5] p-5 text-sm text-[#67582d]">{evento.estado === 'PUBLICADO' ? 'Al guardar, el evento dejará de estar publicado y volverá a revisión del administrador.' : 'Los eventos enviados quedan pendientes de revisión del administrador.'}</div>
             <div class="flex flex-col-reverse gap-3 border-t border-[#ded8cf] pt-6 sm:flex-row sm:justify-end">
                 <a href="/organizador/eventos" class="rounded-xl border border-[#c8c4bd] bg-white px-6 py-3 text-center text-sm font-semibold">Cancelar</a>
-                <button
+                {#if evento.estado !== 'PUBLICADO'}<button
                     type="submit"
                     name="accion"
                     value="borrador"
                     disabled={enviando || categorias.length === 0}
                     class="rounded-xl border border-[#9eaea2] bg-[#d7e5db] px-6 py-3 text-sm font-semibold text-[#35483c] disabled:opacity-50"
                     >{enviando ? 'Guardando...' : 'Guardar borrador'}</button
-                >
+                >{/if}
                 <button
                     type="submit"
                     name="accion"
                     value="revision"
                     disabled={enviando || categorias.length === 0}
-                    class="rounded-xl bg-[#D89994] px-6 py-3 text-sm font-semibold text-[#442b29] disabled:opacity-50">{enviando ? 'Guardando...' : 'Enviar a revisión'}</button
+                    class="rounded-xl bg-[#D89994] px-6 py-3 text-sm font-semibold text-[#442b29] disabled:opacity-50">{enviando ? 'Guardando...' : evento.estado === 'PUBLICADO' ? 'Guardar y enviar a revisión' : 'Enviar a revisión'}</button
                 >
             </div>
         </form>

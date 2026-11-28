@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { abrirDialogo } from '#lib/actions/dialogo.ts';
     import { fade } from 'svelte/transition';
     import { tick } from 'svelte';
     import type { PageProps } from './$types';
@@ -37,7 +38,7 @@
         pendiente = categoria;
         errorEliminar = '';
         aviso = '';
-        dialogo.showModal();
+        abrirDialogo(dialogo);
     }
 
     function cerrarDialogo() {
@@ -170,6 +171,8 @@
 </div>
 
 <dialog
+    aria-label="Eliminar categoría"
+    oncancel={(event) => { if (eliminando) event.preventDefault(); }}
     bind:this={dialogo}
     onclose={() => {
         if (!eliminando) pendiente = null;
@@ -186,6 +189,7 @@
                 type="button"
                 disabled={eliminando}
                 onclick={cerrarDialogo}
+                data-foco-inicial
                 class="rounded-xl border border-[#ded8cf] px-4 py-2.5 text-sm font-medium hover:bg-[#faf9f6] disabled:opacity-50">Cancelar</button
             >
             <button

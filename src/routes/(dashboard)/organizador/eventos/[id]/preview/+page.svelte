@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { PageData } from './$types';
+    import ImagenAmpliable from '#lib/components/turista/ImagenAmpliable.svelte';
 
     let { data }: { data: PageData } = $props();
     let evento = $derived(data.evento);
@@ -30,7 +31,7 @@
                 <p class="mt-2 text-sm text-[#68746c]">Estado: {evento.estado.replaceAll('_', ' ')}</p>
             </div>
             <div class="flex gap-3">
-                {#if evento.estado === 'BORRADOR' || evento.estado === 'RECHAZADO'}
+                {#if evento.estado === 'BORRADOR' || evento.estado === 'RECHAZADO' || evento.estado === 'PUBLICADO'}
                     <a href={`/organizador/eventos/${evento.id}`} class="rounded-xl bg-[#D89994] px-4 py-2 text-sm font-semibold text-[#442b29]">Editar</a>
                 {/if}
                 <button type="button" onclick={() => window.close()} class="rounded-xl border border-[#ded8cf] bg-white px-4 py-2 text-sm font-medium text-[#26382e]"
@@ -51,8 +52,8 @@
                 <div class="grid gap-2 p-4 sm:grid-cols-2">
                     {#each evento.recursos
                         .filter((r) => r.tipo === 'IMAGEN' && imagen(r.uri))
-                        .sort((a, b) => a.orden - b.orden) as recurso, i (recurso.id ?? `${recurso.uri}-${i}`)}
-                        <img src={imagen(recurso.uri)} alt={`Fotografía de ${evento.titulo}`} class="h-60 w-full rounded-xl object-cover" loading="lazy" />
+                        .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)) as recurso, i (recurso.id ?? `${recurso.uri}-${i}`)}
+                        <ImagenAmpliable src={imagen(recurso.uri)} alt={`Fotografía de ${evento.titulo}`} />
                     {/each}
                 </div>
             {/if}

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { dialogo } from '#lib/actions/dialogo.ts';
     import { onMount } from 'svelte';
     import { page } from '$app/state';
     type Estado = 'PENDIENTE_REVISION' | 'PUBLICADO' | 'OCULTADO';
@@ -91,11 +92,11 @@
                 {#if comentario.recursos?.length}<article class="rounded-2xl border border-[#e0e6df] bg-white p-6">
                         <h2 class="mb-4 text-lg font-semibold">Recursos adjuntos</h2>
                         <div class="grid gap-3 sm:grid-cols-2">
-                            {#each comentario.recursos as recurso, i}{#if recurso.tipo === 'IMAGEN'}<img
+                            {#each comentario.recursos as recurso, i}{#if recurso.tipo === 'IMAGEN'}<img decoding="async" loading="lazy" fetchpriority="auto"
                                         src={recurso.uri}
                                         alt={`Recurso del comentario ${i + 1}`}
                                         class="h-52 w-full rounded-xl object-cover"
-                                    />{:else if recurso.tipo === 'VIDEO'}<video src={recurso.uri} controls class="w-full rounded-xl"><track kind="captions" /></video>{/if}{/each}
+                                    />{:else if recurso.tipo === 'VIDEO'}<video preload="none" src={recurso.uri} controls class="w-full rounded-xl"><track kind="captions" /></video>{/if}{/each}
                         </div>
                     </article>{/if}
             </div>
@@ -140,19 +141,18 @@
                 </div>
             </aside>
         </div>
-        {#if confirmar}<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4" role="presentation">
-                <div role="dialog" aria-modal="true" aria-label="Confirmar moderación" class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        {#if confirmar}
+                <dialog use:dialogo onclose={() => (confirmar = null)} oncancel={(event) => { if (guardando) event.preventDefault(); }} aria-label="Confirmar moderación" class="m-auto max-h-[92dvh] overflow-y-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
                     <h2 class="text-xl font-semibold">¿Cambiar el estado?</h2>
                     <p class="mt-2 text-sm text-slate-600">El comentario pasará a: <strong>{etiqueta(confirmar)}</strong>.</p>
                     <div class="mt-6 flex justify-end gap-2">
-                        <button type="button" disabled={guardando} onclick={() => (confirmar = null)} class="rounded-xl border px-4 py-2 text-sm">Cancelar</button><button
+                        <button data-foco-inicial type="button" disabled={guardando} onclick={() => (confirmar = null)} class="rounded-xl border px-4 py-2 text-sm">Cancelar</button><button
                             type="button"
                             disabled={guardando}
                             onclick={() => void actualizar()}
                             class="rounded-xl bg-[#477967] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{guardando ? 'Guardando…' : 'Confirmar'}</button
                         >
                     </div>
-                </div>
-            </div>{/if}
+                </dialog>{/if}
     {/if}
 </section>

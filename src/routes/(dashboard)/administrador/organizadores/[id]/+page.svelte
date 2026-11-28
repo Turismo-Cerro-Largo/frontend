@@ -1,12 +1,14 @@
 <script lang="ts">
+    import AccesoCuenta from "#lib/components/admin/AccesoCuenta.svelte";
     import { page } from '$app/state';
     import { onMount } from 'svelte';
     type Estado = 'PENDIENTE_REVISION' | 'APROBADO' | 'RECHAZADO';
     type Organizador = {
         id: number;
+        estado_acceso: 'ACTIVO' | 'BLOQUEADO' | 'ELIMINADO';
         nombre_organizacion: string;
         email: string;
-        rut_ruc: string;
+        rut_ruc: string | null;
         departamento: string;
         telefono: string;
         sitio_web: string | null;
@@ -25,7 +27,7 @@
     let fotos = $state<Record<string, string>>({});
     let imagenError = $state<Record<string, string>>({});
     let urls: string[] = [];
-    let id = $derived(page.params.id);
+    let id = $derived(page.params.id ?? "");
     async function cargar() {
         cargando = true;
         error = '';
@@ -110,11 +112,12 @@
                 <div>
                     <h1 class="text-2xl font-semibold">{organizador.nombre_organizacion}</h1>
                     <p class="mt-1 text-sm text-[#68746c]">Registro #{organizador.id} · {new Date(organizador.creado_en).toLocaleDateString('es-UY')}</p>
-                </div>
+</div>
                 <span class="rounded-full bg-[#d7e5db] px-4 py-2 text-sm font-medium">{organizador.estado.replaceAll('_', ' ')}</span>
             </div>
+            <AccesoCuenta endpoint={`/api/admin/organizadores/${organizador.id}`} estado={organizador.estado_acceso} actualizar={(estado_acceso) => { if (organizador) organizador = { ...organizador, estado_acceso }; }} />
             <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                {#each [['Correo', organizador.email], ['RUT / RUC', organizador.rut_ruc], ['Departamento', organizador.departamento], ['Teléfono', organizador.telefono], ['Sitio web', organizador.sitio_web ?? 'No indicado']] as item}<div
+                {#each [['Correo', organizador.email], ['RUT / RUC', organizador.rut_ruc ?? 'No indicado'], ['Departamento', organizador.departamento], ['Teléfono', organizador.telefono], ['Sitio web', organizador.sitio_web ?? 'No indicado']] as item}<div
                         class="rounded-xl bg-[#f7f8f5] p-4"
                     >
                         <div class="text-xs text-[#68746c]">{item[0]}</div>
@@ -130,7 +133,7 @@
                 {#each [{ tipo: 'CEDULA_FRENTE', nombre: 'Cédula (frente)' }, { tipo: 'CEDULA_DORSO', nombre: 'Cédula (dorso)' }] as documento}<div>
                         <h3 class="mb-2 text-sm font-semibold">{documento.nombre}</h3>
                         {#if fotos[documento.tipo]}<a href={fotos[documento.tipo]} target="_blank" rel="noreferrer" aria-label={`Ampliar ${documento.nombre}`}
-                                ><img
+                                ><img decoding="async" loading="lazy" fetchpriority="auto"
                                     src={fotos[documento.tipo]}
                                     alt={documento.nombre}
                                     class="h-64 w-full rounded-xl border border-[#ded8cf] bg-[#f7f8f5] object-contain transition-transform duration-200 hover:scale-[1.01]"
@@ -152,14 +155,14 @@
                             confirmacion = 'APROBADO';
                             error = '';
                         }}
-                        disabled={organizador.estado === 'APROBADO'}
+                        disabled={organizador.estado_acceso === "ELIMINADO" || organizador.estado === 'APROBADO'}
                         class="rounded-xl bg-[#d7e5db] px-5 py-3 font-semibold text-[#385443] transition-colors hover:bg-[#c5dac9] disabled:opacity-40">Aprobar organizador</button
                     ><button
                         onclick={() => {
                             confirmacion = 'RECHAZADO';
                             error = '';
                         }}
-                        disabled={organizador.estado === 'RECHAZADO'}
+                        disabled={organizador.estado_acceso === "ELIMINADO" || organizador.estado === 'RECHAZADO'}
                         class="rounded-xl bg-[#D89994] px-5 py-3 font-semibold text-[#442b29] transition-colors hover:bg-[#cb8580] disabled:opacity-40">Rechazar organizador</button
                     >
                 </div>

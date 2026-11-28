@@ -11,7 +11,7 @@
         id: number;
         nombre_organizacion: string;
         email: string;
-        rut_ruc: string;
+        rut_ruc: string | null;
         departamento: string;
         estado: Estado;
         creado_en: string;
@@ -57,7 +57,7 @@
         organizadores.filter(
             (o) =>
                 (estado === 'TODOS' || o.estado === estado) &&
-                `${o.nombre_organizacion} ${o.email} ${o.rut_ruc} ${o.departamento}`.toLocaleLowerCase('es').includes(busqueda.toLocaleLowerCase('es').trim())
+                `${o.nombre_organizacion} ${o.email} ${o.rut_ruc ?? "No indicado"} ${o.departamento}`.toLocaleLowerCase('es').includes(busqueda.toLocaleLowerCase('es').trim())
         )
     );
 
@@ -69,7 +69,7 @@
 
     // Actualizar la URL al cambiar el filtro manualmente.
     function cambiarEstado(nuevoEstado: string) {
-        const url = new URL(page.url);
+        const url = new URL(page.url.href);
 
         if (nuevoEstado === 'TODOS') {
             url.searchParams.delete('estado');
@@ -80,8 +80,7 @@
         pagina = 1;
 
         void goto(`${url.pathname}${url.search}`, {
-            keepFocus: true,
-            noScroll: true,
+            reset: false,
         });
     }
 
@@ -233,7 +232,7 @@
 
                             <!-- RUT -->
                             <td class="p-4">
-                                {o.rut_ruc}
+                                {o.rut_ruc ?? "No indicado"}
                             </td>
 
                             <!-- Departamento -->

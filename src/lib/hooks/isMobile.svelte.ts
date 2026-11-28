@@ -1,5 +1,5 @@
-// $lib/hooks/isMobile.svelte.ts
-import { browser } from '$app/environment';
+// #lib/hooks/isMobile.svelte.ts
+import { browser } from '$app/env';
 
 const instancias = new Map<number, { current: boolean }>();
 

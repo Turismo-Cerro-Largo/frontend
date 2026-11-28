@@ -1,30 +1,14 @@
 <script lang="ts">
+    import { imagenFallida } from '#lib/actions/imagen-fallida.ts';
+    import { dialogo } from '#lib/actions/dialogo.ts';
     import { onMount, onDestroy, tick } from 'svelte';
-    import { env } from '$env/dynamic/public';
+    import * as env from '$app/env/public';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import type { Map as MapboxMap } from 'mapbox-gl';
+    import { goto } from '$app/navigation';
     import { page } from '$app/state';
-    import { consultarDetalle, invalidarCalendario, invalidarDetalle, mesActualUruguay, mesDeEvento, precargarCalendario } from '../prefetch';
-    type Estado = 'BORRADOR' | 'PENDIENTE_REVISION' | 'PUBLICADO' | 'RECHAZADO' | 'CANCELADO' | 'FINALIZADO';
-    type Recurso = { uri: string; tipo: string | null; orden: number };
-    type Evento = {
-        id: number;
-        titulo: string;
-        descripcion: string;
-        inicio: string;
-        fin: string | null;
-        lugar_evento: string | null;
-        latitud: string | null;
-        longitud: string | null;
-        es_gratuito: boolean;
-        precio: string | null;
-        contacto: string | null;
-        estado: Estado;
-        motivo_rechazo: string | null;
-        categoria: { nombre: string } | null;
-        organizador: { id: number; nombre_organizacion: string; rut: string | null } | null;
-        recursos: Recurso[];
-    };
+    import { consultarDetalle, invalidarCalendario, invalidarDetalle, mesActualUruguay, mesDeEvento, precargarCalendario } from '#lib/admin/eventos.ts';
+    import type { EventoDetalle as Evento } from '#lib/types/admin-eventos.ts';
     let evento = $state<Evento | null>(null);
     const mesEvento = $derived(evento ? mesDeEvento(evento.inicio) : mesActualUruguay());
     let elementoMapa = $state<HTMLDivElement | undefined>(undefined);
@@ -80,7 +64,7 @@
     let error = $state('');
     let mensaje = $state('');
     let motivo = $state('');
-    let decision = $state<'PUBLICADO' | 'RECHAZADO' | null>(null);
+    let decision = $state<'PUBLICADO' | 'RECHAZADO' | 'ELIMINAR' | null>(null);
     const fecha = (v: string) => new Date(v).toLocaleString('es-UY', { dateStyle: 'medium', timeStyle: 'short' });
     function urlArchivo(uri: string) {
         return uri.startsWith('/api/archivos/') ? uri : `/api/archivos${uri.startsWith('/') ? uri : '/' + uri}`;
@@ -110,7 +94,15 @@
         error = '';
         mensaje = '';
         try {
-            const res = await fetch(`/api/eventos/${evento.id}/estado`, {
+            if (decision === 'ELIMINAR') {
+                const respuesta = await fetch(`/api/admin/eventos/${evento.id}`, { method: 'DELETE', credentials: 'include' });
+                if (!respuesta.ok) throw new Error('No se pudo eliminar el evento.');
+                invalidarDetalle(evento.id);
+                invalidarCalendario();
+                await goto('/administrador/eventos');
+                return;
+            }
+            const res = await fetch(`/api/admin/eventos/${evento.id}/estado`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -135,10 +127,10 @@
 <svelte:head><title>Revisión de evento | Cerro Largo 360</title></svelte:head>
 <section class="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
     <nav class="flex flex-wrap items-center gap-4" aria-label="Navegación de eventos">
-        <a href="/administrador/eventos" data-sveltekit-preload-data="hover" class="text-sm font-medium text-[#477967] hover:underline">← Volver a eventos</a>
+        <a href="/administrador/eventos" data-sveltekit-preload-data="tap" class="text-sm font-medium text-[#477967] hover:underline">← Volver a eventos</a>
         <a
             href={`/administrador/eventos/calendario?mes=${mesEvento}`}
-            data-sveltekit-preload-data="hover"
+            data-sveltekit-preload-data="tap"
             onpointerenter={() => precargarCalendario(mesEvento)}
             onfocus={() => precargarCalendario(mesEvento)}
             class="text-sm font-medium text-[#477967] hover:underline"
@@ -199,20 +191,17 @@
                 </article>
                 <article class="rounded-2xl border bg-white p-5">
                     <h2 class="text-lg font-semibold">Fotografías y recursos</h2>
-                    {#if evento.recursos.length === 0}<p class="mt-3 text-slate-500">No se cargaron imágenes.</p>{:else}<div class="mt-4 grid gap-3 sm:grid-cols-2">
+                    {#if evento.recursos.length === 0}<p class="mt-3 text-slate-500">No se cargaron imágenes.</p>{:else}<div use:imagenFallida class="mt-4 grid gap-3 sm:grid-cols-2">
                             {#each evento.recursos as recurso, i (i)}<a
                                     href={urlArchivo(recurso.uri)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     class="block overflow-hidden rounded-xl border"
-                                    ><img
+                                    ><img decoding="async" fetchpriority="auto"
                                         src={urlArchivo(recurso.uri)}
                                         alt={`Recurso ${i + 1} del evento`}
                                         class="h-52 w-full object-cover"
                                         loading="lazy"
-                                        onerror={(e) => {
-                                            (e.currentTarget as HTMLImageElement).style.display = 'none';
-                                        }}
                                     /><span class="block p-2 text-xs text-slate-500">Abrir recurso {i + 1}</span></a
                                 >{/each}
                         </div>{/if}
@@ -244,29 +233,23 @@
                 <div class="sticky top-4 rounded-2xl border bg-white p-5">
                     <h2 class="text-lg font-semibold">Revisión administrativa</h2>
                     {#if evento.motivo_rechazo}<p class="mt-3 rounded-xl bg-rose-50 p-3 text-sm">Motivo anterior: {evento.motivo_rechazo}</p>{/if}
-                    <p class="mt-3 text-sm text-slate-500">Para aprobar o rechazar una publicación pendiente, elegí una acción.</p>
-                    {#if evento.estado === 'PENDIENTE_REVISION'}<div class="mt-4 grid gap-2">
-                            <button
-                                class="rounded-xl bg-[#477967] px-4 py-2.5 font-medium text-white hover:opacity-90"
-                                onclick={() => {
-                                    decision = 'PUBLICADO';
-                                    error = '';
-                                }}>Aprobar y publicar</button
-                            ><button
-                                class="rounded-xl border border-rose-300 px-4 py-2.5 text-rose-800 hover:bg-rose-50"
-                                onclick={() => {
-                                    decision = 'RECHAZADO';
-                                    error = '';
-                                }}>Rechazar evento</button
-                            >
-                        </div>{:else}<p class="mt-4 rounded-xl bg-slate-50 p-3 text-sm">Este evento no está pendiente de revisión.</p>{/if}
+                    <p class="mt-3 text-sm text-slate-500">Podés revisar la publicación o eliminar el evento definitivamente.</p>
+                    <div class="mt-4 grid gap-2">
+                        {#if evento.estado === 'PENDIENTE_REVISION'}
+                            <button type="button" class="rounded-xl bg-[#477967] px-4 py-2.5 font-medium text-white hover:opacity-90" onclick={() => { decision = 'PUBLICADO'; error = ''; }}>Aprobar y publicar</button>
+                        {/if}
+                        {#if ['PENDIENTE_REVISION', 'PUBLICADO'].includes(evento.estado)}
+                            <button type="button" class="rounded-xl border border-rose-300 px-4 py-2.5 text-rose-800 hover:bg-rose-50" onclick={() => { decision = 'RECHAZADO'; error = ''; }}>Rechazar evento</button>
+                        {/if}
+                        <button type="button" class="rounded-xl border border-red-300 px-4 py-2.5 text-red-800 hover:bg-red-50" onclick={() => { decision = 'ELIMINAR'; error = ''; }}>Eliminar evento</button>
+                    </div>
                 </div>
             </aside>
         </div>
-        {#if decision}<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="presentation">
-                <div role="dialog" aria-modal="true" aria-labelledby="titulo-decision" class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                    <h2 id="titulo-decision" class="text-xl font-semibold">{decision === 'PUBLICADO' ? '¿Aprobar este evento?' : '¿Rechazar este evento?'}</h2>
-                    <p class="mt-2 text-sm text-slate-600">{decision === 'PUBLICADO' ? 'El evento pasará a estar publicado.' : 'El organizador verá el motivo del rechazo.'}</p>
+        {#if decision}
+                <dialog use:dialogo onclose={() => (decision = null)} oncancel={(event) => { if (guardando) event.preventDefault(); }} aria-labelledby="titulo-decision" class="m-auto max-h-[92dvh] overflow-y-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+                    <h1 id="titulo-decision" class="text-xl font-semibold">{decision === 'ELIMINAR' ? '¿Eliminar este evento?' : decision === 'PUBLICADO' ? '¿Aprobar este evento?' : '¿Rechazar este evento?'}</h1>
+                    <p class="mt-2 text-sm text-slate-600">{decision === 'ELIMINAR' ? 'Se eliminarán el evento y sus recursos. Esta acción no se puede deshacer.' : decision === 'PUBLICADO' ? 'El evento pasará a estar publicado.' : 'El evento dejará de estar publicado y el organizador verá el motivo del rechazo.'}</p>
                     {#if decision === 'RECHAZADO'}<textarea
                             aria-label="Motivo del rechazo"
                             bind:value={motivo}
@@ -276,18 +259,17 @@
                             placeholder="Explicá qué debe corregir…"></textarea>{/if}
                     <div class="mt-5 flex justify-end gap-2">
                         <button
-                            disabled={guardando}
+                            data-foco-inicial disabled={guardando}
                             class="rounded-xl border px-4 py-2"
                             onclick={() => {
                                 decision = null;
                                 error = '';
                             }}>Cancelar</button
-                        ><button disabled={guardando} class="rounded-xl bg-[#477967] px-4 py-2 text-white disabled:opacity-50" onclick={cambiarEstado}
-                            >{guardando ? 'Guardando…' : 'Confirmar'}</button
+                        ><button disabled={guardando} class={decision === 'ELIMINAR' ? 'rounded-xl bg-red-700 px-4 py-2 text-white disabled:opacity-50' : 'rounded-xl bg-[#477967] px-4 py-2 text-white disabled:opacity-50'} onclick={cambiarEstado}
+                            >{guardando ? 'Guardando…' : decision === 'ELIMINAR' ? 'Eliminar definitivamente' : 'Confirmar'}</button
                         >
                     </div>
                     {#if error}<p role="alert" class="mt-3 text-sm text-rose-700">{error}</p>{/if}
-                </div>
-            </div>{/if}
+                </dialog>{/if}
     {/if}
 </section>

@@ -1,6 +1,6 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 
-import type { Cuenta } from "$lib/types/cuenta";
+import type { Cuenta } from "#lib/types/cuenta.ts";
 
 // for information about these interfaces
 declare global {
