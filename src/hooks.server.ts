@@ -1,6 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import { backendUrl } from '#lib/server/backend.ts';
-import { crearConsultaSesion, requiereCuenta, type ResultadoSesion } from '#lib/server/consulta-sesion.ts';
+import { crearConsultaSesion, requiereCuenta, requiereCuentaFresca, type ResultadoSesion } from '#lib/server/consulta-sesion.ts';
 import type { Cuenta } from '#lib/types/cuenta.ts';
 import type { Handle } from "@sveltejs/kit/hooks";
 
@@ -25,8 +25,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         datos: event.isDataRequest, accion: event.request.headers.has('x-sveltekit-action'),
     });
     if (consultar && token) {
-        const fresca = event.request.method !== 'GET' || event.route.id?.startsWith('/(dashboard)/') ||
-            event.route.id?.startsWith('/(autenticacion)/') || event.url.pathname === '/cuenta-bloqueada';
+        const fresca = requiereCuentaFresca(event.route.id, event.url.pathname, event.request.method);
         const resultado = await consultarSesion(token, !!fresca);
         event.locals.cuenta = resultado.cuenta;
         if (resultado.status === 401 || resultado.bloqueada) event.cookies.delete('session', { path: '/' });
@@ -47,6 +46,6 @@ export const handle: Handle = async ({ event, resolve }) => {
         response.headers.set('x-robots-tag', 'noindex, nofollow');
         response.headers.set('cache-control', 'private, no-store');
     }
-    if (consultar) response.headers.set('cache-control', 'private, no-store');
+    if (consultar || event.url.pathname === '/geocodificacion-inversa') response.headers.set('cache-control', 'private, no-store');
     return response;
 }

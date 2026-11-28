@@ -29,7 +29,7 @@ export function crearBusquedaDireccion(campos: {
         if (solicitud.signal.aborted) return;
         const parametros = new URLSearchParams({ lat: String(latitud), lon: String(longitud) });
         const url = `/geocodificacion-inversa?${parametros}`;
-        const opcionesSolicitud = { signal: solicitud.signal };
+        const opcionesSolicitud: RequestInit = { signal: solicitud.signal, credentials: 'same-origin', cache: 'no-store' };
         let respuesta = await fetch(url, opcionesSolicitud);
         if (respuesta.status === 429) {
           const espera = Number(respuesta.headers.get('Retry-After') || '1');
@@ -38,7 +38,8 @@ export function crearBusquedaDireccion(campos: {
           if (solicitud.signal.aborted) return;
           respuesta = await fetch(url, opcionesSolicitud);
         }
-        if (respuesta.status === 403) throw new Error('Tu sesión venció o no tiene acceso. Volvé a iniciar sesión.');
+        if (respuesta.status === 401) throw new Error('Tu sesión venció. Volvé a iniciar sesión.');
+        if (respuesta.status === 403) throw new Error('La búsqueda de direcciones está disponible para organizadores y administradores.');
         if (!respuesta.ok) throw new Error('No se pudo buscar la dirección. Podés completar los datos manualmente.');
         const datos = await respuesta.json() as { direccion: string; localidades: string[] };
         if (solicitud.signal.aborted) return;
