@@ -31,7 +31,7 @@
                 <p class="mt-2 text-sm text-[#68746c]">Estado: {evento.estado.replaceAll('_', ' ')}</p>
             </div>
             <div class="flex gap-3">
-                {#if evento.estado === 'BORRADOR' || evento.estado === 'RECHAZADO'}
+                {#if evento.estado === 'BORRADOR' || evento.estado === 'RECHAZADO' || evento.estado === 'PUBLICADO'}
                     <a href={`/organizador/eventos/${evento.id}`} class="rounded-xl bg-[#D89994] px-4 py-2 text-sm font-semibold text-[#442b29]">Editar</a>
                 {/if}
                 <button type="button" onclick={() => window.close()} class="rounded-xl border border-[#ded8cf] bg-white px-4 py-2 text-sm font-medium text-[#26382e]"

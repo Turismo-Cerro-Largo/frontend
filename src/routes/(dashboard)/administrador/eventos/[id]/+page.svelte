@@ -5,6 +5,7 @@
     import * as env from '$app/env/public';
     import 'mapbox-gl/dist/mapbox-gl.css';
     import type { Map as MapboxMap } from 'mapbox-gl';
+    import { goto } from '$app/navigation';
     import { page } from '$app/state';
     import { consultarDetalle, invalidarCalendario, invalidarDetalle, mesActualUruguay, mesDeEvento, precargarCalendario } from '#lib/admin/eventos.ts';
     import type { EventoDetalle as Evento } from '#lib/types/admin-eventos.ts';
@@ -63,7 +64,7 @@
     let error = $state('');
     let mensaje = $state('');
     let motivo = $state('');
-    let decision = $state<'PUBLICADO' | 'RECHAZADO' | null>(null);
+    let decision = $state<'PUBLICADO' | 'RECHAZADO' | 'ELIMINAR' | null>(null);
     const fecha = (v: string) => new Date(v).toLocaleString('es-UY', { dateStyle: 'medium', timeStyle: 'short' });
     function urlArchivo(uri: string) {
         return uri.startsWith('/api/archivos/') ? uri : `/api/archivos${uri.startsWith('/') ? uri : '/' + uri}`;
@@ -93,6 +94,14 @@
         error = '';
         mensaje = '';
         try {
+            if (decision === 'ELIMINAR') {
+                const respuesta = await fetch(`/api/admin/eventos/${evento.id}`, { method: 'DELETE', credentials: 'include' });
+                if (!respuesta.ok) throw new Error('No se pudo eliminar el evento.');
+                invalidarDetalle(evento.id);
+                invalidarCalendario();
+                await goto('/administrador/eventos');
+                return;
+            }
             const res = await fetch(`/api/admin/eventos/${evento.id}/estado`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -224,29 +233,23 @@
                 <div class="sticky top-4 rounded-2xl border bg-white p-5">
                     <h2 class="text-lg font-semibold">Revisión administrativa</h2>
                     {#if evento.motivo_rechazo}<p class="mt-3 rounded-xl bg-rose-50 p-3 text-sm">Motivo anterior: {evento.motivo_rechazo}</p>{/if}
-                    <p class="mt-3 text-sm text-slate-500">Para aprobar o rechazar una publicación pendiente, elegí una acción.</p>
-                    {#if evento.estado === 'PENDIENTE_REVISION'}<div class="mt-4 grid gap-2">
-                            <button
-                                class="rounded-xl bg-[#477967] px-4 py-2.5 font-medium text-white hover:opacity-90"
-                                onclick={() => {
-                                    decision = 'PUBLICADO';
-                                    error = '';
-                                }}>Aprobar y publicar</button
-                            ><button
-                                class="rounded-xl border border-rose-300 px-4 py-2.5 text-rose-800 hover:bg-rose-50"
-                                onclick={() => {
-                                    decision = 'RECHAZADO';
-                                    error = '';
-                                }}>Rechazar evento</button
-                            >
-                        </div>{:else}<p class="mt-4 rounded-xl bg-slate-50 p-3 text-sm">Este evento no está pendiente de revisión.</p>{/if}
+                    <p class="mt-3 text-sm text-slate-500">Podés revisar la publicación o eliminar el evento definitivamente.</p>
+                    <div class="mt-4 grid gap-2">
+                        {#if evento.estado === 'PENDIENTE_REVISION'}
+                            <button type="button" class="rounded-xl bg-[#477967] px-4 py-2.5 font-medium text-white hover:opacity-90" onclick={() => { decision = 'PUBLICADO'; error = ''; }}>Aprobar y publicar</button>
+                        {/if}
+                        {#if ['PENDIENTE_REVISION', 'PUBLICADO'].includes(evento.estado)}
+                            <button type="button" class="rounded-xl border border-rose-300 px-4 py-2.5 text-rose-800 hover:bg-rose-50" onclick={() => { decision = 'RECHAZADO'; error = ''; }}>Rechazar evento</button>
+                        {/if}
+                        <button type="button" class="rounded-xl border border-red-300 px-4 py-2.5 text-red-800 hover:bg-red-50" onclick={() => { decision = 'ELIMINAR'; error = ''; }}>Eliminar evento</button>
+                    </div>
                 </div>
             </aside>
         </div>
         {#if decision}
                 <dialog use:dialogo onclose={() => (decision = null)} oncancel={(event) => { if (guardando) event.preventDefault(); }} aria-labelledby="titulo-decision" class="m-auto max-h-[92dvh] overflow-y-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-                    <h2 id="titulo-decision" class="text-xl font-semibold">{decision === 'PUBLICADO' ? '¿Aprobar este evento?' : '¿Rechazar este evento?'}</h2>
-                    <p class="mt-2 text-sm text-slate-600">{decision === 'PUBLICADO' ? 'El evento pasará a estar publicado.' : 'El organizador verá el motivo del rechazo.'}</p>
+                    <h1 id="titulo-decision" class="text-xl font-semibold">{decision === 'ELIMINAR' ? '¿Eliminar este evento?' : decision === 'PUBLICADO' ? '¿Aprobar este evento?' : '¿Rechazar este evento?'}</h1>
+                    <p class="mt-2 text-sm text-slate-600">{decision === 'ELIMINAR' ? 'Se eliminarán el evento y sus recursos. Esta acción no se puede deshacer.' : decision === 'PUBLICADO' ? 'El evento pasará a estar publicado.' : 'El evento dejará de estar publicado y el organizador verá el motivo del rechazo.'}</p>
                     {#if decision === 'RECHAZADO'}<textarea
                             aria-label="Motivo del rechazo"
                             bind:value={motivo}
@@ -256,14 +259,14 @@
                             placeholder="Explicá qué debe corregir…"></textarea>{/if}
                     <div class="mt-5 flex justify-end gap-2">
                         <button
-                            disabled={guardando}
+                            data-foco-inicial disabled={guardando}
                             class="rounded-xl border px-4 py-2"
                             onclick={() => {
                                 decision = null;
                                 error = '';
                             }}>Cancelar</button
-                        ><button disabled={guardando} class="rounded-xl bg-[#477967] px-4 py-2 text-white disabled:opacity-50" onclick={cambiarEstado}
-                            >{guardando ? 'Guardando…' : 'Confirmar'}</button
+                        ><button disabled={guardando} class={decision === 'ELIMINAR' ? 'rounded-xl bg-red-700 px-4 py-2 text-white disabled:opacity-50' : 'rounded-xl bg-[#477967] px-4 py-2 text-white disabled:opacity-50'} onclick={cambiarEstado}
+                            >{guardando ? 'Guardando…' : decision === 'ELIMINAR' ? 'Eliminar definitivamente' : 'Confirmar'}</button
                         >
                     </div>
                     {#if error}<p role="alert" class="mt-3 text-sm text-rose-700">{error}</p>{/if}

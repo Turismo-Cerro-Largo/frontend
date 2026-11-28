@@ -72,7 +72,7 @@
         <div>
             <p class="mb-1 text-sm font-medium text-[#708076]">Panel del organizador</p>
             <h1 class="text-3xl font-bold text-[#26382e]">Mis eventos</h1>
-            <p class="mt-2 text-[#68746c]">Consultá el estado de tus eventos y editá los borradores o rechazados.</p>
+            <p class="mt-2 text-[#68746c]">Consultá el estado de tus eventos y editá los borradores, rechazados o publicados. Los cambios en publicados vuelven a revisión.</p>
         </div>
         <a
             href="/organizador/eventos/nuevo"
@@ -91,7 +91,7 @@
                 Estado
                 <select name="estado" class="rounded-xl border border-[#ded8cf] bg-white px-4 py-3 text-[#303c34]">
                     <option value="">Todos los estados</option>
-                    {#each Object.entries(etiquetas) as [valor, nombre]}
+                    {#each Object.entries(etiquetas) as [valor, nombre] (valor)}
                         <option value={valor} selected={estado === valor}>{nombre}</option>
                     {/each}
                 </select>
@@ -125,7 +125,7 @@
                                     ><span class={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${colorEstado(evento.estado)}`}>{etiquetas[evento.estado]}</span></td
                                 >
                                 <td class="px-6 py-5">
-                                    {#if evento.estado === 'BORRADOR' || evento.estado === 'RECHAZADO'}
+                                    {#if evento.estado === 'BORRADOR' || evento.estado === 'RECHAZADO' || evento.estado === 'PUBLICADO'}
                                         <a href={`/organizador/eventos/${evento.id}`} class="text-sm font-medium text-[#75514e] hover:underline">Editar</a>
                                     {:else}
                                         <a
@@ -152,7 +152,7 @@
                             </div>
                             <span class={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${colorEstado(evento.estado)}`}>{etiquetas[evento.estado]}</span>
                         </div>
-                        {#if evento.estado === 'BORRADOR' || evento.estado === 'RECHAZADO'}
+                        {#if evento.estado === 'BORRADOR' || evento.estado === 'RECHAZADO' || evento.estado === 'PUBLICADO'}
                             <a href={`/organizador/eventos/${evento.id}`} class="mt-4 inline-block text-sm font-medium text-[#75514e] hover:underline">Editar</a>
                         {:else}
                             <a
