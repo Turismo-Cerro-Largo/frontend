@@ -1,4 +1,5 @@
 export type TarjetaCategoria = {
+    slug?: string | null;
     id: number;
     nombre: string;
     descripcion: string;

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { page } from '$app/state';
     import Navbar from '#lib/components/shared/Navbar.svelte';
     import HomeFooter from '#lib/components/inicio/HomeFooter.svelte';
     import Galeria from '#lib/components/turista/Galeria.svelte';
@@ -8,7 +9,7 @@
     const evento = $derived(data.evento);
     const mapa = $derived(evento.latitud !== null && evento.longitud !== null ? `${evento.latitud},${evento.longitud}` : evento.lugar_evento);
 </script>
-<svelte:head><title>{evento.titulo} · Cerro Largo 360</title></svelte:head>
+<svelte:head><title>{evento.titulo} · Cerro Largo 360</title><link rel="canonical" href={new URL(`/eventos/${evento.slug || evento.id}`, page.url.origin).href} /></svelte:head>
 <div class="t-public"><Navbar solid /><main style="max-width:1000px;margin:auto;padding:130px 24px 64px">
     <a class="t-link" href={`/eventos?mes=${diaUruguay(evento.inicio).slice(0,7)}`}>← Ver en el calendario</a>
     <span class="t-eyebrow">AGENDA DE CERRO LARGO</span><h1 class="t-title">{evento.titulo}</h1><p class="t-intro">{rangoEvento(evento)}</p>

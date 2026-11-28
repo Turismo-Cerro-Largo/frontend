@@ -3,6 +3,7 @@ import type { TarjetaCategoria } from '#lib/types/categoria.ts';
 import type { PageServerLoad } from './$types';
 
 type EventoAPI = {
+    slug?: string | null;
     id: number;
     titulo: string;
     descripcion: string;
@@ -38,6 +39,7 @@ export const load: PageServerLoad = async ({ fetch }) => {
 
         const elementos: TarjetaCategoria[] = eventos.map((evento) => ({
             id: evento.id,
+            slug: evento.slug,
             nombre: evento.titulo,
             descripcion: evento.descripcion,
             localidad: evento.lugar_evento ?? 'Cerro Largo',

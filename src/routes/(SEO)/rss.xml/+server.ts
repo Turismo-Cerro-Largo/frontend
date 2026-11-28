@@ -5,7 +5,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
     try {
         const eventos = await eventosSeo(fetch, 30);
         const items = eventos.map((evento) => {
-            const enlace = escaparXml(new URL(`/eventos/${evento.id}`, url.origin).href);
+            const enlace = escaparXml(new URL(`/eventos/${evento.slug || evento.id}`, url.origin).href);
             return `<item><title>${escaparXml(evento.titulo)}</title><link>${enlace}</link><guid>${enlace}</guid><description>${escaparXml(evento.descripcion ?? '')}</description></item>`;
         });
         const agenda = escaparXml(new URL('/eventos', url.origin).href);

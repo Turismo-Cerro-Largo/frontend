@@ -230,7 +230,7 @@
                     <FichaLugarMapa {detalle} turista={data.cuenta?.rol === 'TURISTA'} cerrar={volver} />
                 {/key}
             {/if}
-            {#if !detalle}<p><a class="ficha" href={seleccionado.evento ? `/eventos/${seleccionado.evento.id}` : `/lugares/${seleccionado.id}`}>Ver ficha completa →</a></p>{/if}
+            {#if !detalle}<p><a class="ficha" href={seleccionado.evento ? `/eventos/${seleccionado.evento.slug || seleccionado.evento.id}` : `/lugares/${seleccionado.id}`}>Ver ficha completa →</a></p>{/if}
         {:else}
 
             <div class="menu-inicial">

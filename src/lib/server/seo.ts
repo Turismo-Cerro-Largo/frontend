@@ -1,6 +1,6 @@
 import { backendUrl } from './backend';
 
-type EventoSeo = { id: number; titulo: string; descripcion: string | null; fin?: string | null };
+type EventoSeo = { slug?: string | null; id: number; titulo: string; descripcion: string | null; fin?: string | null };
 
 export function escaparXml(texto: string) {
     return texto
