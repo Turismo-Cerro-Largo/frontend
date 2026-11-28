@@ -95,7 +95,7 @@
                 ({ telefono, correo, redes } = contactoEvento(evento.contacto));
                 latitud = evento.latitud == null ? '' : String(evento.latitud);
                 longitud = evento.longitud == null ? '' : String(evento.longitud);
-                esGratuito = String(evento.es_gratuito);
+                esGratuito = evento.es_gratuito ? 'true' : evento.precio == null ? 'confirmar' : 'false';
                 precio = evento.precio == null ? '' : String(evento.precio);
 
                 cargando = false;
@@ -363,13 +363,16 @@
 
             <div class="rounded-2xl border border-[#ded8cf] bg-white p-6 shadow-sm">
                 <h2 class="mb-5 text-xl font-bold text-[#26382e]">Entrada</h2>
-                <div class="flex gap-6">
-                    <label class="flex items-center gap-2"><input type="radio" name="es_gratuito" value="true" bind:group={esGratuito} /> Gratuita</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="es_gratuito" value="false" bind:group={esGratuito} /> Paga</label>
+                <input type="hidden" name="es_gratuito" value={esGratuito === 'true' ? 'true' : 'false'} />
+                <input type="hidden" name="precio_a_confirmar" value={esGratuito === 'confirmar' ? 'true' : 'false'} />
+                <div class="flex flex-wrap gap-6">
+                    <label class="flex items-center gap-2"><input type="radio" name="tipo_entrada" value="true" bind:group={esGratuito} /> Gratuita</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="tipo_entrada" value="false" bind:group={esGratuito} /> Paga</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="tipo_entrada" value="confirmar" bind:group={esGratuito} /> A confirmar</label>
                 </div>
                 <div class="mt-5 max-w-xs">
                     <label for="precio" class="mb-2 block text-sm font-semibold">Precio ($UYU). Solo si es paga</label>
-                    <input id="precio" name="precio" bind:value={precio} type="number" min="0" step="0.01" class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3" />
+                    <input id="precio" name="precio" bind:value={precio} type="number" disabled={esGratuito !== 'false'} required={esGratuito === 'false'} min="0.01" step="0.01" class="w-full rounded-xl border-[#d7d3cc] bg-[#fcfbf8] px-4 py-3" />
                 </div>
             </div>
 

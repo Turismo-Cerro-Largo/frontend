@@ -70,7 +70,7 @@
 
   // ENTRADA
   let tipoEntrada = $state(
-    inicial?.es_gratuito === false ? 'pago' : 'gratuito'
+    inicial?.es_gratuito === false ? inicial.precio == null ? 'confirmar' : 'pago' : 'gratuito'
   );
   let precio = $state(
     inicial?.precio == null ? '' : String(inicial.precio)
@@ -340,7 +340,8 @@
     <input type="hidden" name="latitud" value={latitud === null ? '' : String(latitud)} />
     <input type="hidden" name="longitud" value={longitud === null ? '' : String(longitud)} />
     <input type="hidden" name="es_gratuito" value={tipoEntrada === 'gratuito' ? 'true' : 'false'} />
-    <input type="hidden" name="precio" value={tipoEntrada === 'gratuito' ? '' : precio} />
+    <input type="hidden" name="precio" value={tipoEntrada === 'pago' ? precio : ''} />
+    <input type="hidden" name="precio_a_confirmar" value={tipoEntrada === 'confirmar' ? 'true' : 'false'} />
     <!-- INFORMACIÓN -->
     <div class="rounded-2xl border border-[#ded8cf] bg-white p-6 shadow-sm">
       <h2 class="mb-5 text-xl font-bold text-[#26382e]">
@@ -599,7 +600,7 @@
       <div class="flex gap-6">
         <label class="flex items-center gap-2">
           <input
-            type="radio"
+            type="radio" name="tipo_entrada"
             value="gratuito"
             bind:group={tipoEntrada}
           />
@@ -608,12 +609,13 @@
 
         <label class="flex items-center gap-2">
           <input
-            type="radio"
+            type="radio" name="tipo_entrada"
             value="pago"
             bind:group={tipoEntrada}
           />
           Paga
         </label>
+        <label class="flex items-center gap-2"><input type="radio" name="tipo_entrada" value="confirmar" bind:group={tipoEntrada} /> A confirmar</label>
       </div>
 
       {#if tipoEntrada === 'pago'}
@@ -624,7 +626,8 @@
           <input
             id="precio"
             type="number"
-            min="0"
+            required
+            min="0.01"
             step="0.01"
             value={precio}
             oninput={(e) => precio = e.currentTarget.value}
